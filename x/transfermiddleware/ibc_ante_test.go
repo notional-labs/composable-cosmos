@@ -2,6 +2,7 @@ package transfermiddleware_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"testing"
 
@@ -15,7 +16,7 @@ import (
 	customibctesting "github.com/notional-labs/composable/v6/app/ibctesting"
 )
 
-var govAuthorityAddress = "centauri10556m38z4x6pqalr9rl5ytf3cff8q46nk85k9m" // convert from: centauri10556m38z4x6pqalr9rl5ytf3cff8q46nk85k9m
+var govAuthorityAddress = "pica10556m38z4x6pqalr9rl5ytf3cff8q46nf36090" // convert from: centauri10556m38z4x6pqalr9rl5ytf3cff8q46nk85k9m
 
 type TransferTestSuite struct {
 	suite.Suite
@@ -37,6 +38,7 @@ func (suite *TransferTestSuite) SetupTest() {
 	suite.coordinator = customibctesting.NewCoordinator(suite.T(), 2)
 	suite.chainA = suite.coordinator.GetChain(customibctesting.GetChainID(0))
 	suite.chainB = suite.coordinator.GetChain(customibctesting.GetChainID(1))
+
 	suite.chainB.SetWasm(true)
 	suite.coordinator.CommitNBlocks(suite.chainA, 2)
 	suite.coordinator.CommitNBlocks(suite.chainB, 2)
@@ -56,6 +58,7 @@ func (suite *TransferTestSuite) SetupTest() {
 
 	msg := wasmtypes.NewMsgPushNewWasmCode(govAuthorityAddress, wasmContract)
 	response, err := suite.wasmKeeper.PushNewWasmCode(suite.ctx, msg)
+	fmt.Println(err)
 	suite.Require().NoError(err)
 	suite.Require().NotNil(response.CodeId)
 	suite.coordinator.CodeID = response.CodeId
