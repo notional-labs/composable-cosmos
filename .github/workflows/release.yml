@@ -27,10 +27,10 @@
             run: docker-compose up -d
     
           - name: Copy binary
-            run: docker cp composable-centauri_node_1:/bin/centaurid ./centaurid
+            run: docker cp composable-centauri_node_1:/bin/picad ./picad
     
           - name: Save sha256 sum
-            run: sha256sum ./centaurid > ./centaurid_sha256.txt
+            run: sha256sum ./picad > ./centaurid_sha256.txt
     
           - name: Release
             uses: softprops/action-gh-release@v1        
