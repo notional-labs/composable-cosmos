@@ -44,3 +44,9 @@ bin/*
 vendor
 go.work
 go.work.sum
+
+_build/
+
+mytestnet/
+
+screenlog.0
