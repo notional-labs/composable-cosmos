@@ -10,8 +10,10 @@ ROOT=$(pwd)
 DENOM=pica
 CHAIN_ID=localpica
 SOFTWARE_UPGRADE_NAME="v6_4_6"
-ADDITIONAL_PRE_SCRIPTS=${ADDITIONAL_PRE_SCRIPTS:-""}
-ADDITIONAL_AFTER_SCRIPTS=${ADDITIONAL_AFTER_SCRIPTS:-""}
+ADDITIONAL_PRE_SCRIPTS="./scripts/upgrade/v_6_4_6/pre-script.sh" 
+ADDITIONAL_AFTER_SCRIPTS="./scripts/upgrade/v_6_4_6/post-script.sh"
+
+SLEEP_TIME=1
 
 if [[ "$FORK" == "true" ]]; then
     export PICA_HALT_HEIGHT=20
@@ -45,12 +47,13 @@ fi
 
 # run old node
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    screen -L -dmS node1 bash scripts/run-node.sh _build/old/centaurid $DENOM --Logfile $HOME/log-screen.txt
+    echo "running old node"
+    screen -L -dmS node1 bash scripts/localnode.sh _build/old/centaurid $DENOM --Logfile $HOME/log-screen.txt
 else
-    screen -L -Logfile $HOME/log-screen.txt -dmS node1 bash scripts/run-node.sh _build/old/centaurid $DENOM
+    screen -L -Logfile $HOME/log-screen.txt -dmS node1 bash scripts/localnode.sh _build/old/centaurid $DENOM
 fi
 
-sleep 20
+sleep 5 # wait for note to start 
 
 # execute additional pre scripts
 if [ ! -z "$ADDITIONAL_PRE_SCRIPTS" ]; then
@@ -60,7 +63,8 @@ if [ ! -z "$ADDITIONAL_PRE_SCRIPTS" ]; then
          # check if SCRIPT is a file
         if [ -f "$SCRIPT" ]; then
             echo "executing additional pre scripts from $SCRIPT"
-            source $SCRIPT
+            source $SCRIPT _build/old/centaurid
+            echo "CONTRACT_ADDRESS = $CONTRACT_ADDRESS"
             sleep 5
         else
             echo "$SCRIPT is not a file"
@@ -87,8 +91,10 @@ run_fork () {
 run_upgrade () {
     echo "start upgrading"
 
+    # Get upgrade height, 12 block after (6s)
     STATUS_INFO=($(./_build/old/centaurid status --home $HOME | jq -r '.NodeInfo.network,.SyncInfo.latest_block_height'))
-    UPGRADE_HEIGHT=$((STATUS_INFO[1] + 12))
+    UPGRADE_HEIGHT=$((STATUS_INFO[1] + 20))
+    echo "UPGRADE_HEIGHT = $UPGRADE_HEIGHT"
 
     tar -cf ./_build/new/picad.tar -C ./_build/new picad
     SUM=$(shasum -a 256 ./_build/new/picad.tar | cut -d ' ' -f1)
@@ -101,22 +107,21 @@ run_upgrade () {
 
     ./_build/old/centaurid keys list --home $HOME --keyring-backend test
 
-    ./_build/old/centaurid tx gov submit-legacy-proposal software-upgrade "$SOFTWARE_UPGRADE_NAME" --upgrade-height $UPGRADE_HEIGHT --upgrade-info "$UPGRADE_INFO" --title "upgrade" --description "upgrade"  --from test1 --keyring-backend test --chain-id $CHAIN_ID --home $HOME -y
+    ./_build/old/centaurid tx gov submit-legacy-proposal software-upgrade "$SOFTWARE_UPGRADE_NAME" --upgrade-height $UPGRADE_HEIGHT --upgrade-info "$UPGRADE_INFO" --title "upgrade" --description "upgrade"  --from test1 --keyring-backend test --chain-id $CHAIN_ID --home $HOME -y > /dev/null
 
-    sleep 5
+    sleep $SLEEP_TIME
 
-    ./_build/old/centaurid tx gov deposit 1 "20000000${DENOM}" --from test1 --keyring-backend test --chain-id $CHAIN_ID --home $HOME -y
+    ./_build/old/centaurid tx gov deposit 1 "20000000${DENOM}" --from test1 --keyring-backend test --chain-id $CHAIN_ID --home $HOME -y > /dev/null
 
-    sleep 5
+    sleep $SLEEP_TIME
 
-    ./_build/old/centaurid tx gov vote 1 yes --from test0 --keyring-backend test --chain-id $CHAIN_ID --home $HOME -y
+    ./_build/old/centaurid tx gov vote 1 yes --from test0 --keyring-backend test --chain-id $CHAIN_ID --home $HOME -y > /dev/null
 
-    sleep 5
+    sleep $SLEEP_TIME
 
-    ./_build/old/centaurid tx gov vote 1 yes --from test1 --keyring-backend test --chain-id $CHAIN_ID --home $HOME -y
+    ./_build/old/centaurid tx gov vote 1 yes --from test1 --keyring-backend test --chain-id $CHAIN_ID --home $HOME -y > /dev/null
 
-    sleep 5
-
+    sleep $SLEEP_TIME
 
     # determine block_height to halt
     while true; do
@@ -129,10 +134,9 @@ run_upgrade () {
         else
             ./_build/old/centaurid q gov proposal 1 --output=json | jq ".status"
             echo "BLOCK_HEIGHT = $BLOCK_HEIGHT"
-            sleep 10
+            sleep 1 
         fi
     done
-
 }
 
 # if FORK = true
@@ -143,11 +147,13 @@ else
     run_upgrade
 fi
 
+sleep 1
+
 # run new node
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    CONTINUE="true" screen -L -dmS node1 bash scripts/run-node.sh _build/new/picad $DENOM
+    CONTINUE="true" screen -L -dmS picad bash scripts/localnode.sh _build/new/picad $DENOM
 else
-    CONTINUE="true" screen -L -Logfile $HOME/log-screen.txt -dmS node1 bash scripts/run-node.sh _build/new/picad $DENOM
+    CONTINUE="true" screen -L -dmS picad bash scripts/localnode.sh _build/new/picad $DENOM
 fi
 
 sleep 5
@@ -161,7 +167,7 @@ if [ ! -z "$ADDITIONAL_AFTER_SCRIPTS" ]; then
          # check if SCRIPT is a file
         if [ -f "$SCRIPT" ]; then
             echo "executing additional after scripts from $SCRIPT"
-            source $SCRIPT
+            source $SCRIPT _build/new/picad
             sleep 5
         else
             echo "$SCRIPT is not a file"

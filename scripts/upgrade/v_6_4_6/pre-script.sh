@@ -1,7 +1,7 @@
-echo "********** Running Pre-Scripts **********"
+echo -e "\n ********** Running Pre-Scripts **********"
 
 BINARY=$1 
-DENOM=${2:-upica}
+DENOM=${2:-pica}
 CHAIN_DIR=$(pwd)/mytestnet
 
 KEY="test0"
@@ -51,4 +51,6 @@ if [ "$COUNTER_VALUE" -ne 1 ]; then
     exit 1
 fi
 echo "Assertion passed: Counter value is 1 as expected"
+
+export CONTRACT_ADDRESS=$CONTRACT_ADDRESS
 
