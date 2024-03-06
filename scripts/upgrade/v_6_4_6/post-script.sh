@@ -34,6 +34,16 @@ COUNTER_CONTRACT_DIR=$(pwd)/scripts/upgrade/contracts/counter.wasm
 ## Get contract by $CODE_ID
 echo -e "\n Fetching the new contract address (it got changed after the upgrade)"
 CODE_ID=1 ## TODO: hardfix for now to get the contract, and overide the contract address
+
+## Fetch code info 
+CREATOR=$($BINARY query wasm code-info $CODE_ID -o json | jq -r '.creator')
+if [ "$CREATOR" == "$WALLET_1" ]; then
+    echo "Assertion passed: Code creator ($CREATOR) is equal to Wallet 1 ($WALLET_1)"
+else
+    echo "Assertion failed: Code creator ($CREATOR) is not equal to Wallet 1 ($WALLET_1)"
+    exit 1
+fi
+
 CONTRACT_ADDRESS=$($BINARY query wasm list-contract-by-code $CODE_ID -o json | jq -r '.contracts[0]') 
 echo "Query contract address: $CONTRACT_ADDRESS"
 

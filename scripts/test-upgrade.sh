@@ -150,14 +150,15 @@ sleep 1
 
 # run new node
 echo -e "\n\n=> =>continue running nodes after upgrade"   
+
+# run new node
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    CONTINUE="true" screen -L -dmS picad bash scripts/localnode.sh _build/new/picad $DENOM 
+    CONTINUE="true" screen -L -dmS picad bash scripts/localnode.sh _build/new/picad $DENOM
 else
-    CONTINUE="true" screen -L -dmS picad bash scripts/localnode.sh _build/new/picad $DENOM 
+    CONTINUE="true" screen -L -dmS picad bash scripts/localnode.sh _build/new/picad $DENOM
 fi
 
-
-
+sleep 5 
 # execute additional after scripts
 if [ ! -z "$ADDITIONAL_AFTER_SCRIPTS" ]; then
     # slice ADDITIONAL_SCRIPTS by ,
