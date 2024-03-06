@@ -1,7 +1,6 @@
 package wasm
 
 import (
-	"github.com/CosmWasm/wasmd/x/wasm"
 	"github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
@@ -11,8 +10,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func MigrateAddressBech32(keeper wasm.Keeper, ctx sdk.Context, storeKey storetypes.StoreKey, cdc codec.BinaryCodec) {
-	ctx.Logger().Info("Migration of address bech32 for wasm module begin")
+func MigrateAddressBech32(ctx sdk.Context, storeKey storetypes.StoreKey, cdc codec.BinaryCodec) {
+	ctx.Logger().Debug("Migration of address bech32 for wasm module begin")
 
 	prefixStore := prefix.NewStore(ctx.KVStore(storeKey), types.CodeKeyPrefix)
 	iter := prefixStore.Iterator(nil, nil)
@@ -23,8 +22,6 @@ func MigrateAddressBech32(keeper wasm.Keeper, ctx sdk.Context, storeKey storetyp
 		// get code info value
 		var c types.CodeInfo
 		cdc.MustUnmarshal(iter.Value(), &c)
-
-		// update creator address
 		c.Creator = utils.ConvertAccAddr(c.Creator)
 
 		// save updated code info
@@ -33,7 +30,7 @@ func MigrateAddressBech32(keeper wasm.Keeper, ctx sdk.Context, storeKey storetyp
 		totalMigratedCodeId++
 	}
 
-	ctx.Logger().Info(
+	ctx.Logger().Debug(
 		"Migration of address bech32 for wasm module done",
 		"total_migrated_code_id", totalMigratedCodeId,
 	)

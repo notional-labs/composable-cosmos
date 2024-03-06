@@ -48,9 +48,9 @@ fi
 # run old node
 if [[ "$OSTYPE" == "darwin"* ]]; then
     echo "running old node"
-    screen -L -dmS node1 bash scripts/localnode.sh _build/old/centaurid $DENOM --Logfile $HOME/log-screen.txt
+    screen -L -dmS node1 bash scripts/localnode.sh _build/old/centaurid $DENOM 
 else
-    screen -L -Logfile $HOME/log-screen.txt -dmS node1 bash scripts/localnode.sh _build/old/centaurid $DENOM
+    screen -L -dmS node1 bash scripts/localnode.sh _build/old/centaurid $DENOM
 fi
 
 sleep 5 # wait for note to start 
@@ -151,12 +151,11 @@ sleep 1
 # run new node
 echo -e "\n\n=> =>continue running nodes after upgrade"   
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    CONTINUE="true" screen -L -dmS picad bash scripts/localnode.sh _build/new/picad $DENOM
+    CONTINUE="true" screen -L -dmS picad bash scripts/localnode.sh _build/new/picad $DENOM 
 else
-    CONTINUE="true" screen -L -dmS picad bash scripts/localnode.sh _build/new/picad $DENOM
+    CONTINUE="true" screen -L -dmS picad bash scripts/localnode.sh _build/new/picad $DENOM 
 fi
 
-sleep 5
 
 
 # execute additional after scripts

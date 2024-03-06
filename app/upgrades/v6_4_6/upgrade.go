@@ -1,6 +1,7 @@
 package v6_4_6
 
 import (
+	"github.com/CosmWasm/wasmd/x/wasm"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -20,6 +21,7 @@ import (
 	bech32slashingmigration "github.com/notional-labs/composable/v6/bech32-migration/slashing"
 	bech32stakingmigration "github.com/notional-labs/composable/v6/bech32-migration/staking"
 	bech32transfermiddlewaremigration "github.com/notional-labs/composable/v6/bech32-migration/transfermiddleware"
+	bech32WasmMigration "github.com/notional-labs/composable/v6/bech32-migration/wasm"
 	transfermiddlewaretypes "github.com/notional-labs/composable/v6/x/transfermiddleware/types"
 )
 
@@ -42,6 +44,8 @@ func CreateUpgradeHandler(
 		bech32icamigration.MigrateAddressBech32(ctx, keys[icahosttypes.StoreKey], codec)
 		bech32mintmigration.MigrateAddressBech32(ctx, keys[minttypes.StoreKey], codec)
 		bech32transfermiddlewaremigration.MigrateAddressBech32(ctx, keys[transfermiddlewaretypes.StoreKey], codec)
+		bech32WasmMigration.MigrateAddressBech32(ctx, keys[wasm.StoreKey], codec)
+
 		return mm.RunMigrations(ctx, configurator, vm)
 	}
 }
