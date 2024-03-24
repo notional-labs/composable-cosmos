@@ -7,12 +7,12 @@ require (
 	cosmossdk.io/simapp v0.0.0-20230608160436-666c345ad23d
 	github.com/CosmWasm/wasmd v0.50.0
 	github.com/client9/misspell v0.3.4
-	github.com/cometbft/cometbft v0.37.2
+	github.com/cometbft/cometbft v0.38.5
 	github.com/cometbft/cometbft-db v0.8.0
 	github.com/cosmos/cosmos-proto v1.0.0-beta.4
 	github.com/cosmos/cosmos-sdk v0.50.5
 	github.com/cosmos/gogoproto v1.4.11
-	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8 v8.0.0
+	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8 v8.0.2
 	github.com/cosmos/ibc-go/v8 v8.1.1
 	github.com/gogo/protobuf v1.3.3
 	github.com/golang/protobuf v1.5.4
@@ -21,7 +21,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/spf13/cast v1.6.0
 	github.com/spf13/cobra v1.8.0
-	github.com/strangelove-ventures/async-icq/v7 v7.0.0-20230413165143-a3b65ccdc897
+	github.com/cosmos/ibc-apps/modules/async-icq/v8 v8.0.0
 	github.com/stretchr/testify v1.9.0
 	github.com/terra-money/alliance v0.1.1-0.20230419080242-b29b0ec11186
 	golang.org/x/tools v0.6.0
@@ -328,18 +328,13 @@ replace (
 	// lock wasmvm so we do not break the grandpa contract
 	github.com/CosmWasm/wasmvm => github.com/CosmWasm/wasmvm v1.2.6
 
-	github.com/cometbft/cometbft v0.37.2 => github.com/composablefi/cometbft v0.37.2-fixed-len-vote-time-tag
 	// use cosmos-compatible protobufs
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 
 	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.50.5
 
-	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7 => github.com/ComposableFi/ibc-apps/middleware/packet-forward-middleware/v7 v7.0.0-20240320115741-f32994360827
-
-	// ibc-go with wasm client
-	github.com/cosmos/ibc-go/v7 => github.com/notional-labs/ibc-go/v7 v7.2.1-0.20231010040541-6cf43006971f
+	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8 => github.com/ComposableFi/ibc-apps/middleware/packet-forward-middleware/v8 v8.0.2-20240320115741-f32994360827
 
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 	github.com/terra-money/alliance => github.com/notional-labs/alliance v1.0.1-0.20231106184124-5cc1ff759647
-
 )
