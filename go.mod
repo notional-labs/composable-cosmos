@@ -5,28 +5,28 @@ go 1.20
 require (
 	cosmossdk.io/math v1.1.2
 	cosmossdk.io/simapp v0.0.0-20230608160436-666c345ad23d
-	github.com/CosmWasm/wasmd v0.40.1
+	github.com/CosmWasm/wasmd v0.50.0
 	github.com/client9/misspell v0.3.4
 	github.com/cometbft/cometbft v0.37.2
 	github.com/cometbft/cometbft-db v0.8.0
-	github.com/cosmos/cosmos-proto v1.0.0-beta.2
-	github.com/cosmos/cosmos-sdk v0.47.5
-	github.com/cosmos/gogoproto v1.4.10
-	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7 v7.0.0
-	github.com/cosmos/ibc-go/v7 v7.3.1
-	github.com/gogo/protobuf v1.3.2
-	github.com/golang/protobuf v1.5.3
+	github.com/cosmos/cosmos-proto v1.0.0-beta.4
+	github.com/cosmos/cosmos-sdk v0.50.5
+	github.com/cosmos/gogoproto v1.4.11
+	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8 v8.0.0
+	github.com/cosmos/ibc-go/v8 v8.1.1
+	github.com/gogo/protobuf v1.3.3
+	github.com/golang/protobuf v1.5.4
 	github.com/golangci/golangci-lint v1.50.1
-	github.com/gorilla/mux v1.8.0
+	github.com/gorilla/mux v1.8.1
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
-	github.com/spf13/cast v1.5.1
-	github.com/spf13/cobra v1.7.0
+	github.com/spf13/cast v1.6.0
+	github.com/spf13/cobra v1.8.0
 	github.com/strangelove-ventures/async-icq/v7 v7.0.0-20230413165143-a3b65ccdc897
-	github.com/stretchr/testify v1.8.4
+	github.com/stretchr/testify v1.9.0
 	github.com/terra-money/alliance v0.1.1-0.20230419080242-b29b0ec11186
 	golang.org/x/tools v0.6.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20230629202037-9506855d4529
-	google.golang.org/grpc v1.56.2
+	google.golang.org/grpc v1.62.1
 	gotest.tools/v3 v3.5.0
 	mvdan.cc/gofumpt v0.4.0
 )
@@ -216,10 +216,10 @@ require (
 )
 
 require (
-	cosmossdk.io/api v0.3.1
-	cosmossdk.io/core v0.5.1 // indirect
+	cosmossdk.io/api v0.7.3
+	cosmossdk.io/core v0.11.0 // indirect
 	cosmossdk.io/depinject v1.0.0-alpha.4 // indirect
-	cosmossdk.io/errors v1.0.0
+	cosmossdk.io/errors v1.0.1
 	cosmossdk.io/tools/rosetta v0.2.1
 	filippo.io/edwards25519 v1.0.0 // indirect
 	github.com/99designs/keyring v1.2.1 // indirect
@@ -329,10 +329,13 @@ replace (
 	github.com/CosmWasm/wasmvm => github.com/CosmWasm/wasmvm v1.2.6
 
 	github.com/cometbft/cometbft v0.37.2 => github.com/composablefi/cometbft v0.37.2-fixed-len-vote-time-tag
+	// use cosmos-compatible protobufs
+	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 
-	github.com/cosmos/cosmos-sdk v0.47.5 => github.com/rust-ninja/cosmos-sdk v0.47.5-patch-validators-trim-tag
+	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.50.5
 
 	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7 => github.com/ComposableFi/ibc-apps/middleware/packet-forward-middleware/v7 v7.0.0-20240320115741-f32994360827
+
 	// ibc-go with wasm client
 	github.com/cosmos/ibc-go/v7 => github.com/notional-labs/ibc-go/v7 v7.2.1-0.20231010040541-6cf43006971f
 

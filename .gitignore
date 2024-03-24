@@ -47,3 +47,8 @@ dist/
 vendor
 go.work
 go.work.sum
+
+
+_build 
+
+screenlog.0
