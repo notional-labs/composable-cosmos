@@ -95,9 +95,6 @@ import (
 
 	router "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/packetforward"
 	routertypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7/packetforward/types"
-	alliancemodule "github.com/terra-money/alliance/x/alliance"
-	alliancemoduleclient "github.com/terra-money/alliance/x/alliance/client"
-	alliancemoduletypes "github.com/terra-money/alliance/x/alliance/types"
 
 	custombankmodule "github.com/notional-labs/composable/v6/custom/bank"
 
@@ -180,9 +177,6 @@ func getGovProposalHandlers() []govclient.ProposalHandler {
 		upgradeclient.LegacyCancelProposalHandler,
 		ibcclientclient.UpdateClientProposalHandler,
 		ibcclientclient.UpgradeProposalHandler,
-		alliancemoduleclient.CreateAllianceProposalHandler,
-		alliancemoduleclient.UpdateAllianceProposalHandler,
-		alliancemoduleclient.DeleteAllianceProposalHandler,
 		// this line is used by starport scaffolding # stargate/app/govProposalHandler
 	)
 
@@ -227,7 +221,6 @@ var (
 		txBoundary.AppModuleBasic{},
 		ratelimitmodule.AppModuleBasic{},
 		consensus.AppModuleBasic{},
-		alliancemodule.AppModuleBasic{},
 		stakingmiddleware.AppModuleBasic{},
 		ibctransfermiddleware.AppModuleBasic{},
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
@@ -238,15 +231,13 @@ var (
 		authtypes.FeeCollectorName: nil,
 		distrtypes.ModuleName:      nil,
 		// mint module needs burn access to remove excess validator tokens (it overallocates, then burns)
-		minttypes.ModuleName:                {authtypes.Minter},
-		stakingtypes.BondedPoolName:         {authtypes.Burner, authtypes.Staking},
-		stakingtypes.NotBondedPoolName:      {authtypes.Burner, authtypes.Staking},
-		govtypes.ModuleName:                 {authtypes.Burner},
-		transfermiddlewaretypes.ModuleName:  {authtypes.Minter, authtypes.Burner},
-		ibctransfertypes.ModuleName:         {authtypes.Minter, authtypes.Burner},
-		alliancemoduletypes.ModuleName:      {authtypes.Minter, authtypes.Burner},
-		alliancemoduletypes.RewardsPoolName: nil,
-		icatypes.ModuleName:                 nil,
+		minttypes.ModuleName:               {authtypes.Minter},
+		stakingtypes.BondedPoolName:        {authtypes.Burner, authtypes.Staking},
+		stakingtypes.NotBondedPoolName:     {authtypes.Burner, authtypes.Staking},
+		govtypes.ModuleName:                {authtypes.Burner},
+		transfermiddlewaretypes.ModuleName: {authtypes.Minter, authtypes.Burner},
+		ibctransfertypes.ModuleName:        {authtypes.Minter, authtypes.Burner},
+		icatypes.ModuleName:                nil,
 		// this line is used by starport scaffolding # stargate/app/maccPerms
 	}
 )
@@ -391,7 +382,6 @@ func NewComposableApp(
 		txBoundaryModule,
 		icaModule,
 		ratelimitModule,
-		alliancemodule.NewAppModule(appCodec, app.AllianceKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 
@@ -429,7 +419,6 @@ func NewComposableApp(
 		wasm08types.ModuleName,
 		icatypes.ModuleName,
 		wasm.ModuleName,
-		alliancemoduletypes.ModuleName,
 		stakingmiddlewaretypes.ModuleName,
 		ibctransfermiddlewaretypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
@@ -465,7 +454,6 @@ func NewComposableApp(
 		wasm08types.ModuleName,
 		icatypes.ModuleName,
 		wasm.ModuleName,
-		alliancemoduletypes.ModuleName,
 		stakingmiddlewaretypes.ModuleName,
 		ibctransfermiddlewaretypes.ModuleName,
 	)
@@ -505,7 +493,6 @@ func NewComposableApp(
 		wasm08types.ModuleName,
 		icatypes.ModuleName,
 		wasm.ModuleName,
-		alliancemoduletypes.ModuleName,
 		stakingmiddlewaretypes.ModuleName,
 		ibctransfermiddlewaretypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
