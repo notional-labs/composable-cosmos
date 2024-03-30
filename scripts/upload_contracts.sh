@@ -17,3 +17,10 @@ rm -rf ~/.centauri*
 
 
 ~/go/bin/centaurid  tx 08-wasm push-wasm contracts/simple.wasm --from mykey --keyring-backend test --home $HOME/.banksy --gas 10002152622 --fees 10020166stake -y
+
+sleep 5 
+~/go/bin/centaurid  tx 08-wasm push-wasm contracts/ics10_grandpa_cw.wasm --from mykey --keyring-backend test --home $HOME/.banksy --gas 10002152622 --fees 10020166stake -y
+
+sleep 5 
+
+~/go/bin/centaurid  tx 08-wasm push-wasm contracts/contract.wasm --from mykey --keyring-backend test --home $HOME/.banksy --gas 10002152622 --fees 10020166stake -y
