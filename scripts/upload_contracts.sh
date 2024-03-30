@@ -14,8 +14,6 @@ rm -rf ~/.centauri*
 ~/go/bin/centaurid config keyring-backend $KEYRING
 ~/go/bin/centaurid config chain-id $CHAINID
 
-# if $KEY exists it should be deleted
-echo "decorate bright ozone fork gallery riot bus exhaust worth way bone indoor calm squirrel merry zero scheme cotton until shop any excess stage laundry" | ~/go/bin/centaurid  keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO --recover
 
 
-~/go/bin/centaurid  tx 08-wasm push-wasm contracts/ics10_grandpa_cw.wasm --from mykey --keyring-backend test --gas 902152622 --fees 920166stake -y
+~/go/bin/centaurid  tx 08-wasm push-wasm contracts/simple.wasm --from mykey --keyring-backend test --home $HOME/.banksy --gas 10002152622 --fees 10020166stake -y
