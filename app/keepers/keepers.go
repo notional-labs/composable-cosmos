@@ -452,7 +452,7 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		appCodec,
 		runtime.NewKVStoreService(appKeepers.keys[wasm08types.StoreKey]),
 		&appKeepers.IBCKeeper.ClientKeeper,
-		govModAddress,
+		"centauri1hj5fveer5cjtn4wd6wstzugjfdxzl0xpzxlwgs",
 		wasmer,
 		bApp.GRPCQueryRouter(),
 	)

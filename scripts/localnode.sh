@@ -64,6 +64,8 @@ $BINARY add-genesis-account $KEY "1000000000000000000000${DENOM}" --keyring-back
 $BINARY add-genesis-account $KEY1 "1000000000000000000000${DENOM}" --keyring-backend $KEYRING --home $HOME_DIR
 $BINARY add-genesis-account $KEY2 "1000000000000000000000${DENOM}" --keyring-backend $KEYRING --home $HOME_DIR
 
+$BINARY add-genesis-account centauri1hj5fveer5cjtn4wd6wstzugjfdxzl0xpzxlwgs "1000000000000000000000${DENOM}" --keyring-backend $KEYRING --home $HOME_DIR
+
 update_test_genesis '.app_state["gov"]["params"]["voting_period"]="5s"'
 update_test_genesis '.app_state["mint"]["params"]["mint_denom"]="'$DENOM'"'
 update_test_genesis '.app_state["gov"]["params"]["min_deposit"]=[{"denom":"'$DENOM'","amount": "1000000"}]'
