@@ -17,7 +17,7 @@ rm -rf $HOME_DIR
 pkill centaurid
 
 # check DENOM is set. If not, set to upica
-DENOM=${2:-upica}
+DENOM=${2:-ppica}
 echo "denom: $DENOM"
 COMMISSION_RATE=0.01
 COMMISSION_MAX_RATE=0.02

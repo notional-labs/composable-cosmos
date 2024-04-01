@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"errors"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"io"
 	"os"
 
@@ -50,6 +51,21 @@ var ChainID string
 // main function.
 func NewRootCmd() (*cobra.Command, app.EncodingConfig) {
 	encodingConfig := app.MakeEncodingConfig()
+
+	tempApp := app.NewComposableApp(
+		log.NewNopLogger(),
+		dbm.NewMemDB(),
+		nil,
+		true,
+		map[int64]bool{},
+		app.DefaultNodeHome,
+		5,
+		encodingConfig,
+		EmptyAppOptions{},
+		nil,
+		nil,
+	)
+
 	initClientCtx := client.Context{}.
 		WithCodec(encodingConfig.Marshaler).
 		WithInterfaceRegistry(encodingConfig.InterfaceRegistry).
@@ -90,6 +106,15 @@ func NewRootCmd() (*cobra.Command, app.EncodingConfig) {
 	}
 
 	initRootCmd(rootCmd, encodingConfig)
+
+	autoCliOpts := tempApp.AutoCliOpts()
+	initClientCtx, _ = config.ReadFromClientConfig(initClientCtx)
+	autoCliOpts.Keyring, _ = keyring.NewAutoCLIKeyring(initClientCtx.Keyring)
+	autoCliOpts.ClientCtx = initClientCtx
+
+	if err := autoCliOpts.EnhanceRootCommand(rootCmd); err != nil {
+		panic(err)
+	}
 
 	return rootCmd, encodingConfig
 }
@@ -244,12 +269,13 @@ func txCommand() *cobra.Command {
 		authcmd.GetSignCommand(),
 		authcmd.GetSignBatchCommand(),
 		authcmd.GetMultiSignCommand(),
+		authcmd.GetMultiSignBatchCmd(),
 		authcmd.GetValidateSignaturesCommand(),
-		flags.LineBreak,
 		authcmd.GetBroadcastCommand(),
 		authcmd.GetEncodeCommand(),
 		authcmd.GetDecodeCommand(),
 		flags.LineBreak,
+		authcmd.GetSimulateCmd(),
 	)
 
 	return cmd
@@ -352,3 +378,7 @@ func genesisCommand(txConfig client.TxConfig, basicManager module.BasicManager, 
 	}
 	return cmd
 }
+
+type EmptyAppOptions struct{}
+
+func (EmptyAppOptions) Get(_ string) interface{} { return nil }
