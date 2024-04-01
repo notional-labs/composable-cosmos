@@ -433,11 +433,11 @@ func NewComposableApp(
 		paramstypes.ModuleName,
 		consensusparamtypes.ModuleName,
 		circuittypes.ModuleName,
-		wasm08types.ModuleName,
 		icatypes.ModuleName,
 		wasmtypes.ModuleName,
 		stakingmiddlewaretypes.ModuleName,
 		ibctransfermiddlewaretypes.ModuleName,
+		wasm08types.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	)
 
@@ -469,11 +469,11 @@ func NewComposableApp(
 		icqtypes.ModuleName,
 		consensusparamtypes.ModuleName,
 		circuittypes.ModuleName,
-		wasm08types.ModuleName,
 		icatypes.ModuleName,
 		wasmtypes.ModuleName,
 		stakingmiddlewaretypes.ModuleName,
 		ibctransfermiddlewaretypes.ModuleName,
+		wasm08types.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -509,11 +509,11 @@ func NewComposableApp(
 		group.ModuleName,
 		consensusparamtypes.ModuleName,
 		circuittypes.ModuleName,
-		wasm08types.ModuleName,
 		icatypes.ModuleName,
 		wasmtypes.ModuleName,
 		stakingmiddlewaretypes.ModuleName,
 		ibctransfermiddlewaretypes.ModuleName,
+		wasm08types.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 	)
 
