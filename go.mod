@@ -366,6 +366,7 @@ replace (
 
 	// github.com/cosmos/ibc-go/modules/light-clients/08-wasm => github.com/notional-labs/ibc-go/modules/light-clients/08-wasm v0.0.0-20240330020027-fa949b150972
 
+	github.com/cosmos/ibc-go/modules/light-clients/08-wasm => /Users/kien6034/go/pkg/mod/github.com/cosmos/ibc-go/modules/light-clients/08-wasm@v0.1.1-0.20231213092650-57fcdb9a9a9d
 	// use cosmos-compatible protobufs
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 

@@ -97,8 +97,7 @@ func (endpoint *Endpoint) CreateClient() (err error) {
 			return err
 		}
 		consensusState = &wasmtypes.ConsensusState{
-			Data:      wasmConsensusState,
-			Timestamp: tmConsensusState.GetTimestamp(),
+			Data: wasmConsensusState,
 		}
 	default:
 		err = fmt.Errorf("client type %s is not supported", endpoint.ClientConfig.GetClientType())
