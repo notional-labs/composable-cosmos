@@ -2,7 +2,7 @@
 KEY="mykey"
 KEYALGO="secp256k1"
 KEYRING="test"
-HOME_DIR="mytestnet"
+HOME_DIR=mytestnet
 
 
 sleep 2

@@ -160,7 +160,6 @@ ictest-push-wasm:
 
 include contrib/make/release.mk
 
-
 test-upgrade: clean-testing-data
 	@echo "Starting upgrade test"
 	./scripts/tweak-test-upgrade.sh
