@@ -10,8 +10,8 @@ ROOT=$(pwd)
 DENOM=upica
 CHAIN_ID=localpica
 SOFTWARE_UPGRADE_NAME="v7_0_1"
-ADDITIONAL_PRE_SCRIPTS=""
-ADDITIONAL_AFTER_SCRIPTS=""
+ADDITIONAL_PRE_SCRIPTS="./scripts/upgrade/v6_to_7/pre_08_wasm.sh"
+ADDITIONAL_AFTER_SCRIPTS="./scripts/upgrade/v6_to_7/post_08_wasm.sh"
 
 SLEEP_TIME=1
 
@@ -51,14 +51,15 @@ if ! command -v _build/new/centaurid &> /dev/null || [[ "$FORCE_BUILD" == "true"
 fi
 
 # run old node
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    echo "running old node"
-    bash scripts/localnode.sh _build/old/centaurid $DENOM
-else
-    node1 bash scripts/localnode.sh _build/old/centaurid $DENOM
-fi
+# if [[ "$OSTYPE" == "darwin"* ]]; then
+  
+# else
+#     screen node1 bash scripts/localnode.sh _build/old/centaurid $DENOM
+# fi
+echo "running old node"
+screen -dms old-node bash scripts/localnode.sh _build/old/centaurid $DENOM
 
-sleep 5 # wait for note to start 
+sleep 2 # wait for note to start 
 
 # execute additional pre scripts
 if [ ! -z "$ADDITIONAL_PRE_SCRIPTS" ]; then
@@ -68,8 +69,8 @@ if [ ! -z "$ADDITIONAL_PRE_SCRIPTS" ]; then
          # check if SCRIPT is a file
         if [ -f "$SCRIPT" ]; then
             echo "executing additional pre scripts from $SCRIPT"
-            source $SCRIPT _build/old/centaurid
-            sleep 5
+            source $SCRIPT 
+            sleep 2
         else
             echo "$SCRIPT is not a file"
         fi
@@ -157,7 +158,7 @@ sleep 1
 # run new node
 echo -e "\n\n=> =>continue running nodes after upgrade"   
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    CONTINUE="true" bash scripts/localnode.sh _build/new/centaurid $DENOM
+    screen -L -dmS new-node CONTINUE="true" bash scripts/localnode.sh _build/new/centaurid $DENOM
 else
     CONTINUE="true" bash scripts/localnode.sh _build/new/centaurid $DENOM
 fi

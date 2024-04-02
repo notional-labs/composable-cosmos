@@ -46,11 +46,14 @@ $BINARY  gentx $KEY 1000000000000000000000$DENOM --keyring-backend $KEYRING --ch
 
 update_test_genesis '.app_state["gov"]["params"]["voting_period"]="50s"'
 update_test_genesis '.app_state["mint"]["params"]["mint_denom"]="'$DENOM'"'
-update_test_genesis '.app_state["gov"]["params"]["min_deposit"]=[{"denom":"'$DENOM'","amount": "0"}]'
+update_test_genesis '.app_state["gov"]["params"]["min_deposit"]=[{"denom":"'$DENOM'","amount": "1000000"}]'
 update_test_genesis '.app_state["crisis"]["constant_fee"]={"denom":"'$DENOM'","amount":"1000"}'
 update_test_genesis '.app_state["staking"]["params"]["bond_denom"]="'$DENOM'"'
 
 # sed -i 's/timeout_commit = "5s"/timeout_commit = "500ms"/' $HOME_DIR/config/config.toml
+
+echo "updating.."
+sed -i '' 's/timeout_commit = "5s"/timeout_commit = "500ms"/' $HOME_DIR/config/config.toml
 
 
 # Collect genesis tx
@@ -66,6 +69,5 @@ fi
 # update request max size so that we can upload the light client
 # '' -e is a must have params on mac, if use linux please delete before run
 sed -i'' -e 's/max_body_bytes = /max_body_bytes = 1/g' $HOME_DIR/config/config.toml
-
 # Start the node (remove the --pruning=nothing flag if historical queries are not needed)
-$BINARY start --pruning=nothing  --minimum-gas-prices=0.0001ppica --rpc.laddr tcp://0.0.0.0:26657 --home $HOME_DIR --log_level debug
+$BINARY start --pruning=nothing  --minimum-gas-prices=0$DENOM --rpc.laddr tcp://0.0.0.0:26657 --home $HOME_DIR --log_level debug

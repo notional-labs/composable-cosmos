@@ -160,3 +160,14 @@ ictest-push-wasm:
 
 include contrib/make/release.mk
 
+
+test-upgrade: clean-testing-data
+	@echo "Starting upgrade test"
+	./scripts/tweak-test-upgrade.sh
+
+
+clean-testing-data:
+	@echo "Killing binary and removing previous data"
+	-@pkill centaurid 2>/dev/null
+	-@rm -rf ./mytestnet
+
