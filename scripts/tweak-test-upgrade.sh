@@ -103,7 +103,7 @@ run_upgrade () {
 
     # Get upgrade height, 12 block after (6s)
     STATUS_INFO=($(./_build/old/centaurid status --home $HOME | jq -r '.NodeInfo.network,.SyncInfo.latest_block_height'))
-    UPGRADE_HEIGHT=$((STATUS_INFO[1] + 22))
+    UPGRADE_HEIGHT=$((STATUS_INFO[1] + 18))
     echo "UPGRADE_HEIGHT = $UPGRADE_HEIGHT"
 
     tar -cf ./_build/new/centaurid.tar -C ./_build/new centaurid

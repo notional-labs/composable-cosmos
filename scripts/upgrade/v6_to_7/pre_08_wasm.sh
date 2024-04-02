@@ -1,4 +1,3 @@
-echo "---> running pre_08_wasm.sh"
 #!/bin/bash
 KEY="mykey"
 KEYALGO="secp256k1"
