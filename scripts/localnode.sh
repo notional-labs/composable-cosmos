@@ -14,6 +14,7 @@ TRACE=""
 HOME_DIR=mytestnet
 DENOM=${2:-ppica}
 
+
 if [ "$CONTINUE" == "true" ]; then
     echo "\n ->> continuing from previous state"
     $BINARY start --home $HOME_DIR --log_level debug
@@ -44,7 +45,7 @@ $BINARY add-genesis-account $KEY 100000000000000000000000000$DENOM --keyring-bac
 # Sign genesis transaction
 $BINARY  gentx $KEY 1000000000000000000000$DENOM --keyring-backend $KEYRING --chain-id $CHAINID --home $HOME_DIR
 
-update_test_genesis '.app_state["gov"]["params"]["voting_period"]="50s"'
+update_test_genesis '.app_state["gov"]["params"]["voting_period"]="5s"'
 update_test_genesis '.app_state["mint"]["params"]["mint_denom"]="'$DENOM'"'
 update_test_genesis '.app_state["gov"]["params"]["min_deposit"]=[{"denom":"'$DENOM'","amount": "1000000"}]'
 update_test_genesis '.app_state["crisis"]["constant_fee"]={"denom":"'$DENOM'","amount":"1000"}'

@@ -15,6 +15,10 @@ ADDITIONAL_AFTER_SCRIPTS="./scripts/upgrade/v6_to_7/post_08_wasm.sh"
 
 SLEEP_TIME=1
 
+KEY="mykey"
+KEY1="test1"
+KEY2="test2"
+
 if [[ "$FORK" == "true" ]]; then
     export PICA_HALT_HEIGHT=20
 fi
@@ -77,7 +81,6 @@ if [ ! -z "$ADDITIONAL_PRE_SCRIPTS" ]; then
     done
 fi
 
-exit 0
 
 run_fork () {
     echo "forking"
@@ -100,7 +103,7 @@ run_upgrade () {
 
     # Get upgrade height, 12 block after (6s)
     STATUS_INFO=($(./_build/old/centaurid status --home $HOME | jq -r '.NodeInfo.network,.SyncInfo.latest_block_height'))
-    UPGRADE_HEIGHT=$((STATUS_INFO[1] + 50))
+    UPGRADE_HEIGHT=$((STATUS_INFO[1] + 22))
     echo "UPGRADE_HEIGHT = $UPGRADE_HEIGHT"
 
     tar -cf ./_build/new/centaurid.tar -C ./_build/new centaurid
@@ -113,21 +116,21 @@ run_upgrade () {
     }')
 
 
-    ./_build/old/centaurid tx gov submit-legacy-proposal software-upgrade "$SOFTWARE_UPGRADE_NAME" --upgrade-height $UPGRADE_HEIGHT --upgrade-info "$UPGRADE_INFO" --title "upgrade" --description "upgrade"  --from test1 --keyring-backend test --chain-id $CHAIN_ID --home $HOME -y > /dev/null
+    ./_build/old/centaurid tx gov submit-legacy-proposal software-upgrade "$SOFTWARE_UPGRADE_NAME" --upgrade-height $UPGRADE_HEIGHT --upgrade-info "$UPGRADE_INFO" --title "upgrade" --description "upgrade"  --from $KEY --keyring-backend test --chain-id $CHAIN_ID --home $HOME -y > /dev/null
 
     sleep $SLEEP_TIME
 
-    ./_build/old/centaurid tx gov deposit 1 "20000000${DENOM}" --from test1 --keyring-backend test --chain-id $CHAIN_ID --home $HOME -y > /dev/null
+    ./_build/old/centaurid tx gov deposit 1 "20000000${DENOM}" --from $KEY --keyring-backend test --chain-id $CHAIN_ID --home $HOME -y > /dev/null
 
     sleep $SLEEP_TIME
 
-    ./_build/old/centaurid tx gov vote 1 yes --from test0 --keyring-backend test --chain-id $CHAIN_ID --home $HOME -y > /dev/null
+    ./_build/old/centaurid tx gov vote 1 yes --from $KEY --keyring-backend test --chain-id $CHAIN_ID --home $HOME -y > /dev/null
 
     sleep $SLEEP_TIME
 
-    ./_build/old/centaurid tx gov vote 1 yes --from test1 --keyring-backend test --chain-id $CHAIN_ID --home $HOME -y > /dev/null
+    # ./_build/old/centaurid tx gov vote 1 yes --from $KEY2 --keyring-backend test --chain-id $CHAIN_ID --home $HOME -y > /dev/null
 
-    sleep $SLEEP_TIME
+    # sleep $SLEEP_TIME
 
     # determine block_height to halt
     while true; do
@@ -156,12 +159,8 @@ fi
 sleep 1
 
 # run new node
-echo -e "\n\n=> =>continue running nodes after upgrade"   
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    screen -L -dmS new-node CONTINUE="true" bash scripts/localnode.sh _build/new/centaurid $DENOM
-else
-    CONTINUE="true" bash scripts/localnode.sh _build/new/centaurid $DENOM
-fi
+echo -e "\n\n=> =>continue running nodes after upgrade"  
+CONTINUE="true" screen -dms new-node bash scripts/localnode.sh _build/new/centaurid $DENOM 
 
 sleep 5
 
