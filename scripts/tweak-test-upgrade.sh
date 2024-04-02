@@ -3,14 +3,14 @@
 # the upgrade is a fork, "true" otherwise
 FORK=${FORK:-"false"}
 
-OLD_VERSION=v6.5.0
+OLD_VERSION=kien-v6.5.0-tweak
 UPGRADE_WAIT=${UPGRADE_WAIT:-20}
 HOME=mytestnet
 ROOT=$(pwd)
 DENOM=upica
 CHAIN_ID=localpica
 SOFTWARE_UPGRADE_NAME="v7_0_1"
-ADDITIONAL_PRE_SCRIPTS="./scripts/upgrade/v6_to_7/pre-upload_08_wasm.sh"
+ADDITIONAL_PRE_SCRIPTS=""
 ADDITIONAL_AFTER_SCRIPTS=""
 
 SLEEP_TIME=1
@@ -24,9 +24,22 @@ mkdir -p _build/gocache
 export GOMODCACHE=$ROOT/_build/gocache
 
 
-# copy the tweak version of centaurid
-mkdir -p _build/old
-cp scripts/upgrade/bin/centaurid-old _build/old/centaurid
+
+# install old binary if not exist
+if [ ! -f "_build/$OLD_VERSION.zip" ] &> /dev/null
+then
+    mkdir -p _build/old
+    wget -c "https://github.com/notional-labs/composable-cosmos/archive/refs/tags/${OLD_VERSION}.zip" -O _build/${OLD_VERSION}.zip
+    unzip _build/${OLD_VERSION}.zip -d _build
+fi
+
+
+# reinstall old binary
+if [ $# -eq 1 ] && [ $1 == "--reinstall-old" ] || ! command -v _build/old/centaurid &> /dev/null; then
+    cd ./_build/composable-cosmos-${OLD_VERSION}
+    GOBIN="$ROOT/_build/old" go install -mod=readonly ./...
+    cd ../..
+fi
 
 
 # install new binary
@@ -40,9 +53,9 @@ fi
 # run old node
 if [[ "$OSTYPE" == "darwin"* ]]; then
     echo "running old node"
-    screen -L -dmS node1 bash scripts/localnode.sh _build/old/centaurid $DENOM --Logfile $HOME/log-screen.txt
+    bash scripts/localnode.sh _build/old/centaurid $DENOM
 else
-    screen -L -Logfile $HOME/log-screen.txt -dmS node1 bash scripts/localnode.sh _build/old/centaurid $DENOM
+    node1 bash scripts/localnode.sh _build/old/centaurid $DENOM
 fi
 
 sleep 5 # wait for note to start 

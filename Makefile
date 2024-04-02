@@ -159,3 +159,4 @@ ictest-push-wasm:
 .PHONY: ictest-start-cosmos ictest-start-polkadot ictest-ibc ictest-push-wasm ictest-all
 
 include contrib/make/release.mk
+
