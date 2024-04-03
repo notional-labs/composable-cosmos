@@ -364,9 +364,9 @@ replace (
 	// TODO: check wasm vm compatibility with grandpa contract
 	github.com/CosmWasm/wasmvm => github.com/CosmWasm/wasmvm v1.5.2
 
-	// github.com/cosmos/ibc-go/modules/light-clients/08-wasm => github.com/notional-labs/ibc-go/modules/light-clients/08-wasm v0.0.0-20240330020027-fa949b150972
+	github.com/cometbft/cometbft => github.com/notional-labs/cometbft v0.38.6-fixed-len-vote-time-tag
 
-	// github.com/cosmos/ibc-go/modules/light-clients/08-wasm => /Users/kien6034/go/pkg/mod/github.com/cosmos/ibc-go/modules/light-clients/08-wasm@v0.1.1-0.20231213092650-57fcdb9a9a9d
+	github.com/cosmos/cosmos-sdk => github.com/notional-labs/cosmos-sdk v0.50.5-patch-validators-trim-tag
 	// use cosmos-compatible protobufs
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 
@@ -375,5 +375,6 @@ replace (
 	github.com/prometheus/common => github.com/prometheus/common v0.47.0
 
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
+// github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8 => github.com/notional-labs/ibc-apps/middleware/packet-forward-middleware/v8 v8.0.0-0.20240327105252-f31a09121d57
 
 )
