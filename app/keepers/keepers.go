@@ -338,6 +338,7 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		&appKeepers.DistrKeeper,
 		appKeepers.BankKeeper,
 		&appKeepers.TransferMiddlewareKeeper,
+		appKeepers.HooksICS4Wrapper,
 		govModAddress,
 	)
 

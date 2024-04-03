@@ -367,7 +367,7 @@ replace (
 	github.com/cometbft/cometbft => github.com/notional-labs/cometbft v0.38.6-fixed-len-vote-time-tag
 
 	github.com/cosmos/cosmos-sdk => github.com/notional-labs/cosmos-sdk v0.50.5-patch-validators-trim-tag
-	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8 => github.com/notional-labs/ibc-apps/middleware/packet-forward-middleware/v8 v8.0.2
+	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8 => github.com/notional-labs/ibc-apps/middleware/packet-forward-middleware/v8 v8.0.2-rc2
 	// use cosmos-compatible protobufs
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 
