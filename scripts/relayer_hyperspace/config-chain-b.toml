@@ -1,10 +1,10 @@
-type = "parachain"
-name = "picasso"
-para_id = 2000
+type = "picasso_rococo"
+name = "rococo-local-alice"
+para_id = 2087
 parachain_rpc_url = "ws://127.0.0.1:9988"
-relay_chain_rpc_url = "ws://127.0.0.1:9988"
-client_id = "10-grandpa-0"
-connection_id = "connection-0"
+relay_chain_rpc_url = "ws://127.0.0.1:9944"
+client_id = "08-wasm-0"
+connection_id = "connection-1"
 channel_whitelist = []
 commitment_prefix = "0x6962632f"
 private_key = "//Alice"
