@@ -196,7 +196,8 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 
 	appKeepers.StakingMiddlewareKeeper = stakingmiddleware.NewKeeper(appCodec, appKeepers.keys[stakingmiddlewaretypes.StoreKey], authtypes.NewModuleAddress(govtypes.ModuleName).String())
 	appKeepers.IbcTransferMiddlewareKeeper = ibctransfermiddleware.NewKeeper(appCodec, appKeepers.keys[ibctransfermiddlewaretypes.StoreKey], authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-		[]string{"centauri1ay9y5uns9khw2kzaqr3r33v2pkuptfnnr93j5j",
+		[]string{
+			"centauri1ay9y5uns9khw2kzaqr3r33v2pkuptfnnr93j5j",
 			"centauri14lz7gaw92valqjearnye4shex7zg2p05mlx9q0",
 			"centauri1r2zlh2xn85v8ljmwymnfrnsmdzjl7k6w6lytan",
 			"centauri10556m38z4x6pqalr9rl5ytf3cff8q46nk85k9m",

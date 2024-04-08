@@ -2,11 +2,12 @@ package app
 
 import (
 	"fmt"
-	"github.com/notional-labs/composable/v6/app/upgrades/v6_6_0"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/notional-labs/composable/v6/app/upgrades/v6_6_0"
 
 	nodeservice "github.com/cosmos/cosmos-sdk/client/grpc/node"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
