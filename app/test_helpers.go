@@ -2,11 +2,14 @@ package app
 
 import (
 	"encoding/json"
+	"github.com/CosmWasm/wasmd/x/wasm"
+	"github.com/cosmos/cosmos-sdk/snapshots"
+	"github.com/cosmos/cosmos-sdk/snapshots/types"
 	"math/rand"
+	"path/filepath"
 	"testing"
 	"time"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -172,6 +175,14 @@ func SetupApp(t *testing.T) *ComposableApp {
 func setup(tb testing.TB, withGenesis bool, invCheckPeriod uint) (*ComposableApp, GenesisState) {
 	tb.Helper()
 	nodeHome := tb.TempDir()
+	snapshotDir := filepath.Join(nodeHome, "data", "snapshots")
+	snapshotDB, err := dbm.NewDB("metadata", dbm.MemDBBackend, snapshotDir)
+	require.NoError(tb, err)
+	snapshotStore, err := snapshots.NewStore(snapshotDB, snapshotDir)
+	require.NoError(tb, err)
+	baseAppOpts := []func(*baseapp.BaseApp){baseapp.SetSnapshot(snapshotStore, types.SnapshotOptions{
+		KeepRecent: 2,
+	})}
 	var wasmOpts []wasm.Option
 	db := dbm.NewMemDB()
 	app := NewComposableApp(
@@ -183,7 +194,7 @@ func setup(tb testing.TB, withGenesis bool, invCheckPeriod uint) (*ComposableApp
 		invCheckPeriod,
 		MakeEncodingConfig(),
 		EmptyBaseAppOptions{},
-		wasmOpts, nil)
+		wasmOpts, baseAppOpts...)
 	if withGenesis {
 		return app, NewDefaultGenesisState()
 	}
