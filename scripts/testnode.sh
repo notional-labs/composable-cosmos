@@ -10,28 +10,43 @@ LOGLEVEL="info"
 #TRACE="--trace"
 TRACE=""
 
+HOME_DIR=~/.banksy
+DENOM=${2:-ppica}
+
+
 # remove existing daemon
 rm -rf ~/.banksy*
 
-picad config keyring-backend $KEYRING
-picad config chain-id $CHAINID
+centaurid config keyring-backend $KEYRING
+centaurid config chain-id $CHAINID
 
 # if $KEY exists it should be deleted
-echo "decorate bright ozone fork gallery riot bus exhaust worth way bone indoor calm squirrel merry zero scheme cotton until shop any excess stage laundry" | picad keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO --recover
+echo "decorate bright ozone fork gallery riot bus exhaust worth way bone indoor calm squirrel merry zero scheme cotton until shop any excess stage laundry" | centaurid keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO --recover
 
-picad init $MONIKER --chain-id $CHAINID
+centaurid init $MONIKER --chain-id $CHAINID
+
+update_test_genesis () {
+    # update_test_genesis '.consensus_params["block"]["max_gas"]="100000000"'
+    cat $HOME_DIR/config/genesis.json | jq "$1" > $HOME_DIR/config/tmp_genesis.json && mv $HOME_DIR/config/tmp_genesis.json $HOME_DIR/config/genesis.json
+}
 
 # Allocate genesis accounts (cosmos formatted addresses)
-picad add-genesis-account $KEY 100000000000000000000000000stake --keyring-backend $KEYRING
+centaurid add-genesis-account $KEY 100000000000000000000000000ppica --keyring-backend $KEYRING
 
 # Sign genesis transaction
-picad gentx $KEY 1000000000000000000000stake --keyring-backend $KEYRING --chain-id $CHAINID
+centaurid gentx $KEY 10030009994127689ppica --keyring-backend $KEYRING --chain-id $CHAINID
+
+update_test_genesis '.app_state["gov"]["params"]["voting_period"]="20s"'
+update_test_genesis '.app_state["mint"]["params"]["mint_denom"]="'$DENOM'"'
+update_test_genesis '.app_state["gov"]["params"]["min_deposit"]=[{"denom":"'$DENOM'","amount": "1"}]'
+update_test_genesis '.app_state["crisis"]["constant_fee"]={"denom":"'$DENOM'","amount":"1000"}'
+update_test_genesis '.app_state["staking"]["params"]["bond_denom"]="'$DENOM'"'
 
 # Collect genesis tx
-picad collect-gentxs
+centaurid collect-gentxs
 
 # Run this to ensure everything worked and that the genesis file is setup correctly
-picad validate-genesis
+centaurid validate-genesis
 
 if [[ $1 == "pending" ]]; then
   echo "pending mode is on, please wait for the first block committed."
@@ -42,4 +57,4 @@ fi
 sed -i'' -e 's/max_body_bytes = /max_body_bytes = 1/g' ~/.banksy/config/config.toml
 
 # Start the node (remove the --pruning=nothing flag if historical queries are not needed)
-picad start --pruning=nothing  --minimum-gas-prices=0.0001stake --rpc.laddr tcp://0.0.0.0:26657
+# centaurid start --pruning=nothing  --minimum-gas-prices=0.0001ppica --rpc.laddr tcp://0.0.0.0:26657
