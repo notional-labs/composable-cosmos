@@ -58,6 +58,7 @@ func (suite *TransferTestSuite) SetupTest() {
 	msg := wasmtypes.NewMsgPushNewWasmCode(govAuthorityAddress, wasmContract)
 
 	response, err := suite.wasmKeeper.PushNewWasmCode(suite.ctx, msg)
+
 	suite.Require().NoError(err)
 	suite.Require().NotNil(response.CodeId)
 	suite.coordinator.CodeID = response.CodeId

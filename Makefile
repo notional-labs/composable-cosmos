@@ -16,8 +16,7 @@ SDK_PACK := $(shell go list -m github.com/cosmos/cosmos-sdk | sed  's/ /\@/g')
 DOCKER := $(shell which docker)
 DOCKER_BUF := $(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace bufbuild/buf:1.0.0-rc8
 BUILDDIR ?= $(CURDIR)/build
-HTTPS_GIT := https://github.com/notional-labs/composable-pica.git
-
+HTTPS_GIT := https://github.com/notional-labs/composable-centauri.git
 
 export GO111MODULE = on
 
@@ -93,7 +92,7 @@ build:
 	go build $(BUILD_FLAGS) -o bin/picad ./cmd/picad
 
 docker-build-debug:
-	@DOCKER_BUILDKIT=1 docker build -t pica:debug -f Dockerfile .
+	@DOCKER_BUILDKIT=1 docker build -t centauri:debug -f Dockerfile .
 
 lint:
 	@find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -name '*.pb.go' -not -name '*.gw.go' | xargs go run mvdan.cc/gofumpt -w .

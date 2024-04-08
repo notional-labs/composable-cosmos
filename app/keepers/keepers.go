@@ -195,7 +195,16 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 	)
 
 	appKeepers.StakingMiddlewareKeeper = stakingmiddleware.NewKeeper(appCodec, appKeepers.keys[stakingmiddlewaretypes.StoreKey], authtypes.NewModuleAddress(govtypes.ModuleName).String())
-	appKeepers.IbcTransferMiddlewareKeeper = ibctransfermiddleware.NewKeeper(appCodec, appKeepers.keys[ibctransfermiddlewaretypes.StoreKey], authtypes.NewModuleAddress(govtypes.ModuleName).String())
+	appKeepers.IbcTransferMiddlewareKeeper = ibctransfermiddleware.NewKeeper(appCodec, appKeepers.keys[ibctransfermiddlewaretypes.StoreKey], authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		[]string{"centauri1ay9y5uns9khw2kzaqr3r33v2pkuptfnnr93j5j",
+			"centauri14lz7gaw92valqjearnye4shex7zg2p05mlx9q0",
+			"centauri1r2zlh2xn85v8ljmwymnfrnsmdzjl7k6w6lytan",
+			"centauri10556m38z4x6pqalr9rl5ytf3cff8q46nk85k9m",
+
+			// "centauri1wkjvpgkuchq0r8425g4z4sf6n85zj5wtmqzjv9",
+
+			// "centauri1hj5fveer5cjtn4wd6wstzugjfdxzl0xpzxlwgs",
+		})
 
 	appKeepers.StakingKeeper = customstaking.NewKeeper(
 		appCodec, appKeepers.keys[stakingtypes.StoreKey], appKeepers.AccountKeeper, appKeepers.BankKeeper, authtypes.NewModuleAddress(govtypes.ModuleName).String(), &appKeepers.StakingMiddlewareKeeper,
@@ -210,6 +219,7 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		appCodec, appKeepers.keys[distrtypes.StoreKey], appKeepers.AccountKeeper, appKeepers.BankKeeper,
 		appKeepers.StakingKeeper, authtypes.FeeCollectorName, authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
+	appKeepers.StakingKeeper.RegisterKeepers(appKeepers.DistrKeeper, appKeepers.MintKeeper)
 	appKeepers.SlashingKeeper = slashingkeeper.NewKeeper(
 		appCodec, cdc, appKeepers.keys[slashingtypes.StoreKey], appKeepers.StakingKeeper, authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
@@ -294,7 +304,7 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		appKeepers.GetSubspace(transfermiddlewaretypes.ModuleName),
 		appCodec,
 		&appKeepers.RatelimitKeeper,
-		&appKeepers.TransferKeeper.Keeper,
+		&appKeepers.TransferKeeper,
 		appKeepers.BankKeeper,
 		authorityAddress,
 	)
@@ -303,6 +313,18 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		appCodec,
 		appKeepers.keys[txBoundaryTypes.StoreKey],
 		authorityAddress,
+	)
+
+	appKeepers.RouterKeeper = routerkeeper.NewKeeper(
+		appCodec,
+		appKeepers.keys[routertypes.StoreKey],
+		appKeepers.GetSubspace(routertypes.ModuleName),
+		appKeepers.TransferKeeper,
+		appKeepers.IBCKeeper.ChannelKeeper,
+		&appKeepers.DistrKeeper,
+		appKeepers.BankKeeper,
+		appKeepers.TransferMiddlewareKeeper,
+		appKeepers.IBCKeeper.ChannelKeeper,
 	)
 
 	appKeepers.TransferKeeper = customibctransferkeeper.NewKeeper(
@@ -315,19 +337,10 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		appKeepers.BankKeeper,
 		appKeepers.ScopedTransferKeeper,
 		&appKeepers.IbcTransferMiddlewareKeeper,
+		&appKeepers.BankKeeper,
 	)
 
-	appKeepers.RouterKeeper = routerkeeper.NewKeeper(
-		appCodec,
-		appKeepers.keys[routertypes.StoreKey],
-		appKeepers.GetSubspace(routertypes.ModuleName),
-		appKeepers.TransferKeeper.Keeper,
-		appKeepers.IBCKeeper.ChannelKeeper,
-		&appKeepers.DistrKeeper,
-		appKeepers.BankKeeper,
-		appKeepers.TransferMiddlewareKeeper,
-		appKeepers.IBCKeeper.ChannelKeeper,
-	)
+	appKeepers.RouterKeeper.SetTransferKeeper(appKeepers.TransferKeeper)
 
 	appKeepers.RatelimitKeeper = *ratelimitmodulekeeper.NewKeeper(
 		appCodec,
@@ -396,7 +409,7 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		appKeepers.IBCKeeper.ChannelKeeper,
 		&appKeepers.IBCKeeper.PortKeeper,
 		appKeepers.ScopedWasmKeeper,
-		appKeepers.TransferKeeper.Keeper,
+		appKeepers.TransferKeeper,
 		bApp.MsgServiceRouter(),
 		bApp.GRPCQueryRouter(),
 		wasmDir,
