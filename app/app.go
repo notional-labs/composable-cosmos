@@ -4,6 +4,7 @@ import (
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/core/appmodule"
 	"fmt"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	runtimeservices "github.com/cosmos/cosmos-sdk/runtime/services"
 	authcodec "github.com/cosmos/cosmos-sdk/x/auth/codec"
 	"github.com/notional-labs/composable/v6/app/upgrades/v6_5_1"
@@ -596,6 +597,15 @@ func NewComposableApp(
 		if err := app.LoadLatestVersion(); err != nil {
 			tmos.Exit(err.Error())
 		}
+		ctx := app.BaseApp.NewUncachedContext(true, tmproto.Header{})
+		// Initialize pinned codes in wasmvm as they are not persisted there
+		if err := app.WasmKeeper.InitializePinnedCodes(ctx); err != nil {
+			tmos.Exit(fmt.Sprintf("failed initialize pinned codes %s", err))
+		}
+
+		//if err := wasm08keeper.InitializePinnedCodes(ctx); err != nil {
+		//	tmos.Exit(fmt.Sprintf("failed initialize pinned codes %s", err))
+		//}
 	}
 
 	return app
