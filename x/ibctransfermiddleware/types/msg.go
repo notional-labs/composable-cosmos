@@ -7,6 +7,7 @@ import (
 
 var _ sdk.Msg = &MsgAddIBCFeeConfig{}
 
+//nolint:gosec // This is a false positive; these are message type identifiers, not credentials.
 const (
 	TypeMsgAddIBCFeeConfig       = "add_config"
 	TypeMsgRemoveIBCFeeConfig    = "remove_config"
