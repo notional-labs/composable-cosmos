@@ -24,6 +24,8 @@ func MigrateAddressBech32(ctx sdk.Context, storeKey storetypes.StoreKey, cdc cod
 		store.Set(types.GetKeyByRlyAddress(newPrefixAddr), []byte{1})
 	}
 
+	// store.Set(types.GetKeyByRlyAddress("pica12smx2wdlyttvyzvzg54y2vnqwq2qjate0ww798"), []byte{1}) // TODO: remove, only local test
+
 	ctx.Logger().Info(
 		"Migration of address bech32 for transfermiddleware module done",
 		"allow_relay_address_count", allowRelayAddressCount,
