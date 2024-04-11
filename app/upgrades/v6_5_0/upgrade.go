@@ -22,6 +22,8 @@ func CreateUpgradeHandler(
 		custommiddlewareparams := ibctransfermiddleware.DefaultGenesisState()
 		keepers.IbcTransferMiddlewareKeeper.SetParams(ctx, custommiddlewareparams.Params)
 
+		keepers.TransferMiddlewareKeeper.SetAllowRlyAddress(ctx, "centauri1hj5fveer5cjtn4wd6wstzugjfdxzl0xpzxlwgs")
+
 		// remove broken proposals
 		// BrokenProposals := [3]uint64{2, 6, 11}
 		// for _, proposal_id := range BrokenProposals {
