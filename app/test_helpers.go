@@ -2,13 +2,14 @@ package app
 
 import (
 	"encoding/json"
-	"github.com/CosmWasm/wasmd/x/wasm"
-	"github.com/cosmos/cosmos-sdk/snapshots"
-	"github.com/cosmos/cosmos-sdk/snapshots/types"
 	"math/rand"
 	"path/filepath"
 	"testing"
 	"time"
+
+	"github.com/CosmWasm/wasmd/x/wasm"
+	"github.com/cosmos/cosmos-sdk/snapshots"
+	"github.com/cosmos/cosmos-sdk/snapshots/types"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	dbm "github.com/cometbft/cometbft-db"

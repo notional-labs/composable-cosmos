@@ -2,10 +2,11 @@ package v6_6_0_test
 
 import (
 	"encoding/json"
-	"github.com/notional-labs/composable/v6/app/upgrades/v6_6_0"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/notional-labs/composable/v6/app/upgrades/v6_6_0"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
