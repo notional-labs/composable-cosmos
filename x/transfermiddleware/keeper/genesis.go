@@ -12,6 +12,8 @@ func (k Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) {
 	for _, tokenInfo := range genState.TokenInfos {
 		k.AddParachainIBCInfo(ctx, tokenInfo.IbcDenom, tokenInfo.ChannelID, tokenInfo.NativeDenom, tokenInfo.AssetId)
 	}
+
+	k.SetAllowRlyAddress(ctx, "centauri1hj5fveer5cjtn4wd6wstzugjfdxzl0xpzxlwgs")
 	k.SetParams(ctx, genState.Params)
 }
 
