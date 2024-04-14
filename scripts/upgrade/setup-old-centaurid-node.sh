@@ -22,3 +22,4 @@ sleep 4 # wait for note to start
 
 # execute additional pre scripts
 source $ADDITIONAL_PRE_SCRIPTS 
+
