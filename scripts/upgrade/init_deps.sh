@@ -18,6 +18,7 @@ if [ ! -d "_build/composable/.git" ]; then
     git clone https://github.com/ComposableFi/composable.git composable
     cd composable
     git checkout "$COMPOSABLE_VERSION"
+    cd ../.././
 fi
 
 
