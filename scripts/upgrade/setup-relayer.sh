@@ -1,7 +1,7 @@
 
 ROOT=$(pwd)
 
-cd $ROOT/_build/composable/composable-pfm-fix
+cd $ROOT/_build/composable/
 
 # init clients
 nix run  .#picasso-centauri-ibc-init

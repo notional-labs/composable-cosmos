@@ -1,6 +1,6 @@
 ROOT=$(pwd)
 
-cd $ROOT/_build/composable/composable-pfm-fix
+cd $ROOT/_build/composable
 
 # This start the node
 nix run .#zombienet-rococo-local-picasso-dev
@@ -12,3 +12,9 @@ sleep 20
 
 
 
+ROOT=$(pwd)
+
+cd $ROOT/_build/composable
+
+# This start the node
+nix run .#zombienet-rococo-local-picasso-dev

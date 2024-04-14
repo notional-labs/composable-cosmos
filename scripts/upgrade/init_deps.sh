@@ -5,15 +5,18 @@ OLD_VERSION=kien-devnet-651
 SOFTWARE_UPGRADE_NAME="v6_6_0"
 ROOT=$(pwd)
 
-COMPOSABLE_VERSION="pfm-fix"
+COMPOSABLE_VERSION="branchfortestingpfmfix"
 
-if [ ! -f "_build/composable/$COMPOSABLE_VERSION.zip" ] &> /dev/null
-then
-    mkdir -p _build/composable
-    wget -c "https://github.com/notional-labs/composable/archive/refs/tags/${COMPOSABLE_VERSION}.zip" -O _build/composable/${COMPOSABLE_VERSION}.zip
-    unzip _build/composable/${COMPOSABLE_VERSION}.zip -d _build/composable
+mkdir -p _build/
+
+
+# Check if the directory exists and is a Git repository
+if [ ! -d "_build/composable/.git" ]; then
+    cd _build/
+    git clone https://github.com/ComposableFi/composable.git composable
+    cd composable
+    git checkout "$COMPOSABLE_VERSION"
 fi
-
 
 
 # install old binary if not exist
