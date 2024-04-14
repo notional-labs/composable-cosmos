@@ -5,7 +5,7 @@ KEYRING="test"
 HOME_DIR="mytestnet"
 BINARY=_build/old/centaurid
 DENOM=ppica
-CHAINID=centauri
+CHAINID=centauri-dev
 
 $BINARY tx gov submit-proposal scripts/08-wasm/ics10_grandpa_cw.wasm.json --from=$KEY --fees 100000${DENOM} --gas auto --keyring-backend test  --home $HOME_DIR  --chain-id $CHAINID -y  
 

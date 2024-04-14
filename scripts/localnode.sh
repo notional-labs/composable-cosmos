@@ -2,7 +2,7 @@
 
 KEY="mykey"
 KEY1="mykey1"
-CHAINID="centauri"
+CHAINID="centauri-dev"
 MONIKER="localtestnet"
 KEYALGO="secp256k1"
 KEYRING="test"
