@@ -11,6 +11,8 @@ mkdir -p _build/
 
 
 # Check if the directory exists and is a Git repository
+# TODO: using git, since nix in composable repo requires something with git
+# Consider using submodule, or firgure this out
 if [ ! -d "_build/composable/.git" ]; then
     cd _build/
     git clone https://github.com/ComposableFi/composable.git composable
