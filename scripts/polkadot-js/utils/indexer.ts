@@ -1,4 +1,11 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
+import { Keyring } from "@polkadot/keyring";
+import { KeyringPair } from "@polkadot/keyring/types";
+
+export type TestWallets = {
+  alice: KeyringPair;
+  bob: KeyringPair;
+};
 
 export const getProvider = async (): Promise<ApiPromise> => {
   // Initialise the provider to connect to the local node
@@ -11,4 +18,13 @@ export const getProvider = async (): Promise<ApiPromise> => {
   const api = await ApiPromise.create({ provider });
 
   return api;
+};
+
+export const getWallets = (): TestWallets => {
+  // Add Alice to our keyring with a well-known development mnemonic
+  const keyring = new Keyring({ type: "sr25519" });
+  const alice = keyring.addFromUri("//Alice");
+  const bob = keyring.addFromUri("//Bob");
+
+  return { alice, bob };
 };

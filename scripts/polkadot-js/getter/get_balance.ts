@@ -1,8 +1,7 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
-import { getProvider } from "../utils/indexer";
+import { getProvider, getWallets } from "../utils/indexer";
 
 // Put the address of the account you want to fetch info for here
-const address = "5EZntS5SYEpBXmJpz8H6hXcGF86ukiugDuEn4si4usJ1bNkb";
 
 async function fetchAccountInfo() {
   // Initialise the provider to connect to the local node
@@ -10,11 +9,12 @@ async function fetchAccountInfo() {
   // Create the API instance
   const api = await getProvider();
 
+  const wallets = getWallets();
   try {
     // Fetch the account info
-    const accountInfo = await api.query.system.account(address);
+    const accountInfo = await api.query.system.account(wallets.alice.address);
 
-    console.log(`Account ${address} info:`, accountInfo.toJSON());
+    console.log(`Account ${wallets.alice.address} info:`, accountInfo.toJSON());
   } catch (error) {
     console.error("Error fetching account info:", error);
   } finally {

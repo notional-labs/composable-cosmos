@@ -1,71 +1,51 @@
-// Import the API & Provider and some utility functions
-import { ApiPromise, WsProvider } from "@polkadot/api";
+import { ApiPromise } from "@polkadot/api";
+import { Keyring } from "@polkadot/keyring";
+import { getProvider, getWallets } from "../utils/indexer";
 
-// Import the test keyring (already has dev keys for Alice, Bob, Charlie, Eve & Ferdie)
-import { createTestKeyring } from "@polkadot/keyring/testing";
+// The amount to transfer
+const amount = 1000000000000; // Adjust the amount as needed
 
-// Utility function for random values
-import { randomAsU8a } from "@polkadot/util-crypto";
+async function transferFunds() {
+  const api = await getProvider();
 
-// Some constants we are using in this sample
-const ALICE = "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY";
-const AMOUNT = 10000;
+  console.log("hello");
+  const wallets = getWallets();
 
-async function main() {
-  // Create the API and wait until ready
-  const provider = new WsProvider("ws://65.21.224.114:9944");
-  const api = await ApiPromise.create({ provider });
+  console.log("Alice address: ", wallets.alice.address);
+  console.log("Bob address: ", wallets.bob.address);
 
-  // Create an instance of our testing keyring
-  // If you're using ES6 module imports instead of require, just change this line to:
-  // const keyring = testKeyring();
-  const keyring = createTestKeyring();
+  // Fetch the next nonce for the Alice's account
+  const { nonce } = (await api.query.system.account(
+    wallets.alice.address
+  )) as any;
 
-  // Get the nonce for the admin key
-  const { nonce } = (await api.query.system.account(ALICE)) as any;
-  console.log("nonce : ", nonce);
-
-  // Find the actual keypair in the keyring
-  const alicePair = keyring.getPair(ALICE);
-
-  // Create a new random recipient
-  const recipient = keyring.addFromSeed(randomAsU8a(32)).address;
+  // Construct the transaction
+  const transfer = api.tx.balances.transfer(wallets.bob.address, amount);
 
   console.log(
-    "Sending",
-    AMOUNT,
-    "from",
-    alicePair.address,
-    "to",
-    recipient,
-    "with nonce",
-    nonce.toString()
+    `Transferring ${amount} from ${wallets.alice.address} to ${wallets.bob.address}`
   );
+  console.log(`Nonce: ${nonce}`);
 
-  // Do the transfer and track the actual status
-  api.tx.balances
-    .transfer(recipient, AMOUNT)
-    .signAndSend(alicePair, { nonce }, ({ events = [], status }) => {
-      console.log("Transaction status:", status.type);
-
+  // Sign and send the transaction, and subscribe to its status updates
+  const unsub = await transfer.signAndSend(
+    wallets.alice,
+    ({ status, events }) => {
       if (status.isInBlock) {
-        console.log("Included at block hash", status.asInBlock.toHex());
-        console.log("Events:");
-
-        events.forEach(({ event: { data, method, section }, phase }) => {
-          console.log(
-            "\t",
-            phase.toString(),
-            `: ${section}.${method}`,
-            data.toString()
-          );
-        });
+        console.log(`Transaction included at blockHash ${status.asInBlock}`);
       } else if (status.isFinalized) {
-        console.log("Finalized block hash", status.asFinalized.toHex());
+        console.log(`Transaction finalized at blockHash ${status.asFinalized}`);
+        events.forEach(({ event: { data, method, section }, phase }) => {
+          console.log(`\t' ${phase}: ${section}.${method} ${data}`);
+        });
 
-        process.exit(0);
+        // Once finalized, we can unsubscribe from further updates
+        unsub();
+        // Disconnect from the provider
+        api.disconnect();
       }
-    });
+    }
+  );
 }
 
-main().catch(console.error);
+transferFunds();
