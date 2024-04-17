@@ -9,7 +9,7 @@ export type TestWallets = {
 
 export const getProvider = async (): Promise<ApiPromise> => {
   // Initialise the provider to connect to the local node
-  const wsEndpoint = "ws://65.21.224.114:9944";
+  const wsEndpoint = "ws://65.21.224.114:9988";
   const provider = new WsProvider(wsEndpoint);
 
   console.log(`connection to provider at ${wsEndpoint}`);

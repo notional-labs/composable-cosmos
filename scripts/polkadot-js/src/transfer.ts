@@ -3,7 +3,7 @@ import { Keyring } from "@polkadot/keyring";
 import { getProvider, getWallets } from "../utils/indexer";
 
 // The amount to transfer
-const amount = 1000000000000; // Adjust the amount as needed
+const amount = 1000; // Adjust the amount as needed
 
 async function transferFunds() {
   const api = await getProvider();

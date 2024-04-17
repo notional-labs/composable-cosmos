@@ -14,7 +14,20 @@ async function fetchAccountInfo() {
     // Fetch the account info
     const accountInfo = await api.query.system.account(wallets.alice.address);
 
-    console.log(`Account ${wallets.alice.address} info:`, accountInfo.toJSON());
+    console.log(
+      `Account ${wallets.alice.address} info:`,
+      accountInfo.toHuman()
+    );
+  } catch (error) {
+    console.error("Error fetching account info:", error);
+  }
+
+  try {
+    const bobAccountInfo = await api.query.system.account(wallets.bob.address);
+    console.log(
+      `Account ${wallets.bob.address} info:`,
+      bobAccountInfo.toHuman()
+    );
   } catch (error) {
     console.error("Error fetching account info:", error);
   } finally {
