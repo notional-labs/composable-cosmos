@@ -367,6 +367,7 @@ replace (
 	github.com/cometbft/cometbft => github.com/notional-labs/cometbft v0.38.6-fixed-len-vote-time-tag
 
 	github.com/cosmos/cosmos-sdk => github.com/notional-labs/cosmos-sdk v0.50.5-patch-validators-trim-tag
+	github.com/cosmos/cosmos-sdk => github.com/notional-labs/cosmos-sdk v0.50.5-patch-validators-trim-tag
 
 	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8 => github.com/notional-labs/ibc-apps/middleware/packet-forward-middleware/v8 v8.0.2-rc2
 	// github.com/cosmos/ibc-go/modules/light-clients/08-wasm => /Users/hoank/resource/notional/ibc-go/modules/light-clients/08-wasm
@@ -378,5 +379,6 @@ replace (
 	github.com/prometheus/common => github.com/prometheus/common v0.47.0
 
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
+// github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8 => github.com/notional-labs/ibc-apps/middleware/packet-forward-middleware/v8 v8.0.0-0.20240327105252-f31a09121d57
 
 )
