@@ -138,13 +138,12 @@ run_upgrade () {
         if [ $BLOCK_HEIGHT = "$UPGRADE_HEIGHT" ]; then
             # assuming running only 1 centaurid
             echo "BLOCK HEIGHT = $UPGRADE_HEIGHT REACHED, KILLING OLD ONE"
-            sleep 3
             pkill centaurid
             break
         else
             ./_build/old/centaurid q gov proposal 1 --output=json | jq ".status"
             echo "BLOCK_HEIGHT = $BLOCK_HEIGHT"
-            sleep 3
+            sleep 1
         fi
     done
 }
