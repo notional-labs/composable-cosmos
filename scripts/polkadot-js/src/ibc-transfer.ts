@@ -3,6 +3,10 @@ import { Keyring } from "@polkadot/keyring";
 import BN from "bn.js";
 import { KeyringPair } from "@polkadot/keyring/types";
 import { getProvider, getWallets } from "../utils/indexer";
+import { encodeAddress, decodeAddress } from "@polkadot/util-crypto";
+import { fromBech32, fromHex, toBase64 } from "@cosmjs/encoding";
+
+const ss58Format = 49; // Centauri network SS58 format
 
 async function sendIbcFundsTx(
   api: ApiPromise,
@@ -17,28 +21,31 @@ async function sendIbcFundsTx(
       await api.connect();
     }
 
-    // Fetch the latest metadata
-    const meta = await api.rpc.state.getMetadata();
+    // dont have to convert
+    const to = { Raw: amount.address };
 
-    // Convert asset number and amount
     const assetNum = new BN(amount.denom, 10);
+    const sourceChannel = new BN(channelID);
+    const timeout = {
+      Offset: {
+        timestamp: api.createType("Option<u64>", null), // or provide a specific timestamp offset
+        height: api.createType("Option<u64>", null), // or provide a specific height offset
+      },
+    };
+
+    // Construct paramters
+    const params = {
+      to,
+      source_channel: sourceChannel,
+      timeout,
+    };
+
+    const assetId = new BN(assetNum);
     const amountBN = new BN(amount.amount, 10);
+    const memo = "simple transfe";
 
-    // Construct the call to the IBC transfer function
-    // Note: The exact method name and parameters depend on your chain's IBC implementation
-    const call = api.tx.ibc.transfer({
-      raw: 1, // Example parameter, adjust according to actual call structure
-      size: amount.address.length * 4,
-      to: amount.address,
-      channel: new BN(channelID), // Assuming channelID is a string that can be converted
-      timeout: 1,
-      timestamp: 0, // Example, adjust as needed
-      height: 3000, // Example, adjust as needed
-      assetId: assetNum,
-      amount: amountBN,
-      memo: 0, // Example, adjust as needed
-    });
-
+    // Make the call to ibc.transfer with the transferObj
+    const call = api.tx.ibc.transfer(params, assetId, amountBN, memo);
     // Sign and send the transaction
     return await new Promise((resolve, reject) => {
       call
@@ -75,9 +82,14 @@ async function main() {
   const wallets = getWallets();
   const senderKeypair = wallets.alice;
 
-  const channelID = "channel-0"; // Example channel ID
-  const amount = { denom: "10", amount: "1000", address: "targetAddress" }; // Example amount
-  const options = {}; // Example options, adjust as needed
+  const channelID = "0"; // Example channel ID
+  const amount = {
+    denom: "10",
+    amount: "1000",
+    address: "centauri1hj5fveer5cjtn4wd6wstzugjfdxzl0xpzxlwgs",
+  };
+
+  const options = {};
 
   try {
     const hash = await sendIbcFundsTx(

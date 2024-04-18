@@ -1,0 +1,36 @@
+Arguments: 
+  /Users/kien6034/.nvm/versions/node/v19.9.0/bin/node /usr/local/bin/yarn add @cosmjs
+
+PATH: 
+  /Users/kien6034/.gvm/bin:/Users/kien6034/.nvm/versions/node/v19.9.0/bin:/Users/kien6034/.rbenv/shims:/Users/kien6034/.local/share/renec/install/active_release/bin:/Users/kien6034/.local/share/solana/install/active_release/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/kien6034/go/bin/:/Applications/Visual:Studio:Code.app/Contents/Resources/app/bin/:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/usr/local/go/bin:/Users/kien6034/.cargo/bin:/Users/kien6034/.foundry/bin:/usr/local/mysql/bin/
+
+Yarn version: 
+  1.22.19
+
+Node version: 
+  19.9.0
+
+Platform: 
+  darwin arm64
+
+Trace: 
+  Error: https://registry.yarnpkg.com/@cosmjs: Request "https://registry.yarnpkg.com/@cosmjs" returned a 405
+      at params.callback [as _callback] (/usr/local/lib/node_modules/yarn/lib/cli.js:66154:18)
+      at self.callback (/usr/local/lib/node_modules/yarn/lib/cli.js:140890:22)
+      at Request.emit (node:events:513:28)
+      at Request.<anonymous> (/usr/local/lib/node_modules/yarn/lib/cli.js:141862:10)
+      at Request.emit (node:events:513:28)
+      at IncomingMessage.<anonymous> (/usr/local/lib/node_modules/yarn/lib/cli.js:141784:12)
+      at Object.onceWrapper (node:events:627:28)
+      at IncomingMessage.emit (node:events:525:35)
+      at endReadableNT (node:internal/streams/readable:1359:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:82:21)
+
+npm manifest: 
+  No manifest
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
