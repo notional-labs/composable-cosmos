@@ -21,15 +21,20 @@ async function sendIbcFundsTx(
       await api.connect();
     }
 
+    // Calculate the timestamp for 5 minutes into the future
+    const fiveMinutes = 5 * 60 * 1000; // 5 minutes in milliseconds
+    const futureTimestamp = new Date().getTime() + fiveMinutes; // Current time + 5 minutes
+
+    const substrateFutureTimestamp = api.createType("u64", futureTimestamp);
+
     // dont have to convert
     const to = { Raw: amount.address };
 
-    const assetNum = new BN(amount.denom, 10);
-    const sourceChannel = new BN(channelID);
+    const assetNum = 1;
+    const sourceChannel = 0;
     const timeout = {
       Offset: {
-        timestamp: api.createType("Option<u64>", null), // or provide a specific timestamp offset
-        height: api.createType("Option<u64>", null), // or provide a specific height offset
+        timestamp: api.createType("Option<u64>", substrateFutureTimestamp), // or provide a specific timestamp offset
       },
     };
 
@@ -42,7 +47,7 @@ async function sendIbcFundsTx(
 
     const assetId = new BN(assetNum);
     const amountBN = new BN(amount.amount, 10);
-    const memo = "simple transfe";
+    const memo = null;
 
     // Make the call to ibc.transfer with the transferObj
     const call = api.tx.ibc.transfer(params, assetId, amountBN, memo);
@@ -82,10 +87,10 @@ async function main() {
   const wallets = getWallets();
   const senderKeypair = wallets.alice;
 
-  const channelID = "0"; // Example channel ID
+  const channelID = "0";
   const amount = {
-    denom: "10",
-    amount: "1000",
+    denom: "1",
+    amount: "1000000000000000",
     address: "centauri1hj5fveer5cjtn4wd6wstzugjfdxzl0xpzxlwgs",
   };
 
