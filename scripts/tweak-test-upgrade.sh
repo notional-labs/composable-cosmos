@@ -65,6 +65,8 @@ screen -dms old-node bash scripts/localnode.sh _build/old/centaurid $DENOM
 
 sleep 2 # wait for note to start 
 
+docker run -d --publish 38391:38391 --publish 9988:9988 --publish 9944:9944 --publish 34165:34165 composablefi/devnet-picasso
+
 # execute additional pre scripts
 if [ ! -z "$ADDITIONAL_PRE_SCRIPTS" ]; then
     # slice ADDITIONAL_SCRIPTS by ,
@@ -81,6 +83,10 @@ if [ ! -z "$ADDITIONAL_PRE_SCRIPTS" ]; then
     done
 fi
 
+bash scripts/relayer_hyperspace/config_relayer.sh
+
+# Wait parachain to start
+sleep 10
 
 run_fork () {
     echo "forking"
