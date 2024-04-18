@@ -42,7 +42,8 @@ func CreateUpgradeHandler(
 			"d2e8126bc2226fb57e4fa8462da2a3441c3bead05c1161e848c944f99d9119ab",
 			"ee97c9bd49a83282c2be1cd8cef0f2f55feb6d2d4c63ec3d27d69c252bd78531",
 			"ef52ef690dc5ec88fd4dd78dc8fd7582904492284b0c290a12ef343d8a541056",
-			"fccfde77e9318b1316e545a34414b5fc3e6cf82a5fe432815b956153c2e655bc"}
+			"fccfde77e9318b1316e545a34414b5fc3e6cf82a5fe432815b956153c2e655bc",
+		}
 		listCheckSum := [][]byte{}
 		for _, code := range listCode {
 			checksumStr, err := hex.DecodeString(code)

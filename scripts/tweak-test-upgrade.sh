@@ -7,7 +7,7 @@ OLD_VERSION=kien-v6.5.0-tweak
 UPGRADE_WAIT=${UPGRADE_WAIT:-20}
 HOME=mytestnet
 ROOT=$(pwd)
-DENOM=upica
+DENOM=ppica
 CHAIN_ID=localpica
 SOFTWARE_UPGRADE_NAME="v7_0_1"
 ADDITIONAL_PRE_SCRIPTS="./scripts/upgrade/v6_to_7/pre_08_wasm.sh"
@@ -138,12 +138,13 @@ run_upgrade () {
         if [ $BLOCK_HEIGHT = "$UPGRADE_HEIGHT" ]; then
             # assuming running only 1 centaurid
             echo "BLOCK HEIGHT = $UPGRADE_HEIGHT REACHED, KILLING OLD ONE"
+            sleep 3
             pkill centaurid
             break
         else
             ./_build/old/centaurid q gov proposal 1 --output=json | jq ".status"
             echo "BLOCK_HEIGHT = $BLOCK_HEIGHT"
-            sleep 1 
+            sleep 3
         fi
     done
 }
