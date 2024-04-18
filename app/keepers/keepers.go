@@ -78,9 +78,9 @@ import (
 
 	custombankkeeper "github.com/notional-labs/composable/v6/custom/bank/keeper"
 
-	router "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward"
-	routerkeeper "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward/keeper"
-	routertypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward/types"
+	pfm "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward"
+	pfmkeeper "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward/keeper"
+	pfmtypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward/types"
 
 	transfermiddleware "github.com/notional-labs/composable/v6/x/transfermiddleware"
 	transfermiddlewarekeeper "github.com/notional-labs/composable/v6/x/transfermiddleware/keeper"
@@ -165,7 +165,7 @@ type AppKeepers struct {
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 	TransferMiddlewareKeeper    transfermiddlewarekeeper.Keeper
 	TxBoundaryKeepper           txBoundaryKeeper.Keeper
-	RouterKeeper                *routerkeeper.Keeper
+	PfmKeeper                   *pfmkeeper.Keeper
 	RatelimitKeeper             ratelimitmodulekeeper.Keeper
 	StakingMiddlewareKeeper     stakingmiddleware.Keeper
 	IbcTransferMiddlewareKeeper ibctransfermiddleware.Keeper
@@ -330,9 +330,9 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		authorityAddress,
 	)
 
-	appKeepers.RouterKeeper = routerkeeper.NewKeeper(
+	appKeepers.PfmKeeper = pfmkeeper.NewKeeper(
 		appCodec,
-		appKeepers.keys[routertypes.StoreKey],
+		appKeepers.keys[pfmtypes.StoreKey],
 		appKeepers.TransferKeeper.Keeper,
 		appKeepers.IBCKeeper.ChannelKeeper,
 		&appKeepers.DistrKeeper,
@@ -354,7 +354,7 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		&appKeepers.IbcTransferMiddlewareKeeper,
 		govModAddress,
 	)
-	appKeepers.RouterKeeper.SetTransferKeeper(appKeepers.TransferKeeper)
+	appKeepers.PfmKeeper.SetTransferKeeper(appKeepers.TransferKeeper)
 
 	appKeepers.RatelimitKeeper = *ratelimitmodulekeeper.NewKeeper(
 		appCodec,
@@ -383,12 +383,12 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		appKeepers.TransferMiddlewareKeeper,
 	)
 
-	ibcMiddlewareStack := router.NewIBCMiddleware(
+	ibcMiddlewareStack := pfm.NewIBCMiddleware(
 		transfermiddlewareStack,
-		appKeepers.RouterKeeper,
+		appKeepers.PfmKeeper,
 		0,
-		routerkeeper.DefaultForwardTransferPacketTimeoutTimestamp,
-		routerkeeper.DefaultRefundTransferPacketTimeoutTimestamp,
+		pfmkeeper.DefaultForwardTransferPacketTimeoutTimestamp,
+		pfmkeeper.DefaultRefundTransferPacketTimeoutTimestamp,
 	)
 	ratelimitMiddlewareStack := ratelimitmodule.NewIBCMiddleware(appKeepers.RatelimitKeeper, ibcMiddlewareStack)
 	hooksTransferMiddleware := ibc_hooks.NewIBCMiddleware(ratelimitMiddlewareStack, &appKeepers.HooksICS4Wrapper)
@@ -397,7 +397,7 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 	evidenceKeeper := evidencekeeper.NewKeeper(
 		appCodec, runtime.NewKVStoreService(appKeepers.keys[evidencetypes.StoreKey]), appKeepers.StakingKeeper, appKeepers.SlashingKeeper, appKeepers.AccountKeeper.AddressCodec(), runtime.ProvideCometInfoService(),
 	)
-	// If evidence needs to be handled for the app, set routes in router here and seal
+	// If evidence needs to be handled for the app, set routes in pfm here and seal
 	appKeepers.EvidenceKeeper = *evidenceKeeper
 
 	wasmDir := filepath.Join(homePath, "wasm")
@@ -499,7 +499,7 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 	ibcRouter.AddRoute(wasmtypes.ModuleName, wasm.NewIBCHandler(appKeepers.WasmKeeper, appKeepers.IBCKeeper.ChannelKeeper, appKeepers.IBCKeeper.ChannelKeeper))
 	ibcRouter.AddRoute(icahosttypes.SubModuleName, icaHostStack)
 
-	// this line is used by starport scaffolding # ibc/app/router
+	// this line is used by starport scaffolding # ibc/app/pfm
 	appKeepers.IBCKeeper.SetRouter(ibcRouter)
 }
 
@@ -552,8 +552,8 @@ func (appKeepers *AppKeepers) initParamsKeeper(appCodec codec.BinaryCodec, legac
 	paramsKeeper.Subspace(stakingtypes.ModuleName)
 	paramsKeeper.Subspace(distrtypes.ModuleName)
 	paramsKeeper.Subspace(slashingtypes.ModuleName)
-	paramsKeeper.Subspace(routertypes.ModuleName).WithKeyTable(routertypes.ParamKeyTable()) // TODO:
-	paramsKeeper.Subspace(govtypes.ModuleName).WithKeyTable(govtypesv1.ParamKeyTable())     //nolint:staticcheck
+	paramsKeeper.Subspace(pfmtypes.ModuleName).WithKeyTable(pfmtypes.ParamKeyTable())   // TODO:
+	paramsKeeper.Subspace(govtypes.ModuleName).WithKeyTable(govtypesv1.ParamKeyTable()) //nolint:staticcheck
 	paramsKeeper.Subspace(minttypes.ModuleName).WithKeyTable(minttypes.ParamKeyTable())
 	paramsKeeper.Subspace(crisistypes.ModuleName)
 	paramsKeeper.Subspace(ratelimitmoduletypes.ModuleName)

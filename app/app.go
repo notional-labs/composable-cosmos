@@ -102,8 +102,8 @@ import (
 	customstaking "github.com/notional-labs/composable/v6/custom/staking"
 	"github.com/spf13/cast"
 
-	router "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward"
-	routertypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward/types"
+	pfm "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward"
+	pfmtypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward/types"
 
 	custombankmodule "github.com/notional-labs/composable/v6/custom/bank"
 
@@ -201,7 +201,7 @@ var (
 		tendermint.AppModuleBasic{},
 		mint.AppModuleBasic{},
 		wasm.AppModuleBasic{},
-		router.AppModuleBasic{},
+		pfm.AppModuleBasic{},
 		ica.AppModuleBasic{},
 		ibc_hooks.AppModuleBasic{},
 		transfermiddleware.AppModuleBasic{},
@@ -342,7 +342,7 @@ func NewComposableApp(
 
 	// transferModule := transfer.NewAppModule(app.TransferKeeper)
 	transferModule := customibctransfer.NewAppModule(appCodec, app.TransferKeeper, app.BankKeeper)
-	routerModule := router.NewAppModule(app.RouterKeeper, app.GetSubspace(routertypes.ModuleName))
+	pfmModule := pfm.NewAppModule(app.PfmKeeper, app.GetSubspace(pfmtypes.ModuleName))
 	transfermiddlewareModule := transfermiddleware.NewAppModule(&app.TransferMiddlewareKeeper)
 	txBoundaryModule := txBoundary.NewAppModule(appCodec, app.TxBoundaryKeepper)
 	ratelimitModule := ratelimitmodule.NewAppModule(&app.RatelimitKeeper)
@@ -389,7 +389,7 @@ func NewComposableApp(
 		consensus.NewAppModule(appCodec, app.ConsensusParamsKeeper),
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper, app.MsgServiceRouter(), app.GetSubspace(wasmtypes.ModuleName)),
 		wasm08.NewAppModule(app.Wasm08Keeper),
-		routerModule,
+		pfmModule,
 		transfermiddlewareModule,
 		txBoundaryModule,
 		icaModule,
@@ -421,7 +421,7 @@ func NewComposableApp(
 		vestingtypes.ModuleName,
 		ibcexported.ModuleName,
 		ibctransfertypes.ModuleName,
-		routertypes.ModuleName,
+		pfmtypes.ModuleName,
 		transfermiddlewaretypes.ModuleName,
 		txBoundaryTypes.ModuleName,
 		ratelimitmoduletypes.ModuleName,
@@ -465,7 +465,7 @@ func NewComposableApp(
 		group.ModuleName,
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
-		routertypes.ModuleName,
+		pfmtypes.ModuleName,
 		transfermiddlewaretypes.ModuleName,
 		txBoundaryTypes.ModuleName,
 		ratelimitmoduletypes.ModuleName,
@@ -505,7 +505,7 @@ func NewComposableApp(
 		upgradetypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		icqtypes.ModuleName,
-		routertypes.ModuleName,
+		pfmtypes.ModuleName,
 		transfermiddlewaretypes.ModuleName,
 		txBoundaryTypes.ModuleName,
 		ratelimitmoduletypes.ModuleName,
