@@ -2,6 +2,7 @@ package keepers
 
 import (
 	"fmt"
+	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	"math"
 	"path/filepath"
@@ -94,8 +95,6 @@ import (
 	ratelimitmoduletypes "github.com/notional-labs/composable/v6/x/ratelimit/types"
 
 	consensusparamkeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
-	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
-
 	mintkeeper "github.com/notional-labs/composable/v6/x/mint/keeper"
 	minttypes "github.com/notional-labs/composable/v6/x/mint/types"
 
@@ -524,7 +523,11 @@ func (appKeepers *AppKeepers) InitSpecialKeepers(
 	appKeepers.CapabilityKeeper = capabilitykeeper.NewKeeper(appCodec, appKeepers.keys[capabilitytypes.StoreKey], appKeepers.memKeys[capabilitytypes.MemStoreKey])
 
 	// set the BaseApp's parameter store
-	appKeepers.ConsensusParamsKeeper = consensusparamkeeper.NewKeeper(appCodec, runtime.NewKVStoreService(appKeepers.keys[consensusparamtypes.StoreKey]), govModAddress, runtime.EventService{})
+	appKeepers.ConsensusParamsKeeper = consensusparamkeeper.NewKeeper(
+		appCodec,
+		runtime.NewKVStoreService(appKeepers.keys[consensusparamtypes.StoreKey]),
+		govModAddress,
+		runtime.EventService{})
 	bApp.SetParamStore(&appKeepers.ConsensusParamsKeeper.ParamsStore)
 
 	// grant capabilities for the ibc and ibc-transfer modules

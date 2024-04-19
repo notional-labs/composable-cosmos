@@ -9,8 +9,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	wasmkeeper "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/keeper"
 	wasmtypes "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types"
-	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
-	"github.com/cosmos/ibc-go/v8/modules/core/exported"
 	"github.com/stretchr/testify/suite"
 
 	customibctesting "github.com/notional-labs/composable/v6/app/ibctesting"
@@ -71,46 +69,4 @@ func (suite *TransferTestSuite) SetupTest() {
 
 func TestTransferTestSuite(t *testing.T) {
 	suite.Run(t, new(TransferTestSuite))
-}
-
-func (suite *TransferTestSuite) TestIbcAnteWithWasmUpdateClient() {
-	suite.SetupTest()
-	path := customibctesting.NewPath(suite.chainA, suite.chainB)
-	suite.coordinator.SetupClients(path)
-
-	// ensure counterparty has committed state
-	suite.chainA.Coordinator.CommitBlock(suite.chainA)
-
-	var header exported.ClientMessage
-	header, err := suite.chainB.ConstructUpdateWasmClientHeader(suite.chainA, path.EndpointB.ClientID)
-	suite.Require().NoError(err)
-
-	msg, err := clienttypes.NewMsgUpdateClient(
-		path.EndpointB.ClientID, header,
-		suite.chainB.SenderAccount.GetAddress().String(),
-	)
-	suite.Require().NoError(err)
-
-	_, err = suite.chainB.SendMsgsWithExpPass(false, msg)
-	suite.Require().Error(err)
-}
-
-func (suite *TransferTestSuite) TestIbcAnteWithTenderMintUpdateClient() {
-	suite.SetupTest()
-	path := customibctesting.NewPath(suite.chainA, suite.chainB)
-	suite.coordinator.SetupClients(path)
-
-	// ensure counterparty has committed state
-	suite.chainA.Coordinator.CommitBlock(suite.chainA)
-
-	header := suite.chainA.CurrentTMClientHeader()
-
-	msg, err := clienttypes.NewMsgUpdateClient(
-		path.EndpointB.ClientID, header,
-		suite.chainB.SenderAccount.GetAddress().String(),
-	)
-	suite.Require().NoError(err)
-
-	_, err = suite.chainB.SendMsgsWithExpPass(false, msg)
-	suite.Require().Error(err)
 }

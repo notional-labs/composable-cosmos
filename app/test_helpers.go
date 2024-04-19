@@ -70,7 +70,7 @@ func setup(tb testing.TB, withGenesis bool, invCheckPeriod uint) (*ComposableApp
 	require.NoError(tb, err)
 	baseAppOpts := []func(*baseapp.BaseApp){baseapp.SetSnapshot(snapshotStore, types.SnapshotOptions{
 		KeepRecent: 2,
-	})}
+	}), baseapp.SetChainID("testing")}
 	var wasmOpts []wasm.Option
 	db := dbm.NewMemDB()
 	app := NewComposableApp(
@@ -139,10 +139,12 @@ func SetupWithGenesisValSet(
 	genesisState[stakingtypes.ModuleName] = app.appCodec.MustMarshalJSON(stakingGenesis)
 
 	totalSupply := sdk.NewCoins()
-	for _, b := range balances {
-		// add genesis acc tokens and delegated tokens to total supply
-		totalSupply = totalSupply.Add(b.Coins.Add(sdk.NewCoin(sdk.DefaultBondDenom, bondAmt))...)
-	}
+	//for _, b := range balances {
+	//	// add genesis acc tokens and delegated tokens to total supply
+	//	totalSupply = totalSupply.Add(b.Coins.Add(sdk.NewCoin(sdk.DefaultBondDenom, bondAmt))...)
+	//}
+	//
+	//totalSupply = totalSupply.Sub(sdk.NewCoin(sdk.DefaultBondDenom, bondAmt))
 
 	// add bonded amount to bonded pool module account
 	balances = append(balances, banktypes.Balance{
@@ -168,7 +170,6 @@ func SetupWithGenesisValSet(
 	)
 
 	// commit genesis changes
-	app.Commit()
 	app.FinalizeBlock(&abci.RequestFinalizeBlock{
 		Height: app.LastBlockHeight() + 1,
 		Hash:   app.LastCommitID().Hash, // Apphash -> hash
