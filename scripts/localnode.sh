@@ -45,7 +45,7 @@ $BINARY add-genesis-account $KEY1 100000000000000000000000000ppica --keyring-bac
 # Sign genesis transaction
 $BINARY gentx $KEY 10030009994127689ppica --keyring-backend $KEYRING --chain-id $CHAINID --home $HOME_DIR
 
-update_test_genesis '.app_state["gov"]["params"]["voting_period"]="5s"'
+update_test_genesis '.app_state["gov"]["params"]["voting_period"]="20s"'
 update_test_genesis '.app_state["mint"]["params"]["mint_denom"]="'$DENOM'"'
 update_test_genesis '.app_state["gov"]["params"]["min_deposit"]=[{"denom":"'$DENOM'","amount": "1"}]'
 update_test_genesis '.app_state["crisis"]["constant_fee"]={"denom":"'$DENOM'","amount":"1000"}'
@@ -64,7 +64,6 @@ fi
 # '' -e is a must have params on mac, if use linux please delete before run
 sed -i'' -e 's/max_body_bytes = /max_body_bytes = 1/g' $HOME_DIR/config/config.toml
 sed -i'' -e 's/max_tx_bytes = 1048576/max_tx_bytes = 10000000/g' $HOME_DIR/config/config.toml
-sed -i'' -e 's/timeout_commit = "5s"/timeout_commit = "1s"/' $HOME_DIR/config/config.toml
 
 
 $BINARY start --rpc.unsafe --rpc.laddr tcp://0.0.0.0:26657 --pruning=nothing --minimum-gas-prices=0.001ppica --home=$HOME_DIR  --log_level trace --trace --with-tendermint=true --transport=socket  --grpc.enable=true --grpc-web.enable=false --api.enable=true  --p2p.pex=false --p2p.upnp=false
