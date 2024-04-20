@@ -3,10 +3,6 @@ import { Keyring } from "@polkadot/keyring";
 import BN from "bn.js";
 import { KeyringPair } from "@polkadot/keyring/types";
 import { getProvider, getWallets } from "../utils/indexer";
-import { encodeAddress, decodeAddress } from "@polkadot/util-crypto";
-import { fromBech32, fromHex, toBase64 } from "@cosmjs/encoding";
-
-const ss58Format = 49; // Centauri network SS58 format
 
 async function sendIbcFundsTx(
   api: ApiPromise,
