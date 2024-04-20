@@ -25,6 +25,8 @@ cd composable-comsos
 
 4. IBC transfer from polkadot to cosmos
 
+Transfer from polkdot to: `pica1hj5fveer5cjtn4wd6wstzugjfdxzl0xpas3hgy`
+
 ```bash
 cd scripts/polkadot-js
 ts-node src/ibc-transfer.ts
@@ -78,4 +80,38 @@ _build/old/centaurid tx ibc-transfer transfer transfer channel-0 5GrwvaEF5zXb26F
 
 ```
 ./scripts/upgrade/upgrade.sh
+```
+
+## Postupgrade Steps
+
+1. Stop the relayer
+
+2. Update the account prefix
+
+```bash
+vim /tmp/composable-devnet/picasso-centauri-ibc/config-chain-b.toml
+
+## Change `account prefix: centaurid -> pica
+```
+
+3. Restart the relayer
+
+```bash
+cd _build/composable
+nix run .#picasso-centauri-ibc-relay
+```
+
+4. Test transfer back and forth
+
+4.1 Centaurid -> Picasso
+
+```bash
+_build/new/picad tx ibc-transfer transfer transfer channel-0 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY 495000000000000ibc/632DBFDB06584976F1351A66E873BF0F7A19FAA083425FEC9890C90993E5F0A4 --from mykey --keyring-backend test --home mytestnet --chain-id centauri-dev --fees 200ppica -y
+```
+
+4.2 Picasso -> Centaurid
+Change address in file line 93 `scripts/polkadot-js/src/ibc-transfer.ts` to `pica1hj5fveer5cjtn4wd6wstzugjfdxzl0xpas3hgy` and run
+
+```bash
+ts-node src/ibc-transfer.ts
 ```
