@@ -166,12 +166,30 @@ test-upgrade: clean-testing-data
 	@echo "Starting upgrade test"
 	./scripts/test-upgrade.sh
 
+
+###############################################################################
+###                        Integration Tests                                ###
+###############################################################################
+
+integration-test-all: init-test-framework \
+	test-ibc-hooks
+
+init-test-framework: clean-testing-data install
+	@echo "Initializing both blockchains..."
+	./scripts/tests/init-test-framework.sh
+	./scripts/relayer/relayer-init.sh
+
+test-ibc-hooks:
+	@echo "Testing ibc-hooks..."
+	./scripts/tests/ibc-hooks/increment.sh
+
 clean-testing-data:
 	@echo "Killing binary and removing previous data"
 	-@pkill centaurid 2>/dev/null
 	-@pkill picad 2>/dev/null
 	-@pkill rly 2>/dev/null
 	-@rm -rf ./mytestnet
+	-@rm -rf ./data
 
 .PHONY: ictest-start-cosmos ictest-start-polkadot ictest-ibc ictest-push-wasm ictest-all
 
