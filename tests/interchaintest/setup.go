@@ -23,8 +23,8 @@ var (
 		Name:                "centauri",
 		ChainID:             "centauri-2",
 		Images:              []ibc.DockerImage{CentauriImage},
-		Bin:                 "centaurid",
-		Bech32Prefix:        "centauri",
+		Bin:                 "picad",
+		Bech32Prefix:        "pica",
 		Denom:               "stake",
 		CoinType:            "118",
 		GasPrices:           "0.0stake",
@@ -45,7 +45,7 @@ func GetDockerImageInfo() (repo, version string) {
 	if !found {
 		// make local-image
 		repo = "centauri"
-		branchVersion = "local"
+		branchVersion = "debug"
 	}
 	return repo, branchVersion
 }
