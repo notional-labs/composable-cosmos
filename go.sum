@@ -223,6 +223,8 @@ github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d h1:nalkkPQ
 github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d/go.mod h1:URdX5+vg25ts3aCh8H5IFZybJYKWhJHYMTnf+ULtoC4=
 github.com/ComposableFi/ibc-apps/middleware/packet-forward-middleware/v7 v7.0.0-20240320115741-f32994360827 h1:PkDT2gEjAgttuF9lZTP+niYjcXutnmqHHK2UaAL9bLs=
 github.com/ComposableFi/ibc-apps/middleware/packet-forward-middleware/v7 v7.0.0-20240320115741-f32994360827/go.mod h1:3PHOr4UiPNtnZJutT22fm5+pjIefTlDEgtWGoOJg3A0=
+github.com/ComposableFi/ibc-go/v7 v7.0.0-20240417235838-759a4130305e h1:1X7RvVEC9FfJIZl0FUPVN/SFzHkYKaZjYkZb9+kDmAk=
+github.com/ComposableFi/ibc-go/v7 v7.0.0-20240417235838-759a4130305e/go.mod h1:hjcl3RPLSDf0LSXrFyk2iTQCCFs5pfLbJb8h/5gJ2Vg=
 github.com/CosmWasm/wasmd v0.40.1 h1:LxbO78t/6S8TkeQlUrJ0m5O87HtAwLx4RGHq3rdrOEU=
 github.com/CosmWasm/wasmd v0.40.1/go.mod h1:6EOwnv7MpuFaEqxcUOdFV9i4yvrdOciaY6VQ1o7A3yg=
 github.com/CosmWasm/wasmvm v1.2.6 h1:QmOaiJUyeh8+pPCjJBTgWrbi/hCzCuWewduDO85Pcpc=
@@ -970,8 +972,6 @@ github.com/nishanths/predeclared v0.2.2 h1:V2EPdZPliZymNAn79T8RkNApBjMmVKh5XRpLm
 github.com/nishanths/predeclared v0.2.2/go.mod h1:RROzoN6TnGQupbC+lqggsOlcgysk3LMK/HI84Mp280c=
 github.com/notional-labs/alliance v1.0.1-0.20231106184124-5cc1ff759647 h1:vCSokMIO60u0td51l7NB+pikUChJozIwIb4u8UeqTKI=
 github.com/notional-labs/alliance v1.0.1-0.20231106184124-5cc1ff759647/go.mod h1:GFQ8TsXDMTpu7kif0Dwddz6rxazy0ZJQHfN38ZmAodI=
-github.com/notional-labs/ibc-go/v7 v7.2.1-0.20240411073925-d50434ebb89a h1:RyNoU/JH092wEuvAZBzowQsScpcSEC+yqlySqH7NsWs=
-github.com/notional-labs/ibc-go/v7 v7.2.1-0.20240411073925-d50434ebb89a/go.mod h1:hjcl3RPLSDf0LSXrFyk2iTQCCFs5pfLbJb8h/5gJ2Vg=
 github.com/nxadm/tail v1.4.4/go.mod h1:kenIhsEOeOJmVchQTgglprH7qJGnHDVpk1VPCcaMI8A=
 github.com/nxadm/tail v1.4.8 h1:nPr65rt6Y5JFSKQO7qToXr7pePgD6Gwiw05lkbyAQTE=
 github.com/oklog/oklog v0.3.2/go.mod h1:FCV+B7mhrz4o+ueLpx+KqkyXRGMWOYEvfiXtdGtbWGs=

@@ -334,7 +334,7 @@ replace (
 
 	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7 => github.com/ComposableFi/ibc-apps/middleware/packet-forward-middleware/v7 v7.0.0-20240320115741-f32994360827
 	// ibc-go with wasm client
-	github.com/cosmos/ibc-go/v7 => github.com/notional-labs/ibc-go/v7 v7.2.1-0.20240411073925-d50434ebb89a
+	github.com/cosmos/ibc-go/v7 => github.com/ComposableFi/ibc-go/v7 v7.0.0-20240417235838-759a4130305e
 
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 	github.com/terra-money/alliance => github.com/notional-labs/alliance v1.0.1-0.20231106184124-5cc1ff759647
