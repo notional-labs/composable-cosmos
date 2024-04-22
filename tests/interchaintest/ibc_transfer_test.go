@@ -47,7 +47,7 @@ func TestCentauriPicassoIBCTransfer(t *testing.T) {
 	nf := 3 // Number of full nodes
 
 	consensusOverrides := make(testutil.Toml)
-	blockTime := 5 // seconds, parachain is 12 second blocks, don't make relayer work harder than needed
+	blockTime := 2 // seconds, parachain is 12 second blocks, don't make relayer work harder than needed
 	blockT := (time.Duration(blockTime) * time.Second).String()
 	consensusOverrides["timeout_commit"] = blockT
 	consensusOverrides["timeout_propose"] = blockT
@@ -310,10 +310,16 @@ func pushWasmContractViaGov(t *testing.T, ctx context.Context, centaurid *cosmos
 	height, err := centaurid.Height(ctx)
 	require.NoError(t, err, "error fetching height before submit upgrade proposal")
 
+	p, err := centaurid.QueryProposal(ctx, proposalTx.ProposalID)
+	fmt.Println(p)
+
 	err = centaurid.VoteOnProposalAllValidators(ctx, proposalTx.ProposalID, cosmos.ProposalVoteYes)
 	require.NoError(t, err, "failed to submit votes")
 
 	_, err = cosmos.PollForProposalStatus(ctx, centaurid, height, height+heightDelta, proposalTx.ProposalID, cosmos.ProposalStatusPassed)
+	p, err = centaurid.QueryProposal(ctx, proposalTx.ProposalID)
+	fmt.Println("proposal after", p)
+	require.Equal(t, p.Status, cosmos.ProposalStatusPassed)
 	require.NoError(t, err, "proposal status did not change to passed in expected number of blocks")
 
 	err = testutil.WaitForBlocks(ctx, 1, centaurid)

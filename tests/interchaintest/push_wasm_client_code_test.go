@@ -21,7 +21,7 @@ import (
 
 const (
 	heightDelta      = uint64(20)
-	votingPeriod     = "30s"
+	votingPeriod     = "20s"
 	maxDepositPeriod = "10s"
 )
 
@@ -62,6 +62,8 @@ func TestPushWasmClientCode(t *testing.T) {
 	configFileOverrides["config/app.toml"] = appTomlOverrides
 	configFileOverrides["config/config.toml"] = configTomlOverrides
 
+	numValidator := 1
+
 	cf := interchaintest.NewBuiltinChainFactory(zaptest.NewLogger(t), []*interchaintest.ChainSpec{
 		{
 			ChainConfig: ibc.ChainConfig{
@@ -80,6 +82,7 @@ func TestPushWasmClientCode(t *testing.T) {
 				ConfigFileOverrides: configFileOverrides,
 				ModifyGenesis:       modifyGenesisShortProposals(votingPeriod, maxDepositPeriod),
 			},
+			NumValidators: &numValidator,
 		},
 	})
 
