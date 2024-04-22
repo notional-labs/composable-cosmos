@@ -14,7 +14,7 @@ rm -rf mytestnet
 pkill centaurid
 
 # check DENOM is set. If not, set to upica
-DENOM=${2:-upica}
+DENOM=${2:-ppica}
 
 COMMISSION_RATE=0.01
 COMMISSION_MAX_RATE=0.02
@@ -71,7 +71,7 @@ update_test_genesis '.app_state["staking"]["params"]["bond_denom"]="'$DENOM'"'
 $SED_BINARY -i '0,/enable = false/s//enable = true/' $HOME_DIR/config/app.toml
 $SED_BINARY -i 's/swagger = false/swagger = true/' $HOME_DIR/config/app.toml
 $SED_BINARY -i -e 's/enabled-unsafe-cors = false/enabled-unsafe-cors = true/g' $HOME_DIR/config/app.toml
-$SED_BINARY -i 's/minimum-gas-prices = "0.25upica"/minimum-gas-prices = "0.0upica"/' $HOME_DIR/config/app.toml
+$SED_BINARY -i 's/minimum-gas-prices = "0.25ppica"/minimum-gas-prices = "0.0ppica"/' $HOME_DIR/config/app.toml
 
 
 # Sign genesis transaction

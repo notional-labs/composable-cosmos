@@ -2,7 +2,7 @@
 
 KEY="mykey"
 KEY1="mykey1"
-CHAINID="centauri-dev"
+CHAINID="localpica"
 MONIKER="localtestnet"
 KEYALGO="secp256k1"
 KEYRING="test"
@@ -14,6 +14,10 @@ TRACE=""
 
 HOME_DIR=mytestnet
 DENOM=ppica
+
+KEY00="test0"
+KEY11="test1"
+KEY22="test2"
 
 
 if [ "$CONTINUE" == "true" ]; then
@@ -31,6 +35,10 @@ rm -rf $HOME_DIR
 # if $KEY exists it should be deleted
 echo "decorate bright ozone fork gallery riot bus exhaust worth way bone indoor calm squirrel merry zero scheme cotton until shop any excess stage laundry" | $BINARY keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO --recover --home $HOME_DIR
 echo "bottom loan skill merry east cradle onion journey palm apology verb edit desert impose absurd oil bubble sweet glove shallow size build burst effort" | $BINARY keys add $KEY1 --keyring-backend $KEYRING --algo $KEYALGO --recover --home $HOME_DIR
+
+$BINARY keys add $KEY00 --keyring-backend $KEYRING --home $HOME_DIR
+$BINARY keys add $KEY11 --keyring-backend $KEYRING --home $HOME_DIR
+$BINARY keys add $KEY22 --keyring-backend $KEYRING --home $HOME_DIR
 $BINARY init $CHAINID --chain-id $CHAINID --default-denom "ppica" --home $HOME_DIR
 
 update_test_genesis () {
@@ -41,6 +49,10 @@ update_test_genesis () {
 # Allocate genesis accounts (cosmos formatted addresses)
 $BINARY add-genesis-account $KEY 100000000000000000000000000ppica --keyring-backend $KEYRING --home $HOME_DIR
 $BINARY add-genesis-account $KEY1 100000000000000000000000000ppica --keyring-backend $KEYRING --home $HOME_DIR
+$BINARY add-genesis-account $KEY00 "1000000000000000000000${DENOM}" --keyring-backend $KEYRING --home $HOME_DIR
+$BINARY add-genesis-account $KEY11 "1000000000000000000000${DENOM}" --keyring-backend $KEYRING --home $HOME_DIR
+$BINARY add-genesis-account $KEY22 "1000000000000000000000${DENOM}" --keyring-backend $KEYRING --home $HOME_DIR
+
 
 # Sign genesis transaction
 $BINARY gentx $KEY 10030009994127689ppica --keyring-backend $KEYRING --chain-id $CHAINID --home $HOME_DIR
@@ -67,4 +79,4 @@ sed -i'' -e 's/max_tx_bytes = 1048576/max_tx_bytes = 10000000/g' $HOME_DIR/confi
 sed -i'' -e 's/timeout_commit = "5s"/timeout_commit = "1s"/' $HOME_DIR/config/config.toml
 
 
-$BINARY start --rpc.unsafe --rpc.laddr tcp://0.0.0.0:26657 --pruning=nothing --minimum-gas-prices=0.001ppica --home=$HOME_DIR  --log_level trace --trace --with-tendermint=true --transport=socket  --grpc.enable=true --grpc-web.enable=false --api.enable=true  --p2p.pex=false --p2p.upnp=false
+$BINARY start --rpc.unsafe --rpc.laddr tcp://0.0.0.0:26657 --pruning=nothing --minimum-gas-prices=0.000ppica --home=$HOME_DIR  --log_level trace --trace --with-tendermint=true --transport=socket  --grpc.enable=true --grpc-web.enable=false --api.enable=true  --p2p.pex=false --p2p.upnp=false

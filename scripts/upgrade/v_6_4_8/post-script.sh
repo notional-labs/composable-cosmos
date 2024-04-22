@@ -1,7 +1,7 @@
 echo -e  "\n ********** Running Post-Scripts **********"
 
 BINARY=$1 
-DENOM=${2:-upica}
+DENOM=${2:-ppica}
 CHAIN_DIR=$(pwd)/mytestnet
 
 KEY="test0"

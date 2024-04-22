@@ -1,7 +1,7 @@
 echo -e "\n ********** Running Pre-Scripts **********"
 
 BINARY=$1 
-DENOM=${2:-upica}
+DENOM=${2:-ppica}
 CHAIN_DIR=$(pwd)/mytestnet
 
 KEY="test0"
@@ -24,7 +24,9 @@ echo "wallet 1: $WALLET_1 - balance: $BALANCE_1"
 
 ############ Settingup WASM environment ############
 ### Create a counter contract, then increment the counter to 1 ####
-## Deploy the counter contract 
+## Deploy the counter contract
+TX_RESULT=$($BINARY tx wasm store $COUNTER_CONTRACT_DIR --from $KEY1 $DEFAULT_ENV_FLAG $DEFAULT_GAS_FLAG -y -o json)
+echo $TX_RESULT
 TX_HASH=$($BINARY tx wasm store $COUNTER_CONTRACT_DIR --from $KEY1 $DEFAULT_ENV_FLAG $DEFAULT_GAS_FLAG -y -o json | jq -r '.txhash')
 
 ## Get CODE ID

@@ -3,11 +3,11 @@
 # the upgrade is a fork, "true" otherwise
 FORK=${FORK:-"false"}
 
-OLD_VERSION=v6.5.4
+OLD_VERSION=v6.5.41
 UPGRADE_WAIT=${UPGRADE_WAIT:-20}
 HOME=mytestnet
 ROOT=$(pwd)
-DENOM=upica
+DENOM=ppica
 CHAIN_ID=localpica
 SOFTWARE_UPGRADE_NAME="v6_6_0"
 ADDITIONAL_PRE_SCRIPTS="./scripts/upgrade/v_6_4_8/pre-script.sh"
@@ -106,7 +106,7 @@ run_upgrade () {
     }')
 
 
-    ./_build/old/centaurid tx gov submit-legacy-proposal software-upgrade "$SOFTWARE_UPGRADE_NAME" --upgrade-height $UPGRADE_HEIGHT --upgrade-info "$UPGRADE_INFO" --title "upgrade" --description "upgrade"  --from test1 --keyring-backend test --chain-id $CHAIN_ID --home $HOME -y > /dev/null
+    ./_build/old/centaurid tx gov submit-legacy-proposal software-upgrade "$SOFTWARE_UPGRADE_NAME" --upgrade-height $UPGRADE_HEIGHT --upgrade-info "$UPGRADE_INFO" --title "upgrade" --description "upgrade"  --from test1 --keyring-backend test --chain-id $CHAIN_ID --home $HOME -y
 
     sleep $SLEEP_TIME
 
@@ -114,11 +114,11 @@ run_upgrade () {
 
     sleep $SLEEP_TIME
 
-    ./_build/old/centaurid tx gov vote 1 yes --from test0 --keyring-backend test --chain-id $CHAIN_ID --home $HOME -y > /dev/null
+    ./_build/old/centaurid tx gov vote 1 yes --from mykey --keyring-backend test --chain-id $CHAIN_ID --home $HOME -y
 
     sleep $SLEEP_TIME
 
-    ./_build/old/centaurid tx gov vote 1 yes --from test1 --keyring-backend test --chain-id $CHAIN_ID --home $HOME -y > /dev/null
+    ./_build/old/centaurid tx gov vote 1 yes --from test1 --keyring-backend test --chain-id $CHAIN_ID --home $HOME -y
 
     sleep $SLEEP_TIME
 
