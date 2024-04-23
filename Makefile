@@ -171,3 +171,20 @@ clean-testing-data:
 	-@pkill centaurid 2>/dev/null
 	-@rm -rf ./mytestnet
 
+## Scripts for testing sdk 50
+localnet-centauri:
+	@echo "Starting localnet"
+	./scripts/upgrade/setup-old-centaurid-node.sh
+
+localnet-picasso:
+	@echo "Starting localnet"
+	./scripts/upgrade/setup-polkadot-node.sh
+
+relayer-start:
+	@echo "Starting relayer"
+	./scripts/upgrade/setup-relayer.sh
+
+centauri-upgrade:
+	@echo "Starting upgrade"
+	./scripts/upgrade/upgrade.sh
+
