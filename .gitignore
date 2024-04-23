@@ -53,3 +53,6 @@ _build
 
 screenlog.0
 mytestnet
+
+data
+node_modules
