@@ -172,6 +172,10 @@ clean-testing-data:
 	-@rm -rf ./mytestnet
 
 ## Scripts for testing sdk 50
+init-deps:
+	@echo "Installing dependencies"
+	./scripts/upgrade/init-deps.sh
+
 localnet-centauri:
 	@echo "Starting localnet"
 	./scripts/upgrade/setup-old-centaurid-node.sh

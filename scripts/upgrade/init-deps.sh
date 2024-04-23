@@ -1,8 +1,8 @@
 #!/bin/bash
 
 
-OLD_VERSION=kien-devnet-651
-SOFTWARE_UPGRADE_NAME="v6_6_0"
+OLD_VERSION=testnet-pica
+SOFTWARE_UPGRADE_NAME="v7_0_1"
 ROOT=$(pwd)
 
 COMPOSABLE_VERSION="branchfortestingpfmfix"
