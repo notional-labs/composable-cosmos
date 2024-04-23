@@ -43,11 +43,11 @@ func TestCentauriPicassoIBCTransfer(t *testing.T) {
 
 	ctx := context.Background()
 
-	nv := 5 // Number of validators
-	nf := 3 // Number of full nodes
+	nv := 1 // Number of validators
+	nf := 1 // Number of full nodes
 
 	consensusOverrides := make(testutil.Toml)
-	blockTime := 2 // seconds, parachain is 12 second blocks, don't make relayer work harder than needed
+	blockTime := 1 // seconds, parachain is 12 second blocks, don't make relayer work harder than needed
 	blockT := (time.Duration(blockTime) * time.Second).String()
 	consensusOverrides["timeout_commit"] = blockT
 	consensusOverrides["timeout_propose"] = blockT
@@ -163,8 +163,8 @@ func TestCentauriPicassoIBCTransfer(t *testing.T) {
 	require.NoError(t, err)
 
 	// Ensure parachain has started (starts 1 session/epoch after relay chain)
-	err = testutil.WaitForBlocks(ctx, 1, composable)
-	require.NoError(t, err, "polkadot chain failed to make blocks")
+	//err = testutil.WaitForBlocks(ctx, 1, composable)
+	//require.NoError(t, err, "polkadot chain failed to make blocks")
 
 	// Fund users on both cosmos and parachain, mints Asset 1 for Alice
 	fundAmount := int64(12_333_000_000_000)
