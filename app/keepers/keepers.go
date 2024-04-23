@@ -113,7 +113,7 @@ import (
 )
 
 const (
-	authorityAddress = "pica10556m38z4x6pqalr9rl5ytf3cff8q46nf36090" // convert from: centauri10556m38z4x6pqalr9rl5ytf3cff8q46nk85k9m
+	authorityAddress = "pica10d07y265gmmuvt4z0w9aw880jnsr700jp7sqj5" // convert from: centauri10556m38z4x6pqalr9rl5ytf3cff8q46nk85k9m
 )
 
 type AppKeepers struct {

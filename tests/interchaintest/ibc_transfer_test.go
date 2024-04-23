@@ -123,7 +123,7 @@ func TestCentauriPicassoIBCTransfer(t *testing.T) {
 		ibc.Hyperspace,
 		zaptest.NewLogger(t),
 		// These two fields are used to pass in a custom Docker image built locally
-		// relayer.ImagePull(false),
+		relayer.ImagePull(false),
 		relayer.CustomDockerImage("composablefi/hyperspace", "latest", "1000:1000"),
 	).Build(t, client, network)
 
