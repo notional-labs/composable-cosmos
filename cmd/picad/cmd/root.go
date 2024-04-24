@@ -2,9 +2,10 @@ package cmd
 
 import (
 	"errors"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"io"
 	"os"
+
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 
 	"cosmossdk.io/log"
 	"github.com/CosmWasm/wasmd/x/wasm"
@@ -207,7 +208,6 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig app.EncodingConfig) {
 		tmcli.NewCompletionCmd(rootCmd, true),
 		addDebugCommands(debug.Cmd()),
 		debug.Cmd(),
-		CovertPrefixAddr(),
 		vestingcli.GetTxCmd(encodingConfig.TxConfig.SigningContext().AddressCodec()),
 		// this line is used by starport scaffolding # stargate/root/commands
 	)

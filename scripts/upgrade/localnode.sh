@@ -52,7 +52,7 @@ $BINARY add-genesis-account $KEY1 100000000000000000000000000ppica --keyring-bac
 # Sign genesis transaction
 $BINARY gentx $KEY 10030009994127689ppica --keyring-backend $KEYRING --chain-id $CHAINID --home $HOME_DIR
 
-update_test_genesis '.app_state["gov"]["params"]["voting_period"]="5s"'
+update_test_genesis '.app_state["gov"]["params"]["voting_period"]="20s"'
 update_test_genesis '.app_state["mint"]["params"]["mint_denom"]="'$DENOM'"'
 update_test_genesis '.app_state["gov"]["params"]["min_deposit"]=[{"denom":"'$DENOM'","amount": "1"}]'
 update_test_genesis '.app_state["crisis"]["constant_fee"]={"denom":"'$DENOM'","amount":"1000"}'

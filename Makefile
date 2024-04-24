@@ -184,6 +184,8 @@ test-upgrade: clean-testing-data
 clean-testing-data:
 	@echo "Killing binary and removing previous data"
 	-@pkill centaurid 2>/dev/null
+	-@pkill picad 2>/dev/null
+	-@rm -rf ./screenlog.0
 	-@rm -rf ./mytestnet
 
 ## Scripts for testing sdk 50
@@ -191,7 +193,7 @@ init-deps:
 	@echo "Installing dependencies"
 	bash ./scripts/upgrade/init-deps.sh
 
-localnet-pica:
+localnet-pica: clean-testing-data
 	@echo "Starting localnet"
 	bash ./scripts/upgrade/setup-old-picad-node.sh
 

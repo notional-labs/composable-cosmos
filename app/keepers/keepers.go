@@ -2,10 +2,11 @@ package keepers
 
 import (
 	"fmt"
-	"github.com/cosmos/cosmos-sdk/x/params"
 	"math"
 	"path/filepath"
 	"strings"
+
+	"github.com/cosmos/cosmos-sdk/x/params"
 
 	circuitkeeper "cosmossdk.io/x/circuit/keeper"
 	circuittypes "cosmossdk.io/x/circuit/types"
@@ -121,7 +122,7 @@ import (
 
 const (
 	AccountAddressPrefix = "composable"
-	authorityAddress     = "centauri10556m38z4x6pqalr9rl5ytf3cff8q46nk85k9m" // convert from: centauri10556m38z4x6pqalr9rl5ytf3cff8q46nk85k9m
+	authorityAddress     = "pica10556m38z4x6pqalr9rl5ytf3cff8q46nf36090" // convert from: centauri10556m38z4x6pqalr9rl5ytf3cff8q46nk85k9m
 )
 
 type AppKeepers struct {
@@ -211,12 +212,11 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 
 	appKeepers.StakingMiddlewareKeeper = stakingmiddleware.NewKeeper(appCodec, appKeepers.keys[stakingmiddlewaretypes.StoreKey], govModAddress)
 	appKeepers.IbcTransferMiddlewareKeeper = ibctransfermiddleware.NewKeeper(appCodec, appKeepers.keys[ibctransfermiddlewaretypes.StoreKey], govModAddress,
-		[]string{"centauri1ay9y5uns9khw2kzaqr3r33v2pkuptfnnr93j5j",
-			"centauri14lz7gaw92valqjearnye4shex7zg2p05mlx9q0",
-			"centauri1r2zlh2xn85v8ljmwymnfrnsmdzjl7k6w6lytan",
-			"centauri10556m38z4x6pqalr9rl5ytf3cff8q46nk85k9m",
-			// "centauri1wkjvpgkuchq0r8425g4z4sf6n85zj5wtmqzjv9",
-			// "centauri1hj5fveer5cjtn4wd6wstzugjfdxzl0xpzxlwgs",
+		[]string{
+			"pica1ay9y5uns9khw2kzaqr3r33v2pkuptfnnunlt5x",
+			"pica14lz7gaw92valqjearnye4shex7zg2p05yfguqm",
+			"pica1r2zlh2xn85v8ljmwymnfrnsmdzjl7k6w9f2ja8",
+			"pica10556m38z4x6pqalr9rl5ytf3cff8q46nf36090",
 		})
 
 	appKeepers.StakingKeeper = customstaking.NewKeeper(
@@ -458,12 +458,16 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 
 	vm, err := wasmvm.NewVM(wasmDataDir, wasmSupportedFeatures, wasmMemoryLimitMb, wasmPrintDebug, wasmCacheSizeMb)
 
+	if err != nil {
+		panic(err)
+	}
+
 	// use same VM for wasm
 	appKeepers.Wasm08Keeper = wasm08Keeper.NewKeeperWithVM(
 		appCodec,
 		runtime.NewKVStoreService(appKeepers.keys[wasm08types.StoreKey]),
 		&appKeepers.IBCKeeper.ClientKeeper,
-		"centauri1hj5fveer5cjtn4wd6wstzugjfdxzl0xpzxlwgs",
+		govModAddress,
 		vm,
 		bApp.GRPCQueryRouter(),
 	)
