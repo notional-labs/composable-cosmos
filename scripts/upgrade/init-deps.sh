@@ -40,6 +40,7 @@ fi
 # install new binary
 if ! command -v _build/new/picad &> /dev/null
 then
+    echo -e "\n  =>installing new  picad... \n \n"
     mkdir -p _build/new
     GOBIN="$ROOT/_build/new" make install
 fi

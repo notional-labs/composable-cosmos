@@ -102,7 +102,7 @@ func (ms msgServer) AddAllowedIbcToken(goCtx context.Context, req *types.MsgAddA
 	params := ms.Keeper.GetParams(ctx)
 	channelFee := findChannelParams(params.ChannelFees, req.ChannelID)
 	if channelFee != nil {
-		coin := findCoinByDenom(channelFee.AllowedTokens, req.MinFee.Denom)
+		coin := findCoinByDenom(channelFee.AllowedTokens, req.Denom)
 		if coin != nil {
 			coin_c := sdk.Coin{
 				Denom:  req.Denom,
@@ -116,7 +116,7 @@ func (ms msgServer) AddAllowedIbcToken(goCtx context.Context, req *types.MsgAddA
 				Amount: sdkmath.NewInt(req.Amount),
 			}
 			coin := &types.CoinItem{
-				MinFee:     req.MinFee,
+				MinFee:     coin_c,
 				Percentage: req.Percentage,
 			}
 			channelFee.AllowedTokens = append(channelFee.AllowedTokens, coin)
