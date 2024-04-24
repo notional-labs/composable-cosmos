@@ -7,6 +7,7 @@ import (
 
 var _ sdk.Msg = &MsgAddIBCFeeConfig{}
 
+//nolint:gosec // This is a false positive; these are message type identifiers, not credentials.
 const (
 	TypeMsgAddIBCFeeConfig       = "add_config"
 	TypeMsgRemoveIBCFeeConfig    = "remove_config"
@@ -98,15 +99,13 @@ var _ sdk.Msg = &MsgAddAllowedIbcToken{}
 func NewMsgAddAllowedIbcToken(
 	authority string,
 	channelID string,
-	denom string,
-	amount int64,
+	minFee sdk.Coin,
 	percentage int64,
 ) *MsgAddAllowedIbcToken {
 	return &MsgAddAllowedIbcToken{
 		Authority:  authority,
 		ChannelID:  channelID,
-		Denom:      denom,
-		Amount:     amount,
+		MinFee:     minFee,
 		Percentage: percentage,
 	}
 }

@@ -29,7 +29,6 @@ rm -rf $HOME_DIR
 # centaurid config chain-id $CHAINID
 
 # if $KEY exists it should be deleted
-$BINARY init $MONIKER --chain-id $CHAINID --home $HOME_DIR > /dev/null 2>&1
 
 echo "decorate bright ozone fork gallery riot bus exhaust worth way bone indoor calm squirrel merry zero scheme cotton until shop any excess stage laundry" | $BINARY keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO --recover --home $HOME_DIR
 
@@ -56,19 +55,3 @@ update_test_genesis '.app_state["staking"]["params"]["bond_denom"]="'$DENOM'"'
 echo "updating.."
 sed -i '' 's/timeout_commit = "5s"/timeout_commit = "500ms"/' $HOME_DIR/config/config.toml
 
-
-# Collect genesis tx
-$BINARY collect-gentxs --home $HOME_DIR
-
-# Run this to ensure everything worked and that the genesis file is setup correctly
-$BINARY validate-genesis --home $HOME_DIR
-
-if [[ $1 == "pending" ]]; then
-  echo "pending mode is on, please wait for the first block committed."
-fi
-
-# update request max size so that we can upload the light client
-# '' -e is a must have params on mac, if use linux please delete before run
-sed -i'' -e 's/max_body_bytes = /max_body_bytes = 1/g' $HOME_DIR/config/config.toml
-# Start the node (remove the --pruning=nothing flag if historical queries are not needed)
-$BINARY start --pruning=nothing  --minimum-gas-prices=0$DENOM --rpc.laddr tcp://0.0.0.0:26657 --home $HOME_DIR --log_level debug

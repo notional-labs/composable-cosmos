@@ -1,14 +1,14 @@
 # .goreleaser.yml
 
-project_name: centaurid
+project_name: picad
 
 env:
   - CGO_ENABLED=1
 
 builds:
   - id: linux
-    main: ./cmd/centaurid
-    binary: centaurid
+    main: ./cmd/picad
+    binary: picad
     hooks:
       pre:
         - cmd: bash scripts/release_pre_linux.sh
@@ -28,8 +28,8 @@ builds:
       - -mod=readonly
       - -trimpath
     ldflags:
-      - -X github.com/cosmos/cosmos-sdk/version.Name=centauri
-      - -X github.com/cosmos/cosmos-sdk/version.AppName=centaurid
+      - -X github.com/cosmos/cosmos-sdk/version.Name=pica
+      - -X github.com/cosmos/cosmos-sdk/version.AppName=picad
       - -X github.com/cosmos/cosmos-sdk/version.Version={{ .Version }}
       - -X github.com/cosmos/cosmos-sdk/version.Commit={{ .Commit }}
       - -X "github.com/cosmos/cosmos-sdk/version.BuildTags=netgo,ledger,muslc"

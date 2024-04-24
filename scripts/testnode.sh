@@ -60,4 +60,8 @@ fi
 sed -i'' -e 's/max_body_bytes = /max_body_bytes = 1/g' ~/.banksy/config/config.toml
 
 # Start the node (remove the --pruning=nothing flag if historical queries are not needed)
+<<<<<<< HEAD
 $BINARY start --pruning=nothing  --minimum-gas-prices=0.0001ppica --rpc.laddr tcp://0.0.0.0:26657
+=======
+# centaurid start --pruning=nothing  --minimum-gas-prices=0.0001ppica --rpc.laddr tcp://0.0.0.0:26657
+>>>>>>> develop2

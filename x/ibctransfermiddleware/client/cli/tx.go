@@ -10,6 +10,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/notional-labs/composable/v6/x/ibctransfermiddleware/types"
 	"github.com/spf13/cobra"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // GetTxCmd returns the tx commands for staking middleware module.
@@ -75,15 +77,17 @@ func AddIBCFeeConfig() *cobra.Command {
 
 func AddAllowedIbcToken() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "add-allowed-ibc-token [channel] [denom] [amount] [percentage]",
+		Use:     "add-allowed-ibc-token [channel] [percentage] [coin]",
 		Short:   "add allowed ibc token",
-		Args:    cobra.MatchAll(cobra.ExactArgs(4), cobra.OnlyValidArgs),
-		Example: fmt.Sprintf("%s tx ibctransfermiddleware add-allowed-ibc-token [channel] [denom] [amount] [percentage]  (percentage '5' means 1/5 of amount will be taken as fee) ", version.AppName),
+		Args:    cobra.MatchAll(cobra.ExactArgs(3), cobra.OnlyValidArgs),
+		Example: fmt.Sprintf("%s tx ibctransfermiddleware add-allowed-ibc-token [channel] [percentage] [coin] (percentage '5' means 1/5 of amount will be taken as fee) ", version.AppName),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			channel := args[0]
-			denom := args[1]
-			amount := args[2]
-			percentage := args[3]
+			percentage := args[1]
+			coin, err := sdk.ParseCoinNormalized(args[2])
+			if err != nil {
+				return err
+			}
 
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -91,11 +95,6 @@ func AddAllowedIbcToken() *cobra.Command {
 			}
 
 			fromAddress := clientCtx.GetFromAddress().String()
-
-			amountInt, err := strconv.ParseInt(amount, 10, 64)
-			if err != nil {
-				return err
-			}
 
 			percentageInt, errPercentage := strconv.ParseInt(percentage, 10, 64)
 			if errPercentage != nil {
@@ -105,8 +104,7 @@ func AddAllowedIbcToken() *cobra.Command {
 			msg := types.NewMsgAddAllowedIbcToken(
 				fromAddress,
 				channel,
-				denom,
-				amountInt,
+				coin,
 				percentageInt,
 			)
 
