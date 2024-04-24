@@ -1,6 +1,6 @@
 #!/bin/bash
 
-OLD_VERSION=kien-develop2
+OLD_VERSION=kien-picad-6.6
 SOFTWARE_UPGRADE_NAME="v7_0_1"
 ROOT=$(pwd)
 
