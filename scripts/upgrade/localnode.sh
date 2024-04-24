@@ -15,6 +15,14 @@ TRACE=""
 HOME_DIR=mytestnet
 DENOM=ppica
 
+# remove existing daemon
+rm -rf $HOME_DIR
+
+if [ ! -x "$(command -v $BINARY)" ]; then
+    echo "Error: Binary $BINARY is not executable or not found."
+    exit 1
+fi
+
 
 if [ "$CONTINUE" == "true" ]; then
     echo "\n ->> continuing from previous state"
@@ -22,11 +30,10 @@ if [ "$CONTINUE" == "true" ]; then
     exit 0
 fi
 
+
 $BINARY config keyring-backend $KEYRING
 $BINARY config chain-id $CHAINID
 
-# remove existing daemon
-rm -rf $HOME_DIR
 
 # if $KEY exists it should be deleted
 echo "decorate bright ozone fork gallery riot bus exhaust worth way bone indoor calm squirrel merry zero scheme cotton until shop any excess stage laundry" | $BINARY keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO --recover --home $HOME_DIR
