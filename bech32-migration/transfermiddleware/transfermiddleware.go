@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"github.com/cosmos/cosmos-sdk/codec"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	storetypes "cosmossdk.io/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/notional-labs/composable/v6/bech32-migration/utils"
 	"github.com/notional-labs/composable/v6/x/transfermiddleware/types"

@@ -8,21 +8,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
 
-<<<<<<< HEAD
 	storetypes "cosmossdk.io/store/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
 	"github.com/cosmos/ibc-go/v8/modules/core/exported"
-=======
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
-	"github.com/cosmos/ibc-go/v7/modules/core/exported"
-	custombankkeeper "github.com/notional-labs/composable/v6/custom/bank/keeper"
->>>>>>> develop2
 	ibctransfermiddleware "github.com/notional-labs/composable/v6/x/ibctransfermiddleware/keeper"
 )
 
@@ -44,11 +34,7 @@ func NewKeeper(
 	bk types.BankKeeper,
 	scopedKeeper exported.ScopedKeeper,
 	ibcTransfermiddleware *ibctransfermiddleware.Keeper,
-<<<<<<< HEAD
 	authority string,
-=======
-	bankKeeper *custombankkeeper.Keeper,
->>>>>>> develop2
 ) Keeper {
 	keeper := Keeper{
 		Keeper:                ibctransferkeeper.NewKeeper(cdc, key, paramSpace, ics4Wrapper, channelKeeper, portKeeper, authKeeper, bk, scopedKeeper, authority),

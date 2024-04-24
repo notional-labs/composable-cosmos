@@ -37,7 +37,7 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakinghelper "github.com/cosmos/cosmos-sdk/x/staking/testutil"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	upgradetypes "cosmossdk.io/x/upgrade/types"
 	"github.com/notional-labs/composable/v6/bech32-migration/utils"
 	typesconfig "github.com/notional-labs/composable/v6/cmd/picad/config"
 	minttypes "github.com/notional-labs/composable/v6/x/mint/types"

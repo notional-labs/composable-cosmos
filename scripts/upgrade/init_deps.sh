@@ -1,8 +1,8 @@
 #!/bin/bash
 
 
-OLD_VERSION=kien-devnet-651
-SOFTWARE_UPGRADE_NAME="v6_6_0"
+OLD_VERSION=kien-develop2
+SOFTWARE_UPGRADE_NAME="v7_0_1"
 ROOT=$(pwd)
 
 COMPOSABLE_VERSION="branchfortestingpfmfix"
@@ -42,6 +42,6 @@ fi
 if ! command -v _build/new/picad &> /dev/null
 then
     mkdir -p _build/new
-    GOBIN="$ROOT/_build/new" go install -mod=readonly ./...
+    GOBIN="$ROOT/_build/new" make install 
 fi
 

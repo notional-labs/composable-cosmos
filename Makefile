@@ -187,3 +187,24 @@ clean-testing-data:
 	-@pkill centaurid 2>/dev/null
 	-@rm -rf ./mytestnet
 
+## Scripts for testing sdk 50
+init-deps:
+	@echo "Installing dependencies"
+	bash ./scripts/upgrade/init-deps.sh
+
+localnet-centauri:
+	@echo "Starting localnet"
+	bash ./scripts/upgrade/setup-old-centaurid-node.sh
+
+localnet-picasso:
+	@echo "Starting localnet"
+	bash ./scripts/upgrade/setup-polkadot-node.sh
+
+relayer-start:
+	@echo "Starting relayer"
+	bash ./scripts/upgrade/setup-relayer.sh
+
+centauri-upgrade:
+	@echo "Starting upgrade"
+	bash ./scripts/upgrade/upgrade.sh
+

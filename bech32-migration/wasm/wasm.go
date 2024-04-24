@@ -3,8 +3,7 @@ package wasm
 import (
 	"github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	"cosmossdk.io/store"
 	"github.com/notional-labs/composable/v6/bech32-migration/utils"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"

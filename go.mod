@@ -374,9 +374,6 @@ replace (
 	github.com/prometheus/client_golang => github.com/prometheus/client_golang v1.18.0
 
 	github.com/prometheus/common => github.com/prometheus/common v0.47.0
-	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7 => github.com/ComposableFi/ibc-apps/middleware/packet-forward-middleware/v7 v7.0.0-20240320115741-f32994360827
-	// ibc-go with wasm client
-	github.com/cosmos/ibc-go/v7 => github.com/ComposableFi/ibc-go/v7 v7.0.0-20240417235838-759a4130305e
 
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 // github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8 => github.com/notional-labs/ibc-apps/middleware/packet-forward-middleware/v8 v8.0.0-0.20240327105252-f31a09121d57

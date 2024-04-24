@@ -7,15 +7,12 @@ import (
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	runtimeservices "github.com/cosmos/cosmos-sdk/runtime/services"
 	authcodec "github.com/cosmos/cosmos-sdk/x/auth/codec"
-	"github.com/notional-labs/composable/v6/app/upgrades/v6_5_1"
 	"io"
 	"os"
 	"path/filepath"
 
 	"cosmossdk.io/x/circuit"
 	circuittypes "cosmossdk.io/x/circuit/types"
-
-	"github.com/notional-labs/composable/v6/app/upgrades/v6_6_0"
 
 	nodeservice "github.com/cosmos/cosmos-sdk/client/grpc/node"
 	"github.com/cosmos/cosmos-sdk/std"
@@ -50,11 +47,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/bank"
 
 	"github.com/notional-labs/composable/v6/app/keepers"
-<<<<<<< HEAD
 	"github.com/notional-labs/composable/v6/app/upgrades/v7_0_1"
-=======
-	"github.com/notional-labs/composable/v6/app/upgrades/v6_5_4"
->>>>>>> develop2
 
 	// bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"cosmossdk.io/x/evidence"
@@ -145,7 +138,7 @@ import (
 )
 
 const (
-	Name       = "picasso"
+	Name       = "centauri"
 	dirName    = "banksy"
 	ForkHeight = 244008
 )
@@ -159,7 +152,7 @@ var (
 	// https://github.com/CosmWasm/wasmd/blob/02a54d33ff2c064f3539ae12d75d027d9c665f05/x/wasm/internal/types/proposal.go#L28-L34
 	EnableSpecificProposals = ""
 
-	Upgrades = []upgrades.Upgrade{v6_5_1.Upgrade, v7_0_1.Upgrade}
+	Upgrades = []upgrades.Upgrade{v7_0_1.Upgrade}
 	Forks    = []upgrades.Fork{}
 )
 
