@@ -1,0 +1,1 @@
+_build/old/centaurid tx ibc-transfer transfer transfer channel-0 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY 100000ppica --from mykey --keyring-backend test --home mytestnet --chain-id centauri-dev --fees 200ppica -y
