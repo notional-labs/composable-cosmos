@@ -265,7 +265,7 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		appCodec, appKeepers.keys[ibchost.StoreKey], appKeepers.GetSubspace(ibchost.ModuleName), appKeepers.StakingKeeper, appKeepers.UpgradeKeeper, appKeepers.ScopedIBCKeeper,
 	)
 
-	appKeepers.Wasm08Keeper = wasm08Keeper.NewKeeper(appCodec, appKeepers.keys[wasm08types.StoreKey], authorityAddress, homePath, &appKeepers.IBCKeeper.ClientKeeper)
+	appKeepers.Wasm08Keeper = wasm08Keeper.NewKeeper(appCodec, appKeepers.keys[wasm08types.StoreKey], authtypes.NewModuleAddress(govtypes.ModuleName).String(), homePath, &appKeepers.IBCKeeper.ClientKeeper)
 
 	// ICA Host keeper
 	appKeepers.ICAHostKeeper = icahostkeeper.NewKeeper(
