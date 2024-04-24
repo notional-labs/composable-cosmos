@@ -205,7 +205,7 @@ relayer-start:
 	@echo "Starting relayer"
 	bash ./scripts/upgrade/setup-relayer.sh
 
-centauri-upgrade:
+pica-upgrade:
 	@echo "Starting upgrade"
 	bash ./scripts/upgrade/upgrade.sh
 
