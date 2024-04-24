@@ -3,7 +3,7 @@ KEY=mykey
 KEYALGO="secp256k1"
 KEYRING="test"
 HOME_DIR="mytestnet"
-BINARY=_build/old/centaurid
+BINARY=_build/old/picad
 DENOM=ppica
 CHAINID=centauri-dev
 

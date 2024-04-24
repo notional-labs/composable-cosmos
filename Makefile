@@ -167,7 +167,6 @@ test-upgrade: clean-testing-data
 
 clean-testing-data:
 	@echo "Killing binary and removing previous data"
-	-@pkill centaurid 2>/dev/null
 	-@pkill picad 2>/dev/null
 	-@pkill rly 2>/dev/null
 	-@rm -rf ./mytestnet
@@ -192,9 +191,9 @@ init-deps:
 	@echo "Installing dependencies"
 	bash ./scripts/upgrade/init-deps.sh
 
-localnet-centauri:
+localnet-pica:
 	@echo "Starting localnet"
-	bash ./scripts/upgrade/setup-old-centaurid-node.sh
+	bash ./scripts/upgrade/setup-old-picad-node.sh
 
 localnet-picasso:
 	@echo "Starting localnet"
