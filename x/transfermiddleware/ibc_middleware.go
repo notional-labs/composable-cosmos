@@ -2,6 +2,7 @@ package transfermiddleware
 
 import (
 	"cosmossdk.io/errors"
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
@@ -132,7 +133,7 @@ func (im IBCMiddleware) OnTimeoutPacket(ctx sdk.Context, packet channeltypes.Pac
 	сhannelFeeAddress := im.keeper.IbcTransfermiddleware.GetChannelFeeAddress(ctx, packet.SourceChannel)
 	if coin != nil {
 		amount := data.Amount
-		transferAmount, ok := sdk.NewIntFromString(amount)
+		transferAmount, ok := sdkmath.NewIntFromString(amount)
 		if !ok {
 			return errors.Wrapf(transfertypes.ErrInvalidAmount, "unable to parse transfer amount: %s", amount)
 		}
@@ -146,7 +147,7 @@ func (im IBCMiddleware) OnTimeoutPacket(ctx sdk.Context, packet channeltypes.Pac
 			so to get the fee we charge transferAmount.QuoRaw(coin.Percentage - 1) + coin.MinFee.Amount
 		*/
 
-		percentageCharge := sdk.NewInt(0)
+		percentageCharge := sdkmath.NewInt(0)
 		if coin.Percentage > 1 {
 			percentageCharge = transferAmount.QuoRaw(coin.Percentage - 1)
 		}

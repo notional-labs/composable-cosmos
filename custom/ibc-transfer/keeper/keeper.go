@@ -1,8 +1,14 @@
 package keeper
 
 import (
+	"context"
+	sdkmath "cosmossdk.io/math"
+	"fmt"
 	"github.com/cosmos/cosmos-sdk/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
+	custombankkeeper "github.com/notional-labs/composable/v6/custom/bank/keeper"
+	"time"
 
 	storetypes "cosmossdk.io/store/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
@@ -16,6 +22,7 @@ type Keeper struct {
 	ibctransferkeeper.Keeper
 	cdc                   codec.BinaryCodec
 	IbcTransfermiddleware *ibctransfermiddleware.Keeper
+	bank                  *custombankkeeper.Keeper
 }
 
 func NewKeeper(
@@ -102,7 +109,7 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 				return nil, send_err
 			}
 
-			if newAmount.LTE(sdk.ZeroInt()) {
+			if newAmount.LTE(sdkmath.ZeroInt()) {
 				return &types.MsgTransferResponse{}, nil
 			}
 			msg.Token.Amount = newAmount
