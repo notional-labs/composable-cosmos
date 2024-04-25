@@ -1,6 +1,6 @@
 #!/bin/bash
 
-OLD_VERSION=kien-picad-6.6
+OLD_VERSION=kien-picad-661
 SOFTWARE_UPGRADE_NAME="v7_0_1"
 ROOT=$(pwd)
 
@@ -14,10 +14,10 @@ mkdir -p _build/
 # Consider using submodule, or firgure this out
 if [ ! -d "_build/composable/.git" ]; then
     cd _build/
-    git clone https://github.com/ComposableFi/composable.git composable
+    git clone https://github.com/notional-labs/composable.git composable
     cd composable
     git checkout "$COMPOSABLE_VERSION"
-    cd ../.././
+    cd ../../.
 fi
 
 
