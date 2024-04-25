@@ -7,7 +7,6 @@ import (
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	runtimeservices "github.com/cosmos/cosmos-sdk/runtime/services"
 	authcodec "github.com/cosmos/cosmos-sdk/x/auth/codec"
-	"github.com/notional-labs/composable/v6/app/upgrades/v6_5_1"
 	"io"
 	"os"
 	"path/filepath"
@@ -153,7 +152,7 @@ var (
 	// https://github.com/CosmWasm/wasmd/blob/02a54d33ff2c064f3539ae12d75d027d9c665f05/x/wasm/internal/types/proposal.go#L28-L34
 	EnableSpecificProposals = ""
 
-	Upgrades = []upgrades.Upgrade{v6_5_1.Upgrade, v7_0_1.Upgrade}
+	Upgrades = []upgrades.Upgrade{v7_0_1.Upgrade}
 	Forks    = []upgrades.Fork{}
 )
 

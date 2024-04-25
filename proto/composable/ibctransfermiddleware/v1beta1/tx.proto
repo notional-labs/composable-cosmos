@@ -6,6 +6,7 @@ import "amino/amino.proto";
 import "gogoproto/gogo.proto";
 import "cosmos_proto/cosmos.proto";
 import "composable/ibctransfermiddleware/v1beta1/ibctransfermiddleware.proto";
+import "cosmos/base/v1beta1/coin.proto";
 
 option go_package = "x/ibctransfermiddleware/types";
 
@@ -103,14 +104,9 @@ message MsgAddAllowedIbcToken {
     (gogoproto.customname) = "ChannelID"
   ];
 
-  string denom = 3 [
-    (gogoproto.moretags) = "yaml:\"channel_id\"",
-    (gogoproto.customname) = "Denom"
-  ];
+  cosmos.base.v1beta1.Coin min_fee = 3 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
 
-  int64 amount = 4;
-
-  int64 percentage = 5;
+  int64 percentage = 4;
 }
 
 message MsgAddAllowedIbcTokenResponse {}

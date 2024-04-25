@@ -39,7 +39,7 @@ if [ $# -eq 1 ] && [ $1 == "--reinstall-old" ] || ! command -v _build/old/centau
 fi
 
 # install new binary
-if ! command -v _build/new/centaurid &> /dev/null
+if ! command -v _build/new/picad &> /dev/null
 then
     mkdir -p _build/new
     GOBIN="$ROOT/_build/new" go install -mod=readonly ./...
@@ -93,15 +93,15 @@ run_upgrade () {
 
     # Get upgrade height, 12 block after (6s)
     STATUS_INFO=($(./_build/old/centaurid status --home $HOME | jq -r '.NodeInfo.network,.SyncInfo.latest_block_height'))
-    UPGRADE_HEIGHT=$((STATUS_INFO[1] + 50))
+    UPGRADE_HEIGHT=$((STATUS_INFO[1] + 20))
     echo "UPGRADE_HEIGHT = $UPGRADE_HEIGHT"
 
-    tar -cf ./_build/new/centaurid.tar -C ./_build/new centaurid
-    SUM=$(shasum -a 256 ./_build/new/centaurid.tar | cut -d ' ' -f1)
+    tar -cf ./_build/new/picad.tar -C ./_build/new picad
+    SUM=$(shasum -a 256 ./_build/new/picad.tar | cut -d ' ' -f1)
     UPGRADE_INFO=$(jq -n '
     {
         "binaries": {
-            "linux/amd64": "file://'$(pwd)'/_build/new/centaurid.tar?checksum=sha256:'"$SUM"'",
+            "linux/amd64": "file://'$(pwd)'/_build/new/picad.tar?checksum=sha256:'"$SUM"'",
         }
     }')
 
@@ -151,9 +151,9 @@ sleep 1
 # run new node
 echo -e "\n\n=> =>continue running nodes after upgrade"   
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    CONTINUE="true" bash scripts/localnode.sh _build/new/centaurid $DENOM
+    CONTINUE="true" screen -L -dmS picad bash scripts/localnode.sh _build/new/picad $DENOM
 else
-    CONTINUE="true" bash scripts/localnode.sh _build/new/centaurid $DENOM
+    CONTINUE="true" screen -L -dmS picad bash scripts/localnode.sh _build/new/picad $DENOM
 fi
 
 sleep 5
@@ -167,7 +167,7 @@ if [ ! -z "$ADDITIONAL_AFTER_SCRIPTS" ]; then
          # check if SCRIPT is a file
         if [ -f "$SCRIPT" ]; then
             echo "executing additional after scripts from $SCRIPT"
-            source $SCRIPT _build/new/centaurid
+            source $SCRIPT _build/new/picad
             sleep 5
         else
             echo "$SCRIPT is not a file"
