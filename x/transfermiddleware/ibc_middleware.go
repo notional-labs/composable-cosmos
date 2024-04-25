@@ -127,6 +127,41 @@ func (im IBCMiddleware) OnTimeoutPacket(ctx sdk.Context, packet channeltypes.Pac
 		return err
 	}
 
+	denom := data.Denom
+	coin := im.keeper.IbcTransfermiddleware.GetCoin(ctx, packet.SourceChannel, denom)
+	сhannelFeeAddress := im.keeper.IbcTransfermiddleware.GetChannelFeeAddress(ctx, packet.SourceChannel)
+	if coin != nil {
+		amount := data.Amount
+		transferAmount, ok := sdk.NewIntFromString(amount)
+		if !ok {
+			return errors.Wrapf(transfertypes.ErrInvalidAmount, "unable to parse transfer amount: %s", amount)
+		}
+
+		// calculate the percentage charge
+		/*
+			coin.Percentage is 100 that means that we charge 1/100 of the transfer amount
+			coin.MinFee.Amount is the minimum fee that we charge
+			the new amount is the transfer amount minus the percentage charge and the minimum fee
+			transfer amount is a 99/100 of the original amount
+			so to get the fee we charge transferAmount.QuoRaw(coin.Percentage - 1) + coin.MinFee.Amount
+		*/
+
+		percentageCharge := sdk.NewInt(0)
+		if coin.Percentage > 1 {
+			percentageCharge = transferAmount.QuoRaw(coin.Percentage - 1)
+		}
+		percentageCharge = percentageCharge.Add(coin.MinFee.Amount)
+
+		fee_address, err := sdk.AccAddressFromBech32(сhannelFeeAddress)
+		if err != nil {
+			return errors.Wrapf(err, "failed to decode receiver address: %s", сhannelFeeAddress)
+		}
+
+		refund_fee := sdk.NewCoin(denom, percentageCharge)
+		im.keeper.RefundChannelCosmosFee(ctx, fee_address, sdk.AccAddress(data.Sender), []sdk.Coin{refund_fee})
+
+	}
+
 	return nil
 }
 

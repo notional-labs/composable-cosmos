@@ -49,6 +49,7 @@ func NewKeeper(
 		bankKeeper:       bk,
 		feeCollectorName: feeCollectorName,
 		authority:        authority,
+		accountKeeper:    ak,
 	}
 }
 

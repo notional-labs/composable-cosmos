@@ -64,7 +64,7 @@ func (k msgServer) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*typ
 
 			newAmount := msg.Token.Amount.Sub(charge)
 
-			if newAmount.IsPositive() {
+			if newAmount.IsPositive() && coin.Percentage != 0 {
 				percentageCharge := newAmount.QuoRaw(coin.Percentage)
 				newAmount = newAmount.Sub(percentageCharge)
 				charge = charge.Add(percentageCharge)

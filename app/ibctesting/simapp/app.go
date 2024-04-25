@@ -124,6 +124,8 @@ import (
 	simappupgrades "github.com/notional-labs/composable/v6/app/ibctesting/simapp/upgrades"
 	v6 "github.com/notional-labs/composable/v6/app/ibctesting/simapp/upgrades/v6"
 	v7 "github.com/notional-labs/composable/v6/app/ibctesting/simapp/upgrades/v7"
+	ibctransfermiddleware "github.com/notional-labs/composable/v6/x/ibctransfermiddleware/keeper"
+	ibctransfermiddlewaretypes "github.com/notional-labs/composable/v6/x/ibctransfermiddleware/types"
 	transfermiddleware "github.com/notional-labs/composable/v6/x/transfermiddleware"
 	transfermiddlewarekeeper "github.com/notional-labs/composable/v6/x/transfermiddleware/keeper"
 	transfermiddlewaretypes "github.com/notional-labs/composable/v6/x/transfermiddleware/types"
@@ -250,7 +252,8 @@ type SimApp struct {
 	ICAAuthModule ibcmock.IBCModule
 	FeeMockModule ibcmock.IBCModule
 
-	TransferMiddlewarekeeper transfermiddlewarekeeper.Keeper
+	TransferMiddlewarekeeper    transfermiddlewarekeeper.Keeper
+	IbcTransferMiddlewareKeeper ibctransfermiddleware.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -370,6 +373,13 @@ func NewSimApp(
 
 	app.FeeGrantKeeper = feegrantkeeper.NewKeeper(appCodec, keys[feegrant.StoreKey], app.AccountKeeper)
 	app.UpgradeKeeper = upgradekeeper.NewKeeper(skipUpgradeHeights, keys[upgradetypes.StoreKey], appCodec, homePath, app.BaseApp, authtypes.NewModuleAddress(govtypes.ModuleName).String())
+	app.IbcTransferMiddlewareKeeper = ibctransfermiddleware.NewKeeper(appCodec, keys[ibctransfermiddlewaretypes.StoreKey], authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		[]string{
+			"pica1ay9y5uns9khw2kzaqr3r33v2pkuptfnnunlt5x",
+			"pica14lz7gaw92valqjearnye4shex7zg2p05yfguqm",
+			"pica1r2zlh2xn85v8ljmwymnfrnsmdzjl7k6w9f2ja8",
+			"pica10556m38z4x6pqalr9rl5ytf3cff8q46nf36090",
+		})
 	app.TransferMiddlewarekeeper = transfermiddlewarekeeper.NewKeeper(
 		keys[transfermiddlewaretypes.StoreKey],
 		app.GetSubspace(transfermiddlewaretypes.ModuleName),
@@ -377,6 +387,7 @@ func NewSimApp(
 		app.IBCKeeper.ChannelKeeper,
 		app.TransferKeeper,
 		app.BankKeeper,
+		&app.IbcTransferMiddlewareKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	app.AuthzKeeper = authzkeeper.NewKeeper(keys[authzkeeper.StoreKey], appCodec, app.MsgServiceRouter(), app.AccountKeeper)

@@ -15,17 +15,18 @@ import (
 	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
 	"github.com/cosmos/ibc-go/v8/modules/core/exported"
 
+	ibctransfermiddleware "github.com/notional-labs/composable/v6/x/ibctransfermiddleware/keeper"
 	"github.com/notional-labs/composable/v6/x/transfermiddleware/types"
 )
 
 type Keeper struct {
-	cdc            codec.BinaryCodec
-	storeKey       storetypes.StoreKey
-	paramSpace     paramtypes.Subspace
-	ICS4Wrapper    porttypes.ICS4Wrapper
-	bankKeeper     types.BankKeeper
-	transferKeeper types.TransferKeeper
-
+	cdc                   codec.BinaryCodec
+	storeKey              storetypes.StoreKey
+	paramSpace            paramtypes.Subspace
+	ICS4Wrapper           porttypes.ICS4Wrapper
+	bankKeeper            types.BankKeeper
+	transferKeeper        types.TransferKeeper
+	IbcTransfermiddleware *ibctransfermiddleware.Keeper
 	// the address capable of executing a AddParachainIBCTokenInfo and RemoveParachainIBCTokenInfo message. Typically, this
 	// should be the x/gov module account.
 	authority string
@@ -39,6 +40,7 @@ func NewKeeper(
 	ics4Wrapper porttypes.ICS4Wrapper,
 	transferKeeper types.TransferKeeper,
 	bankKeeper types.BankKeeper,
+	ibcTransfermiddleware *ibctransfermiddleware.Keeper,
 	authority string,
 ) Keeper {
 	// set KeyTable if it has not already been set
@@ -47,13 +49,14 @@ func NewKeeper(
 	}
 
 	return Keeper{
-		storeKey:       storeKey,
-		paramSpace:     paramSpace,
-		transferKeeper: transferKeeper,
-		bankKeeper:     bankKeeper,
-		cdc:            codec,
-		ICS4Wrapper:    ics4Wrapper,
-		authority:      authority,
+		storeKey:              storeKey,
+		paramSpace:            paramSpace,
+		transferKeeper:        transferKeeper,
+		bankKeeper:            bankKeeper,
+		cdc:                   codec,
+		ICS4Wrapper:           ics4Wrapper,
+		IbcTransfermiddleware: ibcTransfermiddleware,
+		authority:             authority,
 	}
 }
 
@@ -231,6 +234,14 @@ func (keeper Keeper) GetTotalEscrowedToken(ctx sdk.Context) (coins sdk.Coins) {
 	})
 
 	return coins
+}
+
+func (keeper Keeper) RefundChannelCosmosFee(ctx sdk.Context, sender, receiver sdk.AccAddress, amount sdk.Coins) error {
+	if err := keeper.bankKeeper.SendCoins(ctx, sender, receiver, amount); err != nil {
+		return errorsmod.Wrap(err, "failed to refund channel cosmos fee")
+	}
+
+	return nil
 }
 
 func (keeper Keeper) Logger(ctx sdk.Context) log.Logger {

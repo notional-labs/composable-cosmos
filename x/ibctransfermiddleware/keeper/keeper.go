@@ -64,3 +64,21 @@ func (k Keeper) GetParams(ctx sdk.Context) (p types.Params) {
 	k.cdc.MustUnmarshal(bz, &p)
 	return p
 }
+
+func (k Keeper) GetCoin(ctx sdk.Context, targetChannelID, denom string) *types.CoinItem {
+	params := k.GetParams(ctx)
+	channelFee := findChannelParams(params.ChannelFees, targetChannelID)
+	if channelFee == nil {
+		return nil
+	}
+	return findCoinByDenom(channelFee.AllowedTokens, denom)
+}
+
+func (k Keeper) GetChannelFeeAddress(ctx sdk.Context, targetChannelID string) string {
+	params := k.GetParams(ctx)
+	channelFee := findChannelParams(params.ChannelFees, targetChannelID)
+	if channelFee == nil {
+		return ""
+	}
+	return channelFee.FeeAddress
+}

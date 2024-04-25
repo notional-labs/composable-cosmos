@@ -121,7 +121,7 @@ import (
 )
 
 const (
-	AccountAddressPrefix = "composable"
+	AccountAddressPrefix = "pica"
 	authorityAddress     = "pica10556m38z4x6pqalr9rl5ytf3cff8q46nf36090" // convert from: centauri10556m38z4x6pqalr9rl5ytf3cff8q46nk85k9m
 )
 
@@ -220,7 +220,13 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		})
 
 	appKeepers.StakingKeeper = customstaking.NewKeeper(
-		appCodec, runtime.NewKVStoreService(appKeepers.keys[stakingtypes.StoreKey]), appKeepers.AccountKeeper, appKeepers.BankKeeper, govModAddress, &appKeepers.StakingMiddlewareKeeper, authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ValidatorAddrPrefix()),
+		appCodec,
+		runtime.NewKVStoreService(appKeepers.keys[stakingtypes.StoreKey]),
+		appKeepers.AccountKeeper,
+		appKeepers.BankKeeper,
+		govModAddress,
+		&appKeepers.StakingMiddlewareKeeper,
+		authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ValidatorAddrPrefix()),
 		authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ConsensusAddrPrefix()),
 	)
 
@@ -318,9 +324,10 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		appKeepers.keys[transfermiddlewaretypes.StoreKey],
 		appKeepers.GetSubspace(transfermiddlewaretypes.ModuleName),
 		appCodec,
-		appKeepers.HooksICS4Wrapper,
-		appKeepers.TransferKeeper.Keeper,
+		&appKeepers.RatelimitKeeper,
+		&appKeepers.TransferKeeper,
 		appKeepers.BankKeeper,
+		&appKeepers.IbcTransferMiddlewareKeeper,
 		authorityAddress,
 	)
 
@@ -352,6 +359,7 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		appKeepers.BankKeeper,
 		appKeepers.ScopedTransferKeeper,
 		&appKeepers.IbcTransferMiddlewareKeeper,
+		&appKeepers.BankKeeper,
 		govModAddress,
 	)
 	appKeepers.PfmKeeper.SetTransferKeeper(appKeepers.TransferKeeper)
@@ -372,8 +380,11 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 	scopedICQKeeper := appKeepers.CapabilityKeeper.ScopeToModule(icqtypes.ModuleName)
 
 	appKeepers.ICQKeeper = icqkeeper.NewKeeper(
-		appCodec, appKeepers.keys[icqtypes.StoreKey], &appKeepers.TransferMiddlewareKeeper,
-		appKeepers.IBCKeeper.ChannelKeeper, appKeepers.IBCKeeper.PortKeeper,
+		appCodec,
+		appKeepers.keys[icqtypes.StoreKey],
+		&appKeepers.TransferMiddlewareKeeper,
+		appKeepers.IBCKeeper.ChannelKeeper,
+		appKeepers.IBCKeeper.PortKeeper,
 		scopedICQKeeper, bApp.GRPCQueryRouter(), govModAddress,
 	)
 
