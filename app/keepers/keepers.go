@@ -301,12 +301,6 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 
 	icaHostStack := icahost.NewIBCModule(appKeepers.ICAHostKeeper)
 
-	// Create Transfer Keepers
-	// * SendPacket. Originates from the transferKeeper and goes up the stack:
-	// transferKeeper.SendPacket -> transfermiddleware.SendPacket -> ibc_rate_limit.SendPacket -> ibc_hooks.SendPacket -> channel.SendPacket
-	// * RecvPacket, message that originates from core IBC and goes down to app, the flow is the other way
-	// channel.RecvPacket -> ibc_hooks.OnRecvPacket -> ibc_rate_limit.OnRecvPacket -> forward.OnRecvPacket -> transfermiddleware_OnRecvPacket -> transfer.OnRecvPacket
-	//
 	hooksKeeper := ibchookskeeper.NewKeeper(
 		appKeepers.keys[ibchookstypes.StoreKey],
 	)
@@ -376,7 +370,6 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
-	transferIBCModule := transfer.NewIBCModule(appKeepers.TransferKeeper.Keeper)
 	scopedICQKeeper := appKeepers.CapabilityKeeper.ScopeToModule(icqtypes.ModuleName)
 
 	appKeepers.ICQKeeper = icqkeeper.NewKeeper(
@@ -389,20 +382,32 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 	)
 
 	icqIBCModule := icq.NewIBCModule(appKeepers.ICQKeeper)
-	transfermiddlewareStack := transfermiddleware.NewIBCMiddleware(
-		transferIBCModule,
+
+	// Create Transfer Keepers
+	// * SendPacket. Originates from the transferKeeper and goes up the stack:
+	// transferKeeper.SendPacket -> transfermiddleware.SendPacket -> ibc_rate_limit.SendPacket -> ibc_hooks.SendPacket -> channel.SendPacket
+	// * RecvPacket, message that originates from core IBC and goes down to app, the flow is the other way
+	// channel.RecvPacket -> ibc_hooks.OnRecvPacket -> ibc_rate_limit.OnRecvPacket -> forward.OnRecvPacket -> transfermiddleware_OnRecvPacket -> transfer.OnRecvPacket
+	//
+
+	var transferStack porttypes.IBCModule
+
+	transferStack = transfer.NewIBCModule(appKeepers.TransferKeeper.Keeper)
+
+	transferStack = transfermiddleware.NewIBCMiddleware(
+		transferStack,
 		appKeepers.TransferMiddlewareKeeper,
 	)
 
-	ibcMiddlewareStack := pfm.NewIBCMiddleware(
-		transfermiddlewareStack,
+	transferStack = pfm.NewIBCMiddleware(
+		transferStack,
 		appKeepers.PfmKeeper,
 		0,
 		pfmkeeper.DefaultForwardTransferPacketTimeoutTimestamp,
 		pfmkeeper.DefaultRefundTransferPacketTimeoutTimestamp,
 	)
-	ratelimitMiddlewareStack := ratelimitmodule.NewIBCMiddleware(appKeepers.RatelimitKeeper, ibcMiddlewareStack)
-	hooksTransferMiddleware := ibc_hooks.NewIBCMiddleware(ratelimitMiddlewareStack, &appKeepers.HooksICS4Wrapper)
+	transferStack = ratelimitmodule.NewIBCMiddleware(appKeepers.RatelimitKeeper, transferStack)
+	transferStack = ibc_hooks.NewIBCMiddleware(transferStack, &appKeepers.HooksICS4Wrapper)
 
 	// Create evidence Keeper for to register the IBC light client misbehaviour evidence route
 	evidenceKeeper := evidencekeeper.NewKeeper(
@@ -509,7 +514,7 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 	)
 
 	ibcRouter := porttypes.NewRouter()
-	ibcRouter.AddRoute(ibctransfertypes.ModuleName, hooksTransferMiddleware)
+	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferStack)
 	ibcRouter.AddRoute(icqtypes.ModuleName, icqIBCModule)
 	ibcRouter.AddRoute(wasmtypes.ModuleName, wasm.NewIBCHandler(appKeepers.WasmKeeper, appKeepers.IBCKeeper.ChannelKeeper, appKeepers.IBCKeeper.ChannelKeeper))
 	ibcRouter.AddRoute(icahosttypes.SubModuleName, icaHostStack)
