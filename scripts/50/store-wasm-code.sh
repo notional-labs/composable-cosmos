@@ -6,7 +6,7 @@ CHAINID="centauri-dev"
 BINARY=picad
 
 # Create a proposale to store wasm code
-$BINARY tx ibc-wasm store-code "contracts/ics10_grandpa_cw.wasm" --title "test" --summary "none" --from $KEY --keyring-backend test --home $HOME_DIR --deposit 10000000000${DENOM} --authority pica10556m38z4x6pqalr9rl5ytf3cff8q46nf36090 --gas 20002152622 --fees 20020166${DENOM}  -y 
+$BINARY tx ibc-wasm store-code "contracts/ics10_grandpa_cw.wasm" --title "test" --summary "none" --from $KEY --keyring-backend test --home $HOME_DIR --deposit 10000000000${DENOM} --gas 20002152622 --fees 20020166${DENOM}  -y 
 
 
 # Fetch proposal id 
