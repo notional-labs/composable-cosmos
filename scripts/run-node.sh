@@ -12,6 +12,8 @@ BINARY=$1
 #TRACE="--trace"
 TRACE=""
 
+echo "runnode"
+
 HOME_DIR=mytestnet
 DENOM=ppica
 
@@ -76,4 +78,4 @@ sed -i'' -e 's/max_body_bytes = /max_body_bytes = 1/g' $HOME_DIR/config/config.t
 sed -i'' -e 's/max_tx_bytes = 1048576/max_tx_bytes = 10000000/g' $HOME_DIR/config/config.toml
 
 
-$BINARY start --rpc.unsafe --rpc.laddr tcp://0.0.0.0:26657 --pruning=nothing --minimum-gas-prices=0.001ppica --home=$HOME_DIR  --log_level trace --trace --with-tendermint=true --transport=socket  --grpc.enable=true --grpc-web.enable=false --api.enable=true  --p2p.pex=false 
+screen -L -dmS node1 $BINARY start --rpc.unsafe --rpc.laddr tcp://0.0.0.0:26657 --pruning=nothing --minimum-gas-prices=0.001ppica --home=$HOME_DIR  --log_level debug --trace --with-tendermint=true --transport=socket  --grpc.enable=true --grpc-web.enable=false --api.enable=true  --p2p.pex=false 

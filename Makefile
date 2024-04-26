@@ -226,3 +226,8 @@ test-ibc-hooks:
 	@echo "Testing ibc-hooks..."
 	./scripts/tests/ibc-hooks/increment.sh
 
+test-50:
+	@echo "Starting test"
+	rm -rf screenlog.0
+	-@pkill picad 2>/dev/null
+	bash ./scripts/run-node.sh picad

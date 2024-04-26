@@ -328,13 +328,13 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		&appKeepers.TransferKeeper,
 		appKeepers.BankKeeper,
 		&appKeepers.IbcTransferMiddlewareKeeper,
-		authorityAddress,
+		govModAddress,
 	)
 
 	appKeepers.TxBoundaryKeepper = txBoundaryKeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[txBoundaryTypes.StoreKey],
-		authorityAddress,
+		govModAddress,
 	)
 
 	appKeepers.PfmKeeper = pfmkeeper.NewKeeper(
@@ -488,7 +488,7 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		appCodec,
 		runtime.NewKVStoreService(appKeepers.keys[wasm08types.StoreKey]),
 		&appKeepers.IBCKeeper.ClientKeeper,
-		authorityAddress,
+		govModAddress,
 		vm,
 		bApp.GRPCQueryRouter(),
 	)
