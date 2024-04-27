@@ -17,16 +17,16 @@
       "no_count": "0",
       "no_with_veto_count": "0"
     },
-    "submit_time": "2024-04-26T12:22:31.890494Z",
-    "deposit_end_time": "2024-04-28T12:22:31.890494Z",
+    "submit_time": "2024-04-27T09:08:42.330512Z",
+    "deposit_end_time": "2024-04-29T09:08:42.330512Z",
     "total_deposit": [
       {
         "denom": "ppica",
         "amount": "10000000000"
       }
     ],
-    "voting_start_time": "2024-04-26T12:22:31.890494Z",
-    "voting_end_time": "2024-04-26T12:22:51.890494Z",
+    "voting_start_time": "2024-04-27T09:08:42.330512Z",
+    "voting_end_time": "2024-04-27T09:09:02.330512Z",
     "title": "test",
     "summary": "none",
     "proposer": "pica1hj5fveer5cjtn4wd6wstzugjfdxzl0xpas3hgy"
