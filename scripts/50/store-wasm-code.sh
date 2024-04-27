@@ -4,10 +4,10 @@ DENOM="ppica"
 HOME_DIR="mytestnet"
 CHAINID="centauri-dev"
 BINARY=picad
+WASM_CONTRACT_PATH="/Users/kien6034/notional/projects/composable-ibc/target/wasm32-unknown-unknown/release/ics10_grandpa_cw.wasm"
 
 # Create a proposale to store wasm code
-$BINARY tx ibc-wasm store-code "contracts/ics10_grandpa_cw.wasm" --title "test" --summary "none" --from $KEY --keyring-backend test --home $HOME_DIR --deposit 10000000000${DENOM} --gas 20002152622 --fees 20020166${DENOM}  -y 
-
+$BINARY tx ibc-wasm store-code $WASM_CONTRACT_PATH --title "migrate new contract" --summary "none" --from $KEY --keyring-backend test --home $HOME_DIR --deposit 10000000000${DENOM} --gas 20002152622 --fees 20020166${DENOM}  -y 
 
 # Fetch proposal id 
 sleep 6
