@@ -7,8 +7,6 @@ import (
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	runtimeservices "github.com/cosmos/cosmos-sdk/runtime/services"
 	authcodec "github.com/cosmos/cosmos-sdk/x/auth/codec"
-	alliancemodule "github.com/terra-money/alliance/x/alliance"
-	alliancemoduletypes "github.com/terra-money/alliance/x/alliance/types"
 	"io"
 	"os"
 	"path/filepath"
@@ -213,7 +211,6 @@ var (
 		ibctransfermiddleware.AppModuleBasic{},
 		circuit.AppModuleBasic{},
 		wasm08.AppModuleBasic{},
-		alliancemodule.AppModuleBasic{},
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
 	)
 
@@ -397,7 +394,6 @@ func NewComposableApp(
 		icaModule,
 		ratelimitModule,
 		circuit.NewAppModule(appCodec, app.CircuitKeeper),
-		alliancemodule.NewAppModule(appCodec, app.AllianceKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry, app.GetSubspace(alliancemoduletypes.ModuleName)),
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 
@@ -446,7 +442,6 @@ func NewComposableApp(
 		stakingmiddlewaretypes.ModuleName,
 		ibctransfermiddlewaretypes.ModuleName,
 		wasm08types.ModuleName,
-		alliancemoduletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	)
 
@@ -483,7 +478,6 @@ func NewComposableApp(
 		stakingmiddlewaretypes.ModuleName,
 		ibctransfermiddlewaretypes.ModuleName,
 		wasm08types.ModuleName,
-		alliancemoduletypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -524,7 +518,6 @@ func NewComposableApp(
 		stakingmiddlewaretypes.ModuleName,
 		ibctransfermiddlewaretypes.ModuleName,
 		wasm08types.ModuleName,
-		alliancemoduletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 	)
 

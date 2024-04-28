@@ -3,7 +3,6 @@ package keepers
 import (
 	"fmt"
 	alliancemodulekeeper "github.com/terra-money/alliance/x/alliance/keeper"
-	alliancemoduletypes "github.com/terra-money/alliance/x/alliance/types"
 	"math"
 	"path/filepath"
 	"strings"
@@ -281,21 +280,11 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 	appKeepers.FeeGrantKeeper = feegrantkeeper.NewKeeper(appCodec, runtime.NewKVStoreService(appKeepers.keys[feegrant.StoreKey]), appKeepers.AccountKeeper)
 	appKeepers.UpgradeKeeper = upgradekeeper.NewKeeper(skipUpgradeHeights, runtime.NewKVStoreService(appKeepers.keys[upgradetypes.StoreKey]), appCodec, homePath, bApp, govModAddress)
 
-	appKeepers.AllianceKeeper = alliancemodulekeeper.NewKeeper(
-		appCodec,
-		runtime.NewKVStoreService(appKeepers.keys[alliancemoduletypes.StoreKey]),
-		appKeepers.AccountKeeper,
-		appKeepers.BankKeeper,
-		appKeepers.StakingKeeper,
-		appKeepers.DistrKeeper,
-		authtypes.FeeCollectorName,
-		govModAddress,
-	)
-	appKeepers.BankKeeper.RegisterKeepers(appKeepers.AllianceKeeper, appKeepers.StakingKeeper)
+	appKeepers.BankKeeper.RegisterKeepers(appKeepers.AccountKeeper, appKeepers.StakingKeeper)
 	// register the staking hooks
 	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
 	appKeepers.StakingKeeper.SetHooks(
-		stakingtypes.NewMultiStakingHooks(appKeepers.DistrKeeper.Hooks(), appKeepers.SlashingKeeper.Hooks(), appKeepers.AllianceKeeper.StakingHooks()),
+		stakingtypes.NewMultiStakingHooks(appKeepers.DistrKeeper.Hooks(), appKeepers.SlashingKeeper.Hooks()),
 	)
 
 	// ... other modules keepers
@@ -602,7 +591,6 @@ func (appKeepers *AppKeepers) initParamsKeeper(appCodec codec.BinaryCodec, legac
 	paramsKeeper.Subspace(transfermiddlewaretypes.ModuleName).WithKeyTable(transfermiddlewaretypes.ParamKeyTable())
 	paramsKeeper.Subspace(stakingmiddlewaretypes.ModuleName)
 	paramsKeeper.Subspace(ibctransfermiddlewaretypes.ModuleName)
-	paramsKeeper.Subspace(alliancemoduletypes.ModuleName).WithKeyTable(alliancemoduletypes.ParamKeyTable())
 
 	return paramsKeeper
 }
