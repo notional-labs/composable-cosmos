@@ -1,0 +1,1 @@
+./scripts/old-node/testnode.sh > /dev/null 2>&1

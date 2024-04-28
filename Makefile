@@ -193,13 +193,13 @@ init-deps:
 	@echo "Installing dependencies"
 	bash ./scripts/upgrade/init-deps.sh
 
-localnet-pica: clean-testing-data
+localnet-pica: 
 	@echo "Starting localnet"
 	bash ./scripts/upgrade/setup-old-picad-node.sh
 
 localnet-picasso:
 	@echo "Starting localnet"
-	bash ./scripts/upgrade/setup-polkadot-node.sh
+	bash ./scripts/relayer_hyperspace/run-picasso.sh
 
 relayer-start:
 	@echo "Starting relayer"
@@ -210,6 +210,16 @@ pica-upgrade:
 	bash ./scripts/upgrade/upgrade.
 
 
+test-50:
+	@echo "Starting test"
+	rm -rf screenlog.0
+	-@pkill picad 2>/dev/null
+	bash ./scripts/run-node.sh picad
+	bash ./scripts/50/store-wasm-code.sh
+
+kien-cleanup:
+	@echo "Cleaning up"
+	./scripts/relayer_hyperspace/cleanup.sh
 ###############################################################################
 ###                        Integration Tests                                ###
 ###############################################################################
@@ -225,9 +235,3 @@ init-test-framework: clean-testing-data install
 test-ibc-hooks:
 	@echo "Testing ibc-hooks..."
 	./scripts/tests/ibc-hooks/increment.sh
-
-test-50:
-	@echo "Starting test"
-	rm -rf screenlog.0
-	-@pkill picad 2>/dev/null
-	bash ./scripts/run-node.sh picad
