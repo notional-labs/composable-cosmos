@@ -207,5 +207,22 @@ relayer-start:
 
 pica-upgrade:
 	@echo "Starting upgrade"
-	bash ./scripts/upgrade/upgrade.sh
+	bash ./scripts/upgrade/upgrade.
+
+
+###############################################################################
+###                        Integration Tests                                ###
+###############################################################################
+
+integration-test-all: init-test-framework \
+	test-ibc-hooks
+
+init-test-framework: clean-testing-data install
+	@echo "Initializing both blockchains..."
+	./scripts/tests/init-test-framework.sh
+	./scripts/relayer/relayer-init.sh
+
+test-ibc-hooks:
+	@echo "Testing ibc-hooks..."
+	./scripts/tests/ibc-hooks/increment.sh
 

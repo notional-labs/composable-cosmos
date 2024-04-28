@@ -29,6 +29,7 @@ require (
 	google.golang.org/grpc v1.62.1
 	gotest.tools/v3 v3.5.1
 	mvdan.cc/gofumpt v0.4.0
+	github.com/terra-money/alliance v0.4.3
 )
 
 require github.com/cometbft/cometbft-db v0.11.0 // indirect
@@ -376,6 +377,5 @@ replace (
 	github.com/prometheus/common => github.com/prometheus/common v0.47.0
 
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
-// github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8 => github.com/notional-labs/ibc-apps/middleware/packet-forward-middleware/v8 v8.0.0-0.20240327105252-f31a09121d57
 
 )

@@ -13,8 +13,6 @@ import (
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	"github.com/stretchr/testify/suite"
-
-	customibctesting "github.com/notional-labs/composable/v6/app/ibctesting"
 )
 
 type PacketMetadata struct {
@@ -34,7 +32,7 @@ type ForwardMetadata struct {
 type TransferMiddlewareTestSuite struct {
 	suite.Suite
 
-	coordinator *customibctesting.Coordinator
+	coordinator *ibctesting.Coordinator
 
 	// testing chains used for convenience and readability
 	chainA *customibctesting.TestChain

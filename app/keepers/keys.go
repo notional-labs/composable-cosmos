@@ -6,6 +6,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
+	alliancemoduletypes "github.com/terra-money/alliance/x/alliance/types"
 
 	// bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
@@ -65,6 +66,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		ibcexported.StoreKey,
 		ibchookstypes.StoreKey, icahosttypes.StoreKey,
 		ratelimitmoduletypes.StoreKey, txBoundaryTypes.StoreKey,
+		alliancemoduletypes.StoreKey,
 	)
 
 	// Define transient store keys
