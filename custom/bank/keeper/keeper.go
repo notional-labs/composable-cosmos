@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"context"
-
 	"cosmossdk.io/core/store"
 	"cosmossdk.io/log"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -10,20 +9,18 @@ import (
 	accountkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/cosmos/cosmos-sdk/x/bank/types"
+	banktypes "github.com/notional-labs/composable/v6/custom/bank/types"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-
-	banktypes "github.com/notional-labs/composable/v6/custom/bank/types"
 
 	transfermiddlewarekeeper "github.com/notional-labs/composable/v6/x/transfermiddleware/keeper"
 )
 
 type Keeper struct {
 	bankkeeper.BaseKeeper
-
 	tfmk banktypes.TransferMiddlewareKeeper
 	sk   banktypes.StakingKeeper
-	acck accountkeeper.AccountKeeper
+	ak   accountkeeper.AccountKeeper
 }
 
 var _ bankkeeper.Keeper = Keeper{}
@@ -40,12 +37,13 @@ func NewBaseKeeper(
 	keeper := Keeper{
 		BaseKeeper: bankkeeper.NewBaseKeeper(cdc, storeService, ak, blockedAddrs, authority, logger),
 		tfmk:       tfmk,
-		acck:       ak,
+		ak:         ak,
 	}
 	return keeper
 }
 
-func (k *Keeper) RegisterKeepers(sk banktypes.StakingKeeper) {
+func (k *Keeper) RegisterKeepers(ak accountkeeper.AccountKeeper, sk banktypes.StakingKeeper) {
+	k.ak = ak
 	k.sk = sk
 }
 

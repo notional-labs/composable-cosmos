@@ -2,6 +2,7 @@ package keepers
 
 import (
 	"fmt"
+	alliancemodulekeeper "github.com/terra-money/alliance/x/alliance/keeper"
 	"math"
 	"path/filepath"
 	"strings"
@@ -153,6 +154,7 @@ type AppKeepers struct {
 	GroupKeeper      groupkeeper.Keeper
 	Wasm08Keeper     wasm08Keeper.Keeper // TODO: use this name ?
 	WasmKeeper       wasmkeeper.Keeper
+	AllianceKeeper   alliancemodulekeeper.Keeper
 	IBCHooksKeeper   *ibchookskeeper.Keeper
 	Ics20WasmHooks   *ibc_hooks.WasmHooks
 	HooksICS4Wrapper ibc_hooks.ICS4Middleware
@@ -201,7 +203,13 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 
 	appKeepers.BankKeeper = custombankkeeper.NewBaseKeeper(
 		logger,
-		appCodec, runtime.NewKVStoreService(appKeepers.keys[banktypes.StoreKey]), appKeepers.AccountKeeper, appKeepers.BlacklistedModuleAccountAddrs(maccPerms), &appKeepers.TransferMiddlewareKeeper, govModAddress)
+		appCodec,
+		runtime.NewKVStoreService(appKeepers.keys[banktypes.StoreKey]),
+		appKeepers.AccountKeeper,
+		appKeepers.BlacklistedModuleAccountAddrs(maccPerms),
+		&appKeepers.TransferMiddlewareKeeper,
+		govModAddress,
+	)
 
 	appKeepers.AuthzKeeper = authzkeeper.NewKeeper(
 		runtime.NewKVStoreService(appKeepers.keys[authzkeeper.StoreKey]),
@@ -272,7 +280,7 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 	appKeepers.FeeGrantKeeper = feegrantkeeper.NewKeeper(appCodec, runtime.NewKVStoreService(appKeepers.keys[feegrant.StoreKey]), appKeepers.AccountKeeper)
 	appKeepers.UpgradeKeeper = upgradekeeper.NewKeeper(skipUpgradeHeights, runtime.NewKVStoreService(appKeepers.keys[upgradetypes.StoreKey]), appCodec, homePath, bApp, govModAddress)
 
-	appKeepers.BankKeeper.RegisterKeepers(appKeepers.StakingKeeper)
+	appKeepers.BankKeeper.RegisterKeepers(appKeepers.AccountKeeper, appKeepers.StakingKeeper)
 	// register the staking hooks
 	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
 	appKeepers.StakingKeeper.SetHooks(
@@ -334,7 +342,7 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 	appKeepers.PfmKeeper = pfmkeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[pfmtypes.StoreKey],
-		appKeepers.TransferKeeper.Keeper,
+		nil,
 		appKeepers.IBCKeeper.ChannelKeeper,
 		&appKeepers.DistrKeeper,
 		appKeepers.BankKeeper,

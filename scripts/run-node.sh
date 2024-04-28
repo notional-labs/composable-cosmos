@@ -11,10 +11,10 @@ if [ "$CONTINUE" == "true" ]; then
 fi
 
 rm -rf mytestnet
-pkill centaurid
+pkill picad
 
-# check DENOM is set. If not, set to upica
-DENOM=${2:-upica}
+# check DENOM is set. If not, set to ppica
+DENOM=${2:-ppica}
 
 COMMISSION_RATE=0.01
 COMMISSION_MAX_RATE=0.02
@@ -61,7 +61,7 @@ $BINARY add-genesis-account $KEY "1000000000000000000000${DENOM}" --keyring-back
 $BINARY add-genesis-account $KEY1 "1000000000000000000000${DENOM}" --keyring-backend $KEYRING --home $HOME_DIR
 $BINARY add-genesis-account $KEY2 "1000000000000000000000${DENOM}" --keyring-backend $KEYRING --home $HOME_DIR
 
-update_test_genesis '.app_state["gov"]["params"]["voting_period"]="20s"'
+# update_test_genesis '.app_state["gov"]["params"]["voting_period"]="20s"'
 update_test_genesis '.app_state["mint"]["params"]["mint_denom"]="'$DENOM'"'
 update_test_genesis '.app_state["gov"]["params"]["min_deposit"]=[{"denom":"'$DENOM'","amount": "1000000"}]'
 update_test_genesis '.app_state["crisis"]["constant_fee"]={"denom":"'$DENOM'","amount":"1000"}'
@@ -71,11 +71,11 @@ update_test_genesis '.app_state["staking"]["params"]["bond_denom"]="'$DENOM'"'
 $SED_BINARY -i '0,/enable = false/s//enable = true/' $HOME_DIR/config/app.toml
 $SED_BINARY -i 's/swagger = false/swagger = true/' $HOME_DIR/config/app.toml
 $SED_BINARY -i -e 's/enabled-unsafe-cors = false/enabled-unsafe-cors = true/g' $HOME_DIR/config/app.toml
-$SED_BINARY -i 's/minimum-gas-prices = "0.25upica"/minimum-gas-prices = "0.0upica"/' $HOME_DIR/config/app.toml
+$SED_BINARY -i 's/minimum-gas-prices = "0.25upica"/minimum-gas-prices = "0.0ppica"/' $HOME_DIR/config/app.toml
 
 
 # Sign genesis transaction
-$BINARY gentx $KEY "1000000000000000000000${DENOM}" --commission-rate=$COMMISSION_RATE --commission-max-rate=$COMMISSION_MAX_RATE --keyring-backend $KEYRING --chain-id $CHAIN_ID --home $HOME_DIR
+$BINARY gentx $KEY "1000000000000000000${DENOM}" --commission-rate=$COMMISSION_RATE --commission-max-rate=$COMMISSION_MAX_RATE --keyring-backend $KEYRING --chain-id $CHAIN_ID --home $HOME_DIR
 
 # Collect genesis tx
 $BINARY collect-gentxs --home $HOME_DIR
