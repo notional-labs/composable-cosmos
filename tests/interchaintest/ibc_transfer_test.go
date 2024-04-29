@@ -327,11 +327,11 @@ func pushWasmContractViaGov(t *testing.T, ctx context.Context, centaurid *cosmos
 
 	var getCodeQueryMsgRsp GetCodeQueryMsgResponse
 	err = centaurid.QueryClientContractCode(ctx, codeHash, &getCodeQueryMsgRsp)
-	codeHashByte32 := sha256.Sum256(getCodeQueryMsgRsp.Code)
+	codeHashByte32 := sha256.Sum256(getCodeQueryMsgRsp.Data)
 	codeHash2 := hex.EncodeToString(codeHashByte32[:])
 	t.Logf("Contract codeHash from code: %s", codeHash2)
 	require.NoError(t, err)
-	require.NotEmpty(t, getCodeQueryMsgRsp.Code)
+	require.NotEmpty(t, getCodeQueryMsgRsp.Data)
 	require.Equal(t, codeHash, codeHash2)
 
 	return codeHash

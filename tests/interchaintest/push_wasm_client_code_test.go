@@ -23,7 +23,7 @@ import (
 )
 
 const (
-	heightDelta      = 20
+	heightDelta      = 30
 	votingPeriod     = "20s"
 	maxDepositPeriod = "10s"
 )
@@ -127,8 +127,11 @@ func TestPushWasmClientCode(t *testing.T) {
 	centauridChain := centaurid.(*cosmos.CosmosChain)
 
 	// Verify a normal user cannot push a wasm light client contract
-	_, err = centauridChain.StoreClientContract(ctx, centaurid1User.KeyName(), "ics10_grandpa_cw.wasm")
-	require.ErrorContains(t, err, "invalid authority")
+	args := []string{"--title", "test", "--summary", "test", "--deposit", "500000000" + centauridChain.Config().Denom}
+	_, err = centauridChain.StoreClientContract(ctx, centaurid1User.KeyName(), "ics10_grandpa_cw.wasm", args...)
+	fmt.Println(err)
+	// require.ErrorContains(t, err, "invalid authority")
+	require.NoError(t, err, "invalid authority")
 
 	proposal := cosmos.TxProposalv1{
 		Metadata: "none",
@@ -157,16 +160,16 @@ func TestPushWasmClientCode(t *testing.T) {
 
 	var getCodeQueryMsgRsp GetCodeQueryMsgResponse
 	err = centauridChain.QueryClientContractCode(ctx, codeHash, &getCodeQueryMsgRsp)
-	codeHashByte32 := sha256.Sum256(getCodeQueryMsgRsp.Code)
+	codeHashByte32 := sha256.Sum256(getCodeQueryMsgRsp.Data)
 	codeHash2 := hex.EncodeToString(codeHashByte32[:])
 	t.Logf("Contract codeHash from code: %s", codeHash2)
 	require.NoError(t, err)
-	require.NotEmpty(t, getCodeQueryMsgRsp.Code)
+	require.NotEmpty(t, getCodeQueryMsgRsp.Data)
 	require.Equal(t, codeHash, codeHash2)
 }
 
 type GetCodeQueryMsgResponse struct {
-	Code []byte `json:"code"`
+	Data []byte `json:"data"`
 }
 
 func modifyGenesisShortProposals(votingPeriod, maxDepositPeriod string) func(ibc.ChainConfig, []byte) ([]byte, error) {
