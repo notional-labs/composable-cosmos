@@ -67,7 +67,6 @@ import (
 	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/cosmos/ibc-go/modules/capability"
-	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 
 	"github.com/cosmos/cosmos-sdk/x/group"
@@ -93,10 +92,8 @@ import (
 	ica "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts"
 	icatypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/types"
 	"github.com/cosmos/ibc-go/v8/modules/apps/transfer"
-	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	ibc "github.com/cosmos/ibc-go/v8/modules/core"
-	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 	customibctransfer "github.com/notional-labs/composable/v6/custom/ibc-transfer"
 	customstaking "github.com/notional-labs/composable/v6/custom/staking"
 	"github.com/spf13/cast"
@@ -122,8 +119,6 @@ import (
 
 	"github.com/notional-labs/composable/v6/x/mint"
 	minttypes "github.com/notional-labs/composable/v6/x/mint/types"
-
-	ibctestingtypes "github.com/cosmos/ibc-go/v8/testing/types"
 
 	ibc_hooks "github.com/notional-labs/composable/v6/x/ibc-hooks"
 	ibchookstypes "github.com/notional-labs/composable/v6/x/ibc-hooks/types"
@@ -613,35 +608,6 @@ func NewComposableApp(
 // Name returns the name of the App
 func (app *ComposableApp) Name() string { return app.BaseApp.Name() }
 
-// GetBaseApp returns the base app of the application
-func (app *ComposableApp) GetBaseApp() *baseapp.BaseApp { return app.BaseApp }
-
-// GetStakingKeeper implements the TestingApp interface.
-func (app *ComposableApp) GetStakingKeeper() ibctestingtypes.StakingKeeper {
-	return app.StakingKeeper
-}
-
-// GetIBCKeeper implements the TestingApp interface.
-func (app *ComposableApp) GetTransferKeeper() *ibctransferkeeper.Keeper {
-	return &app.TransferKeeper.Keeper
-}
-
-// GetIBCKeeper implements the TestingApp interface.
-func (app *ComposableApp) GetIBCKeeper() *ibckeeper.Keeper {
-	return app.IBCKeeper
-}
-
-// GetScopedIBCKeeper implements the TestingApp interface.
-func (app *ComposableApp) GetScopedIBCKeeper() capabilitykeeper.ScopedKeeper {
-	return app.ScopedIBCKeeper
-}
-
-// GetTxConfig implements the TestingApp interface.
-func (app *ComposableApp) GetTxConfig() client.TxConfig {
-	cfg := MakeEncodingConfig()
-	return cfg.TxConfig
-}
-
 // BeginBlocker application updates every begin block
 func (app *ComposableApp) BeginBlocker(ctx sdk.Context) (sdk.BeginBlock, error) {
 	BeginBlockForks(ctx, app)
@@ -655,6 +621,11 @@ func (app *ComposableApp) EndBlocker(ctx sdk.Context) (sdk.EndBlock, error) {
 
 func (app *ComposableApp) PreBlocker(ctx sdk.Context, _ *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error) {
 	return app.mm.PreBlock(ctx)
+}
+
+// TxConfig returns MigalooApp's TxConfig
+func (app *ComposableApp) TxConfig() client.TxConfig {
+	return app.txConfig
 }
 
 // InitChainer application update at chain initialization

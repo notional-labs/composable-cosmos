@@ -6,16 +6,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/rand"
-	"path/filepath"
 	"strconv"
 	"testing"
 	"time"
 
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
+	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+
 	"cosmossdk.io/errors"
 	"cosmossdk.io/log"
 	sdkmath "cosmossdk.io/math"
-	"cosmossdk.io/store/snapshots"
-	"cosmossdk.io/store/snapshots/types"
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -37,53 +40,27 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	minttypes "github.com/notional-labs/composable/v6/x/mint/types"
-
-	"github.com/CosmWasm/wasmd/x/wasm"
 )
 
-// DefaultConsensusParams defines the default Tendermint consensus params used in
-// FeeAbs testing.
-var DefaultConsensusParams = &tmproto.ConsensusParams{
-	Block: &tmproto.BlockParams{
-		MaxBytes: 8000000,
-		MaxGas:   1234000000,
-	},
-	Evidence: &tmproto.EvidenceParams{
-		MaxAgeNumBlocks: 302400,
-		MaxAgeDuration:  504 * time.Hour, // 3 weeks is the max duration
-		MaxBytes:        10000,
-	},
-	Validator: &tmproto.ValidatorParams{
-		PubKeyTypes: []string{
-			tmtypes.ABCIPubKeyTypeEd25519,
-		},
-	},
-}
+// SimAppChainID hardcoded chainID for simulation
+const (
+	SimAppChainID = ""
+)
 
-func setup(tb testing.TB, withGenesis bool, invCheckPeriod uint) (*ComposableApp, GenesisState) {
-	tb.Helper()
-	nodeHome := tb.TempDir()
-	snapshotDir := filepath.Join(nodeHome, "data", "snapshots")
-	snapshotDB, err := dbm.NewDB("metadata", dbm.MemDBBackend, snapshotDir)
-	require.NoError(tb, err)
-	snapshotStore, err := snapshots.NewStore(snapshotDB, snapshotDir)
-	require.NoError(tb, err)
-	baseAppOpts := []func(*baseapp.BaseApp){baseapp.SetSnapshot(snapshotStore, types.SnapshotOptions{
-		KeepRecent: 2,
-	})}
-	var wasmOpts []wasm.Option
+func setup(withGenesis bool, chainID string, opts ...wasmkeeper.Option) (*ComposableApp, GenesisState) {
 	db := dbm.NewMemDB()
 	app := NewComposableApp(
 		log.NewNopLogger(),
 		db, nil, true,
 		map[int64]bool{},
-		nodeHome,
-		invCheckPeriod,
+		DefaultNodeHome,
+		5,
 		MakeEncodingConfig(),
 		EmptyBaseAppOptions{},
-		wasmOpts,
+		opts,
 		nil,
-		baseAppOpts...)
+		baseapp.SetChainID(chainID),
+	)
 	if withGenesis {
 		return app, NewDefaultGenesisState()
 	}
@@ -96,13 +73,14 @@ func setup(tb testing.TB, withGenesis bool, invCheckPeriod uint) (*ComposableApp
 // account. A Nop logger is set in FeeAbs.
 func SetupWithGenesisValSet(
 	t *testing.T,
-	ctxTime time.Time,
 	valSet *tmtypes.ValidatorSet,
 	genAccs []authtypes.GenesisAccount,
+	chainID string,
+	opts []wasmkeeper.Option,
 	balances ...banktypes.Balance,
 ) *ComposableApp {
 	t.Helper()
-	app, genesisState := setup(t, true, 5)
+	app, genesisState := setup(true, chainID, opts...)
 	// set genesis accounts
 	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)
 	genesisState[authtypes.ModuleName] = app.appCodec.MustMarshalJSON(authGenesis)
@@ -110,10 +88,10 @@ func SetupWithGenesisValSet(
 	validators := make([]stakingtypes.Validator, 0, len(valSet.Validators))
 	delegations := make([]stakingtypes.Delegation, 0, len(valSet.Validators))
 
-	bondAmt := sdkmath.NewInt(1000000000000)
+	bondAmt := sdk.DefaultPowerReduction
 
 	for _, val := range valSet.Validators {
-		pk, err := cryptocodec.FromTmPubKeyInterface(val.PubKey)
+		pk, err := cryptocodec.FromCmtPubKeyInterface(val.PubKey)
 		require.NoError(t, err)
 		pkAny, err := codectypes.NewAnyWithValue(pk)
 		require.NoError(t, err)
@@ -131,58 +109,92 @@ func SetupWithGenesisValSet(
 			MinSelfDelegation: sdkmath.ZeroInt(),
 		}
 		validators = append(validators, validator)
-		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress().String(), val.Address.String(), sdkmath.LegacyOneDec()))
+		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress().String(), sdk.ValAddress(val.Address).String(), sdkmath.LegacyOneDec()))
 	}
 
 	// set validators and delegations
-	stakingGenesis := stakingtypes.NewGenesisState(stakingtypes.DefaultParams(), validators, delegations)
-	genesisState[stakingtypes.ModuleName] = app.appCodec.MustMarshalJSON(stakingGenesis)
+	defaultStParams := stakingtypes.DefaultParams()
+	stParams := stakingtypes.NewParams(
+		defaultStParams.UnbondingTime,
+		defaultStParams.MaxValidators,
+		defaultStParams.MaxEntries,
+		defaultStParams.HistoricalEntries,
+		sdk.DefaultBondDenom,
+		defaultStParams.MinCommissionRate,
+	)
 
-	totalSupply := sdk.NewCoins()
-	for _, b := range balances {
-		// add genesis acc tokens and delegated tokens to total supply
-		totalSupply = totalSupply.Add(b.Coins.Add(sdk.NewCoin(sdk.DefaultBondDenom, bondAmt))...)
+	// set validators and delegations
+	stakingGenesis := stakingtypes.NewGenesisState(stParams, validators, delegations)
+	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
+
+	signingInfos := make([]slashingtypes.SigningInfo, len(valSet.Validators))
+	for i, val := range valSet.Validators {
+		signingInfos[i] = slashingtypes.SigningInfo{
+			Address:              sdk.ConsAddress(val.Address).String(),
+			ValidatorSigningInfo: slashingtypes.ValidatorSigningInfo{},
+		}
 	}
+	slashingGenesis := slashingtypes.NewGenesisState(slashingtypes.DefaultParams(), signingInfos, nil)
+	genesisState[slashingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(slashingGenesis)
 
 	// add bonded amount to bonded pool module account
 	balances = append(balances, banktypes.Balance{
 		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
-		Coins:   sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, bondAmt)},
+		Coins:   sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, bondAmt.MulRaw(int64(len(valSet.Validators))))},
 	})
+
+	balances = append(balances, banktypes.Balance{
+		Address: authtypes.NewModuleAddress(distrtypes.ModuleName).String(),
+		Coins:   sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(1000000))},
+	})
+
+	totalSupply := sdk.NewCoins()
+	for _, b := range balances {
+		// add genesis acc tokens and delegated tokens to total supply
+		totalSupply = totalSupply.Add(b.Coins...)
+	}
 
 	// update total supply
 	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{}, []banktypes.SendEnabled{})
 	genesisState[banktypes.ModuleName] = app.appCodec.MustMarshalJSON(bankGenesis)
 
+	defaultDistrGenesis := distrtypes.DefaultGenesisState()
+	defaultDistrGenesis.FeePool.CommunityPool = append(defaultDistrGenesis.FeePool.CommunityPool, sdk.NewDecCoin(sdk.DefaultBondDenom, sdkmath.NewInt(1000000)))
+	genesisState[distrtypes.ModuleName] = app.appCodec.MustMarshalJSON(defaultDistrGenesis)
+
 	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
 	require.NoError(t, err)
 
+	consensusParams := simtestutil.DefaultConsensusParams
+	consensusParams.Block.MaxGas = 100 * simtestutil.DefaultGenTxGas
+
+	if chainID == "" {
+		chainID = SimAppChainID
+	}
+
 	// init chain will set the validator set and initialize the genesis accounts
-	app.InitChain(
+	_, err = app.InitChain(
 		&abci.RequestInitChain{
-			Time:            ctxTime,
+			ChainId:         chainID,
 			Validators:      []abci.ValidatorUpdate{},
-			ConsensusParams: DefaultConsensusParams,
+			ConsensusParams: consensusParams,
+			InitialHeight:   app.LastBlockHeight() + 1,
 			AppStateBytes:   stateBytes,
 		},
 	)
+	if err != nil {
+		panic(err)
+	}
 
-	// commit genesis changes
-	app.Commit()
-	app.FinalizeBlock(&abci.RequestFinalizeBlock{
-		Height: app.LastBlockHeight() + 1,
-		Hash:   app.LastCommitID().Hash, // Apphash -> hash
-		// ValidatorsHash:     valSet.Hash(),
+	_, err = app.FinalizeBlock(&abci.RequestFinalizeBlock{
+		Height:             app.LastBlockHeight() + 1,
+		Hash:               app.LastCommitID().Hash,
 		NextValidatorsHash: valSet.Hash(),
 	})
+	if err != nil {
+		panic(err)
+	}
 
-	return app
-}
-
-// SetupWithEmptyStore setup a wasmd app instance with empty DB
-func SetupWithEmptyStore(tb testing.TB) *ComposableApp {
-	tb.Helper()
-	app, _ := setup(tb, false, 0)
 	return app
 }
 

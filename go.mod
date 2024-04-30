@@ -32,7 +32,10 @@ require (
 	mvdan.cc/gofumpt v0.4.0
 )
 
-require github.com/cometbft/cometbft-db v0.11.0 // indirect
+require (
+	cosmossdk.io/x/nft v0.1.0 // indirect
+	github.com/cometbft/cometbft-db v0.11.0 // indirect
+)
 
 require (
 	4d63.com/gocheckcompilerdirectives v1.2.1 // indirect
@@ -365,7 +368,6 @@ replace (
 	// TODO: check wasm vm compatibility with grandpa contract
 	github.com/CosmWasm/wasmvm => github.com/CosmWasm/wasmvm v1.5.2
 
-	github.com/cometbft/cometbft => github.com/notional-labs/cometbft v0.38.6-fixed-len-vote-time-tag
 	github.com/cosmos/cosmos-sdk => github.com/notional-labs/cosmos-sdk v0.50.5-patch-validators-trim-tag
 
 	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8 => github.com/notional-labs/ibc-apps/middleware/packet-forward-middleware/v8 v8.0.2-rc2

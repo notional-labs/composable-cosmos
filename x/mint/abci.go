@@ -28,7 +28,6 @@ func BeginBlocker(ctx sdk.Context, k keeper.Keeper, ic types.InflationCalculatio
 	// calculate how many we would mint, but we dont mint them, we take them from the prefunded account
 	mintedCoin := minter.BlockProvision(params)
 	mintedCoins := sdk.NewCoins(mintedCoin)
-
 	// send the minted coins to the fee collector account
 	err = k.AddCollectedFees(ctx, mintedCoins)
 	if err != nil {

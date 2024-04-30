@@ -17,26 +17,36 @@ echo "Deploying counter contract"
 
 TX_HASH=$($BINARY tx wasm store $(pwd)/scripts/tests/ibc-hooks/counter/artifacts/counter.wasm --from $WALLET_2 --chain-id test-2 --home $CHAIN_DIR/test-2 --node tcp://localhost:26657 --keyring-backend test -y --gas 10000000 --fees 6000000$DENOM -o json | jq -r '.txhash')
 sleep 3
-CODE_ID=$($BINARY query tx $TX_HASH -o josn --chain-id test-2 --home $CHAIN_DIR/test-2 --node tcp://localhost:26657 | jq -r '.logs[0].events[1].attributes[1].value')
+TX_RESP=$($BINARY query tx $TX_HASH -o josn --chain-id test-2 --home $CHAIN_DIR/test-2 --node tcp://localhost:26657)
+CODE_ID=$(echo $TX_RESP | jq -r '.events[8].attributes[1].value')
 
 
 # Use Instantiate2 to instantiate the previous smart contract with a random hash to enable multiple instances of the same contract (when needed).
 echo "Instantiating counter contract"
 RANDOM_HASH=$(hexdump -vn16 -e'4/4 "%08X" 1 "\n"' /dev/urandom)
 TX_HASH=$($BINARY tx wasm instantiate2 $CODE_ID '{"count": 0}' $RANDOM_HASH --no-admin --label="Label with $RANDOM_HASH" --from $WALLET_2 --chain-id test-2 --home $CHAIN_DIR/test-2 --node tcp://localhost:26657 --keyring-backend test -y --gas 10000000 --fees 6000000$DENOM -o json | jq -r '.txhash')
-
 echo "TX hash: $TX_HASH"
 sleep 3
-CONTRACT_ADDRESS=$($BINARY query tx $TX_HASH -o josn --chain-id test-2 --home $CHAIN_DIR/test-2 --node tcp://localhost:26657 | jq -r '.logs[0].events[1].attributes[0].value')
+CONTRACT_RESP=$($BINARY query tx $TX_HASH -o josn --chain-id test-2 --home $CHAIN_DIR/test-2 --node tcp://localhost:26657)
+CONTRACT_ADDRESS=$(echo $CONTRACT_RESP | jq -r '.events[9].attributes[0].value')
 echo "Contract address: $CONTRACT_ADDRESS"
 
 echo "Executing the IBC Hook to increment the counter"
 # First execute an IBC transfer to create the entry in the smart contract with the sender address ...
 IBC_HOOK_RES=$($BINARY tx ibc-transfer transfer transfer channel-0 $CONTRACT_ADDRESS 1$DENOM --memo='{"wasm":{"contract": "'"$CONTRACT_ADDRESS"'" ,"msg": {"increment": {}}}}' --chain-id test-1 --home $CHAIN_DIR/test-1 --node tcp://localhost:16657 --keyring-backend test --from $WALLET_1 --fees 6000000$DENOM  -y -o json)
 echo "IBC Hook response: $IBC_HOOK_RES"
+sleep 6
+# parse txHash from IBC_HOOK_RES and query txHash to echo response
+IBC_HOOK_TX_HASH=$(echo $IBC_HOOK_RES | jq -r '.txhash')
+TX_RESP=$($BINARY query tx $IBC_HOOK_TX_HASH -o json --chain-id test-1 --home $CHAIN_DIR/test-1 --node tcp://localhost:16657)
+echo "Tx response: $TX_RESP"
 sleep 3
 # ... then send another transfer to increments the count value from 0 to 1, send 1 more to the contract address to validate that it increased the value correctly.
 IBC_HOOK_RES=$($BINARY tx ibc-transfer transfer transfer channel-0 $CONTRACT_ADDRESS 1$DENOM --memo='{"wasm":{"contract": "'"$CONTRACT_ADDRESS"'" ,"msg": {"increment": {}}}}' --chain-id test-1 --home $CHAIN_DIR/test-1 --fees 6000000$DENOM  --node tcp://localhost:16657 --keyring-backend test --from $WALLET_1 -y -o json)
+sleep 6
+IBC_HOOK_TX_HASH=$(echo $IBC_HOOK_RES | jq -r '.txhash')
+TX_RESP=$($BINARY query tx $IBC_HOOK_TX_HASH -o json --chain-id test-1 --home $CHAIN_DIR/test-1 --node tcp://localhost:16657)
+echo "Tx response1: $TX_RESP"
 export WALLET_1_WASM_SENDER=$($BINARY q ibchooks wasm-sender channel-0 "$WALLET_1" --chain-id test-1 --home $CHAIN_DIR/test-1 --node tcp://localhost:16657)
 
 IBC_RECEIVER_BALANCE=$($BINARY query bank balances $WALLET_1 --chain-id test-1 --home $CHAIN_DIR/test-1 --node tcp://localhost:16657 -o json)
@@ -53,7 +63,9 @@ while [ "$COUNT_RES" != "1" ] || [ "$COUNT_FUNDS_RES" != "2" ]; do
     echo "Query response: $RES"
 
     # Query to assert that the counter value is 1 and the fund send are (remeber that the first time fund are send to the contract the counter is set to 0 instead of 1)
-    COUNT_RES=$($BINARY query wasm contract-state smart "$CONTRACT_ADDRESS" '{"get_count": {"addr": "'"$WALLET_1_WASM_SENDER"'"}}' --chain-id test-2 --home $CHAIN_DIR/test-2 --node tcp://localhost:26657 -o json |  jq -r '.data.count')
+    COUNT_TX=$($BINARY query wasm contract-state smart "$CONTRACT_ADDRESS" '{"get_count": {"addr": "'"$WALLET_1_WASM_SENDER"'"}}' --chain-id test-2 --home $CHAIN_DIR/test-2 --node tcp://localhost:26657 -o json)
+    echo "Count tx: $COUNT_TX"
+    COUNT_RES=$(echo $COUNT_TX | jq -r '.data.count')
     COUNT_FUNDS_RES=$($BINARY query wasm contract-state smart "$CONTRACT_ADDRESS" '{"get_total_funds": {"addr": "'"$WALLET_1_WASM_SENDER"'"}}' --chain-id test-2 --home $CHAIN_DIR/test-2 --node tcp://localhost:26657 -o json |  jq -r '.data.total_funds[0].amount')
     echo "transaction relayed count: $COUNT_RES and relayed funds: $COUNT_FUNDS_RES"
 done

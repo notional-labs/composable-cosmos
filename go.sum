@@ -803,6 +803,8 @@ github.com/cockroachdb/tokenbucket v0.0.0-20230807174530-cc333fc44b06 h1:zuQyyAK
 github.com/cockroachdb/tokenbucket v0.0.0-20230807174530-cc333fc44b06/go.mod h1:7nc4anLGjupUW/PeY5qiNYsdNXj7zopG+eqsS7To5IQ=
 github.com/coinbase/rosetta-sdk-go/types v1.0.0 h1:jpVIwLcPoOeCR6o1tU+Xv7r5bMONNbHU7MuEHboiFuA=
 github.com/coinbase/rosetta-sdk-go/types v1.0.0/go.mod h1:eq7W2TMRH22GTW0N0beDnN931DW0/WOI1R2sdHNHG4c=
+github.com/cometbft/cometbft v0.38.6 h1:QSgpCzrGWJ2KUq1qpw+FCfASRpE27T6LQbfEHscdyOk=
+github.com/cometbft/cometbft v0.38.6/go.mod h1:8rSPxzUJYquCN8uuBgbUHOMg2KAwvr7CyUw+6ukO4nw=
 github.com/cometbft/cometbft-db v0.11.0 h1:M3Lscmpogx5NTbb1EGyGDaFRdsoLWrUWimFEyf7jej8=
 github.com/cometbft/cometbft-db v0.11.0/go.mod h1:GDPJAC/iFHNjmZZPN8V8C1yr/eyityhi2W1hz2MGKSc=
 github.com/containerd/continuity v0.3.0 h1:nisirsYROK15TAMVukJOUyGJjz4BNQJBVsNvAXZJ/eg=
@@ -1397,8 +1399,6 @@ github.com/nishanths/exhaustive v0.9.5 h1:TzssWan6orBiLYVqewCG8faud9qlFntJE30ACp
 github.com/nishanths/exhaustive v0.9.5/go.mod h1:IbwrGdVMizvDcIxPYGVdQn5BqWJaOwpCvg4RGb8r/TA=
 github.com/nishanths/predeclared v0.2.2 h1:V2EPdZPliZymNAn79T8RkNApBjMmVKh5XRpLm/w98Vk=
 github.com/nishanths/predeclared v0.2.2/go.mod h1:RROzoN6TnGQupbC+lqggsOlcgysk3LMK/HI84Mp280c=
-github.com/notional-labs/cometbft v0.38.6-fixed-len-vote-time-tag h1:emP5WMt3WNihhZcDXMKZ3GLgYYQqqLgHLjOmNRiwFXc=
-github.com/notional-labs/cometbft v0.38.6-fixed-len-vote-time-tag/go.mod h1:8rSPxzUJYquCN8uuBgbUHOMg2KAwvr7CyUw+6ukO4nw=
 github.com/notional-labs/cosmos-sdk v0.50.5-patch-validators-trim-tag h1:lnMn2O2zjUvLbWJuKY3yXtrkVzCXQ7r1/oS/tgCsyjU=
 github.com/notional-labs/cosmos-sdk v0.50.5-patch-validators-trim-tag/go.mod h1:oV/k6GJgXV9QPoM2fsYDPPsyPBgQbdotv532O6Mz1OQ=
 github.com/notional-labs/ibc-apps/middleware/packet-forward-middleware/v8 v8.0.2-rc2 h1:MyYzyL8jIIiWKaEtPsTnfF+6NDOomFvFYUzVxLcn/Gg=
