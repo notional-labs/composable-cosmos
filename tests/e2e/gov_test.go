@@ -30,7 +30,7 @@ func TestGovVoteByContract(t *testing.T) {
 	coord := ibctesting.NewCoordinatorX(t, 1, e2e.DefaultComposableAppFactory)
 	chain := coord.GetChain(ibctesting.GetChainID(1))
 	contractAddr := e2e.InstantiateReflectContract(t, chain)
-	chain.Fund(contractAddr, sdkmath.NewIntFromUint64(1_000_000_000))
+	chain.Fund(contractAddr, sdkmath.NewIntFromUint64(1_000_000_000_0000))
 	// a contract with a high delegation amount
 	delegateMsg := wasmvmtypes.CosmosMsg{
 		Staking: &wasmvmtypes.StakingMsg{
@@ -38,7 +38,7 @@ func TestGovVoteByContract(t *testing.T) {
 				Validator: sdk.ValAddress(chain.Vals.Validators[0].Address).String(),
 				Amount: wasmvmtypes.Coin{
 					Denom:  sdk.DefaultBondDenom,
-					Amount: "1000000",
+					Amount: "10000000000000",
 				},
 			},
 		},
