@@ -524,3 +524,28 @@ func FundModuleAccount(bankKeeper bankkeeper.Keeper, ctx sdk.Context, recipientM
 
 	return bankKeeper.SendCoinsFromModuleToModule(ctx, minttypes.ModuleName, recipientMod, amounts)
 }
+
+// SignAndDeliverWithoutCommit signs and delivers a transaction. No commit
+func SignAndDeliverWithoutCommit(t *testing.T, txCfg client.TxConfig, app *baseapp.BaseApp, msgs []sdk.Msg, fees sdk.Coins, chainID string, accNums, accSeqs []uint64, blockTime time.Time, priv ...cryptotypes.PrivKey) (*abci.ResponseFinalizeBlock, error) {
+	tx, err := simtestutil.GenSignedMockTx(
+		rand.New(rand.NewSource(time.Now().UnixNano())),
+		txCfg,
+		msgs,
+		fees,
+		simtestutil.DefaultGenTxGas,
+		chainID,
+		accNums,
+		accSeqs,
+		priv...,
+	)
+	require.NoError(t, err)
+
+	bz, err := txCfg.TxEncoder()(tx)
+	require.NoError(t, err)
+
+	return app.FinalizeBlock(&abci.RequestFinalizeBlock{
+		Height: app.LastBlockHeight() + 1,
+		Time:   blockTime,
+		Txs:    [][]byte{bz},
+	})
+}

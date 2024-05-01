@@ -12,6 +12,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	customibctesting "github.com/notional-labs/composable/v6/app/ibctesting"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -32,7 +33,7 @@ type ForwardMetadata struct {
 type TransferMiddlewareTestSuite struct {
 	suite.Suite
 
-	coordinator *ibctesting.Coordinator
+	coordinator *customibctesting.Coordinator
 
 	// testing chains used for convenience and readability
 	chainA *customibctesting.TestChain
@@ -114,7 +115,7 @@ func (suite *TransferMiddlewareTestSuite) TestTransferWithPFM_ErrorAck() {
 	}
 
 	// set send params
-	suite.chainC.GetTestSupport().TransferKeeper().SetParams(suite.chainC.GetContext(), params)
+	suite.chainC.App.GetTransferKeeper().SetParams(suite.chainC.GetContext(), params)
 	senderAOriginalBalance := suite.chainA.AllBalances(suite.chainA.SenderAccount.GetAddress())
 
 	testAcc := RandomAccountAddress(suite.T())
@@ -429,7 +430,7 @@ func (suite *TransferMiddlewareTestSuite) TestTransferWithPFMReverse_ErrorAck() 
 				ReceiveEnabled: false,
 			}
 			// set send params
-			suite.chainA.GetTestSupport().TransferKeeper().SetParams(suite.chainA.GetContext(), params)
+			suite.chainA.App.GetTransferKeeper().SetParams(suite.chainA.GetContext(), params)
 
 			timeOut := 10 * time.Minute
 			retries := uint8(0)
