@@ -2,7 +2,7 @@ package ibctesting
 
 import (
 	"context"
-	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
 	"fmt"
@@ -50,15 +50,15 @@ import (
 	"github.com/cosmos/ibc-go/v8/modules/core/types"
 	ibctmtypes "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
 	ibctesting "github.com/cosmos/ibc-go/v8/testing"
-	"github.com/cosmos/ibc-go/v8/testing/mock"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	cmtprotoversion "github.com/cometbft/cometbft/proto/tendermint/version"
-	ibctm "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
 	"github.com/notional-labs/composable/v6/app"
 )
+
+var MaxAccounts = 10
 
 type SenderAccount struct {
 	SenderPrivKey cryptotypes.PrivKey
@@ -141,29 +141,55 @@ type ChainAppFactory func(t *testing.T, valSet *cmttypes.ValidatorSet, genAccs [
 // Each update of any chain increments the block header time for all chains by 5 seconds.
 func NewTestChain(t *testing.T, coord *Coordinator, appFactory ChainAppFactory, chainID string) *TestChain {
 	t.Helper()
-	// generate validator private/public key
-	privVal := mock.NewPV()
-	pubKey, err := privVal.GetPubKey()
-	require.NoError(t, err)
+	genAccs := []authtypes.GenesisAccount{}
+	genBals := []banktypes.Balance{}
+	senderAccs := []SenderAccount{}
 
-	// create validator set with single validator
-	validator := cmttypes.NewValidator(pubKey, 1)
-	valSet := cmttypes.NewValidatorSet([]*cmttypes.Validator{validator})
-	signers := make(map[string]cmttypes.PrivValidator, 1)
-	signers[pubKey.Address().String()] = privVal
+	// generate validators private/public key
+	var (
+		validatorsPerChain = 4
+		validators         []*cmttypes.Validator
+		signersByAddress   = make(map[string]cmttypes.PrivValidator, validatorsPerChain)
+	)
 
-	// generate genesis account
-	senderPrivKey := secp256k1.GenPrivKey()
-	acc := authtypes.NewBaseAccount(senderPrivKey.PubKey().Address().Bytes(), senderPrivKey.PubKey(), 0, 0)
-	amount, ok := sdkmath.NewIntFromString("10000000000000000000000")
-	require.True(t, ok)
-
-	balance := banktypes.Balance{
-		Address: acc.GetAddress().String(),
-		Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, amount)),
+	for i := 0; i < validatorsPerChain; i++ {
+		_, privVal := cmttypes.RandValidator(false, 100)
+		pubKey, err := privVal.GetPubKey()
+		require.NoError(t, err)
+		validators = append(validators, cmttypes.NewValidator(pubKey, 1))
+		signersByAddress[pubKey.Address().String()] = privVal
 	}
 
-	app := appFactory(t, valSet, []authtypes.GenesisAccount{acc}, chainID, nil, balance)
+	// construct validator set;
+	// Note that the validators are sorted by voting power
+	// or, if equal, by address lexical order
+	valSet := cmttypes.NewValidatorSet(validators)
+
+	// generate genesis accounts
+	for i := 0; i < MaxAccounts; i++ {
+		senderPrivKey := secp256k1.GenPrivKey()
+		acc := authtypes.NewBaseAccount(senderPrivKey.PubKey().Address().Bytes(), senderPrivKey.PubKey(), uint64(i), 0)
+		amount, ok := sdkmath.NewIntFromString("10000000000000000000")
+		require.True(t, ok)
+
+		// add sender account
+		balance := banktypes.Balance{
+			Address: acc.GetAddress().String(),
+			Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, amount)),
+		}
+
+		genAccs = append(genAccs, acc)
+		genBals = append(genBals, balance)
+
+		senderAcc := SenderAccount{
+			SenderAccount: acc,
+			SenderPrivKey: senderPrivKey,
+		}
+
+		senderAccs = append(senderAccs, senderAcc)
+	}
+
+	app := appFactory(t, valSet, genAccs, chainID, nil, genBals...)
 
 	// app := NewTestingAppDecorator(t, app.SetupWithGenesisValSet(t, valSet, []authtypes.GenesisAccount{acc}, "", nil, balance))
 
@@ -187,9 +213,10 @@ func NewTestChain(t *testing.T, coord *Coordinator, appFactory ChainAppFactory, 
 		Codec:          app.AppCodec(),
 		Vals:           valSet,
 		NextVals:       valSet,
-		Signers:        signers,
-		SenderPrivKey:  senderPrivKey,
-		SenderAccount:  acc,
+		Signers:        signersByAddress,
+		SenderPrivKey:  senderAccs[0].SenderPrivKey,
+		SenderAccount:  senderAccs[0].SenderAccount,
+		SenderAccounts: senderAccs,
 		DefaultMsgFees: sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.ZeroInt())),
 	}
 
@@ -327,7 +354,7 @@ func (chain *TestChain) commitBlock(res *abci.ResponseFinalizeBlock) {
 
 // CurrentCmtClientHeader creates a CMT header using the current header parameters
 // on the chain. The trusted fields in the header are set to nil.
-func (chain *TestChain) CurrentCmtClientHeader() *ibctm.Header {
+func (chain *TestChain) CurrentCmtClientHeader() *ibctmtypes.Header {
 	return chain.CreateCmtClientHeader(
 		chain.ChainID,
 		chain.CurrentHeader.Height,
@@ -342,7 +369,7 @@ func (chain *TestChain) CurrentCmtClientHeader() *ibctm.Header {
 
 // CreateCmtClientHeader creates a CMT header to update the CMT client. Args are passed in to allow
 // caller flexibility to use params that differ from the chain.
-func (chain *TestChain) CreateCmtClientHeader(chainID string, blockHeight int64, trustedHeight clienttypes.Height, timestamp time.Time, cmtValSet, nextVals, cmtTrustedVals *cmttypes.ValidatorSet, signers map[string]cmttypes.PrivValidator) *ibctm.Header {
+func (chain *TestChain) CreateCmtClientHeader(chainID string, blockHeight int64, trustedHeight clienttypes.Height, timestamp time.Time, cmtValSet, nextVals, cmtTrustedVals *cmttypes.ValidatorSet, signers map[string]cmttypes.PrivValidator) *ibctmtypes.Header {
 	var (
 		valSet      *cmtproto.ValidatorSet
 		trustedVals *cmtproto.ValidatorSet
@@ -399,7 +426,7 @@ func (chain *TestChain) CreateCmtClientHeader(chainID string, blockHeight int64,
 
 	// The trusted fields may be nil. They may be filled before relaying messages to a client.
 	// The relayer is responsible for querying client and injecting appropriate trusted fields.
-	return &ibctm.Header{
+	return &ibctmtypes.Header{
 		SignedHeader:      signedHeader,
 		ValidatorSet:      valSet,
 		TrustedHeight:     trustedHeight,
@@ -429,7 +456,7 @@ func (chain *TestChain) sendMsgs(msgs ...sdk.Msg) error {
 // occurred.
 func (chain *TestChain) SendMsgs(msgs ...sdk.Msg) (*abci.ExecTxResult, error) {
 	rsp, gotErr := chain.sendWithSigner(chain.SenderPrivKey, chain.SenderAccount, msgs...)
-	require.NoError(chain.t, chain.SenderAccount.SetSequence(chain.SenderAccount.GetSequence()+1))
+	//require.NoError(chain.t, chain.SenderAccount.SetSequence(chain.SenderAccount.GetSequence()+1))
 	return rsp, gotErr
 }
 
@@ -452,31 +479,40 @@ func (chain *TestChain) sendWithSigner(
 	// ensure the chain has the latest time
 	chain.Coordinator.UpdateTimeForChain(chain)
 
-	blockResp, gotErr := app.SignAndDeliverWithoutCommit(
+	// increment acc sequence regardless of success or failure tx execution
+	defer func() {
+		err := chain.SenderAccount.SetSequence(chain.SenderAccount.GetSequence() + 1)
+		if err != nil {
+			panic(err)
+		}
+	}()
+
+	blockResp, gotErr := app.SignAndDeliver(
 		chain.t,
 		chain.TxConfig,
 		chain.App.GetBaseApp(),
 		msgs,
-		chain.DefaultMsgFees,
 		chain.ChainID,
 		[]uint64{senderAccount.GetAccountNumber()},
 		[]uint64{senderAccount.GetSequence()},
+		true,
 		chain.CurrentHeader.GetTime(),
+		chain.NextVals.Hash(),
 		senderPrivKey,
 	)
 	if gotErr != nil {
 		return nil, gotErr
 	}
-
 	chain.commitBlock(blockResp)
-	chain.Coordinator.IncrementTime()
 
 	require.Len(chain.t, blockResp.TxResults, 1)
 	txResult := blockResp.TxResults[0]
+
 	if txResult.Code != 0 {
 		return txResult, fmt.Errorf("%s/%d: %q", txResult.Codespace, txResult.Code, txResult.Log)
 	}
 
+	chain.Coordinator.IncrementTime()
 	chain.CaptureIBCEvents(txResult)
 	return txResult, nil
 }
@@ -591,13 +627,13 @@ func (chain *TestChain) GetPrefix() commitmenttypes.MerklePrefix {
 
 // ConstructUpdateTMClientHeader will construct a valid 07-tendermint Header to update the
 // light client on the source chain.
-func (chain *TestChain) ConstructUpdateTMClientHeader(counterparty *TestChain, clientID string) (*ibctm.Header, error) {
+func (chain *TestChain) ConstructUpdateTMClientHeader(counterparty *TestChain, clientID string) (*ibctmtypes.Header, error) {
 	return chain.ConstructUpdateTMClientHeaderWithTrustedHeight(counterparty, clientID, clienttypes.ZeroHeight())
 }
 
-// ConstructUpdateTMClientHeaderWithTrustedHeight will construct a valid 07-tendermint Header to update the
+// ConstructUpdateTMClientHeader will construct a valid 07-tendermint Header to update the
 // light client on the source chain.
-func (chain *TestChain) ConstructUpdateTMClientHeaderWithTrustedHeight(counterparty *TestChain, clientID string, trustedHeight clienttypes.Height) (*ibctm.Header, error) {
+func (chain *TestChain) ConstructUpdateTMClientHeaderWithTrustedHeight(counterparty *TestChain, clientID string, trustedHeight clienttypes.Height) (*ibctmtypes.Header, error) {
 	header := counterparty.LastHeader
 	// Relayer must query for LatestHeight on client to get TrustedHeight if the trusted height is not set
 	if trustedHeight.IsZero() {
@@ -607,12 +643,21 @@ func (chain *TestChain) ConstructUpdateTMClientHeaderWithTrustedHeight(counterpa
 		tmTrustedVals *cmttypes.ValidatorSet
 		ok            bool
 	)
-
-	tmTrustedVals, ok = counterparty.GetValsAtHeight(int64(trustedHeight.RevisionHeight))
-	if !ok {
-		return nil, errorsmod.Wrapf(ibctm.ErrInvalidHeaderHeight, "could not retrieve trusted validators at trustedHeight: %d", trustedHeight)
+	// Once we get TrustedHeight from client, we must query the validators from the counterparty chain
+	// If the LatestHeight == LastHeader.Height, then TrustedValidators are current validators
+	// If LatestHeight < LastHeader.Height, we can query the historical validator set from HistoricalInfo
+	if trustedHeight == counterparty.LastHeader.GetHeight() {
+		tmTrustedVals = counterparty.Vals
+	} else {
+		// NOTE: We need to get validators from counterparty at height: trustedHeight+1
+		// since the last trusted validators for a header at height h
+		// is the NextValidators at h+1 committed to in header h by
+		// NextValidatorsHash
+		tmTrustedVals, ok = counterparty.GetValsAtHeight(int64(trustedHeight.RevisionHeight + 1))
+		if !ok {
+			return nil, errors.Wrapf(ibctmtypes.ErrInvalidHeaderHeight, "could not retrieve trusted validators at trustedHeight: %d", trustedHeight)
+		}
 	}
-
 	// inject trusted fields into last header
 	// for now assume revision number is 0
 	header.TrustedHeight = trustedHeight

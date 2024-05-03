@@ -25,7 +25,7 @@ type RateLimitTestSuite struct {
 }
 
 func (suite *RateLimitTestSuite) SetupTest() {
-	suite.coordinator = customibctesting.NewCoordinator(suite.T(), 4)
+	suite.coordinator = customibctesting.NewCoordinator(suite.T(), 3)
 	suite.chainA = suite.coordinator.GetChain(customibctesting.GetChainID(1))
 	suite.chainB = suite.coordinator.GetChain(customibctesting.GetChainID(2))
 	suite.chainC = suite.coordinator.GetChain(customibctesting.GetChainID(3))

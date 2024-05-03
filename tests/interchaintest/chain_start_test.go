@@ -28,7 +28,7 @@ func TestStartCentauri(t *testing.T) {
 	cf := interchaintest.NewBuiltinChainFactory(zaptest.NewLogger(t), []*interchaintest.ChainSpec{
 		{
 			Name:          "centauri",
-			ChainConfig:   centauriConfig,
+			ChainConfig:   CentauriConfig,
 			NumValidators: &numVals,
 			NumFullNodes:  &numFullNodes,
 		},

@@ -340,12 +340,12 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 	appKeepers.PfmKeeper = pfmkeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[pfmtypes.StoreKey],
-		nil,
+		appKeepers.TransferKeeper,
 		appKeepers.IBCKeeper.ChannelKeeper,
 		&appKeepers.DistrKeeper,
 		appKeepers.BankKeeper,
-		&appKeepers.TransferMiddlewareKeeper,
-		appKeepers.HooksICS4Wrapper,
+		appKeepers.TransferMiddlewareKeeper,
+		appKeepers.IBCKeeper.ChannelKeeper,
 		govModAddress,
 	)
 
@@ -373,7 +373,7 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		// TODO: Implement ICS4Wrapper in Records and pass records keeper here
 		&appKeepers.HooksICS4Wrapper, // ICS4Wrapper
 		appKeepers.TransferMiddlewareKeeper,
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		govModAddress,
 	)
 
 	scopedICQKeeper := appKeepers.CapabilityKeeper.ScopeToModule(icqtypes.ModuleName)
@@ -381,7 +381,7 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 	appKeepers.ICQKeeper = icqkeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[icqtypes.StoreKey],
-		&appKeepers.TransferMiddlewareKeeper,
+		appKeepers.IBCKeeper.ChannelKeeper,
 		appKeepers.IBCKeeper.ChannelKeeper,
 		appKeepers.IBCKeeper.PortKeeper,
 		scopedICQKeeper, bApp.GRPCQueryRouter(), govModAddress,
@@ -396,24 +396,22 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 	// channel.RecvPacket -> ibc_hooks.OnRecvPacket -> ibc_rate_limit.OnRecvPacket -> forward.OnRecvPacket -> transfermiddleware_OnRecvPacket -> transfer.OnRecvPacket
 	//
 
-	var transferStack porttypes.IBCModule
+	transferIBCModule := transfer.NewIBCModule(appKeepers.TransferKeeper.Keeper)
 
-	transferStack = transfer.NewIBCModule(appKeepers.TransferKeeper.Keeper)
-
-	transferStack = transfermiddleware.NewIBCMiddleware(
-		transferStack,
+	transfermiddlewareStack := transfermiddleware.NewIBCMiddleware(
+		transferIBCModule,
 		appKeepers.TransferMiddlewareKeeper,
 	)
 
-	transferStack = pfm.NewIBCMiddleware(
-		transferStack,
+	ibcMiddlewareStack := pfm.NewIBCMiddleware(
+		transfermiddlewareStack,
 		appKeepers.PfmKeeper,
 		0,
 		pfmkeeper.DefaultForwardTransferPacketTimeoutTimestamp,
 		pfmkeeper.DefaultRefundTransferPacketTimeoutTimestamp,
 	)
-	transferStack = ratelimitmodule.NewIBCMiddleware(appKeepers.RatelimitKeeper, transferStack)
-	transferStack = ibc_hooks.NewIBCMiddleware(transferStack, &appKeepers.HooksICS4Wrapper)
+	ratelimitMiddlewareStack := ratelimitmodule.NewIBCMiddleware(appKeepers.RatelimitKeeper, ibcMiddlewareStack)
+	hooksTransferMiddleware := ibc_hooks.NewIBCMiddleware(ratelimitMiddlewareStack, &appKeepers.HooksICS4Wrapper)
 
 	// Create evidence Keeper for to register the IBC light client misbehaviour evidence route
 	evidenceKeeper := evidencekeeper.NewKeeper(
@@ -462,7 +460,7 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		appKeepers.IBCKeeper.ChannelKeeper,
 		appKeepers.IBCKeeper.PortKeeper,
 		appKeepers.ScopedWasmKeeper,
-		appKeepers.TransferKeeper.Keeper,
+		appKeepers.TransferKeeper,
 		bApp.MsgServiceRouter(),
 		bApp.GRPCQueryRouter(),
 		wasmDir,
@@ -471,6 +469,7 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		govModAddress,
 		wasmOpts...,
 	)
+	appKeepers.Ics20WasmHooks.ContractKeeper = &appKeepers.WasmKeeper
 
 	wasmDataDir := filepath.Join(homePath, "wasm_client_data")
 	wasmSupportedFeatures := strings.Join([]string{"storage", "iterator"}, ",")
@@ -493,8 +492,6 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		vm,
 		bApp.GRPCQueryRouter(),
 	)
-
-	appKeepers.Ics20WasmHooks.ContractKeeper = &appKeepers.WasmKeeper
 
 	// Register Gov (must be registered after stakeibc)
 	govRouter := govtypesv1beta1.NewRouter()
@@ -520,7 +517,7 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 	)
 
 	ibcRouter := porttypes.NewRouter()
-	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferStack)
+	ibcRouter.AddRoute(ibctransfertypes.ModuleName, hooksTransferMiddleware)
 	ibcRouter.AddRoute(icqtypes.ModuleName, icqIBCModule)
 	ibcRouter.AddRoute(wasmtypes.ModuleName, wasm.NewIBCHandler(appKeepers.WasmKeeper, appKeepers.IBCKeeper.ChannelKeeper, appKeepers.IBCKeeper.ChannelKeeper))
 	ibcRouter.AddRoute(icahosttypes.SubModuleName, icaHostStack)

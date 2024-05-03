@@ -388,42 +388,33 @@ func SignCheckDeliver(
 	return gInfo, res, err
 }
 
-// SignAndDeliver signs and delivers a transaction. No simulation occurs as the
-// ibc testing package causes checkState and deliverState to diverge in block time.
 func SignAndDeliver(
-	t *testing.T, txCfg client.TxConfig, app *baseapp.BaseApp, header tmproto.Header, msgs []sdk.Msg,
-	chainID string, accNums, accSeqs []uint64, _, expPass bool, priv ...cryptotypes.PrivKey,
-) (sdk.GasInfo, *sdk.Result, error) {
-	t.Helper()
-	tx, err := helpers.GenSignedMockTx(
+	tb testing.TB, txCfg client.TxConfig, app *baseapp.BaseApp, msgs []sdk.Msg,
+	chainID string, accNums, accSeqs []uint64, expPass bool, blockTime time.Time, nextValHash []byte, priv ...cryptotypes.PrivKey,
+) (*abci.ResponseFinalizeBlock, error) {
+	tb.Helper()
+	tx, err := simtestutil.GenSignedMockTx(
 		rand.New(rand.NewSource(time.Now().UnixNano())),
 		txCfg,
 		msgs,
 		sdk.Coins{sdk.NewInt64Coin(sdk.DefaultBondDenom, 0)},
-		2*DefaultGas,
+		simtestutil.DefaultGenTxGas,
 		chainID,
 		accNums,
 		accSeqs,
 		priv...,
 	)
-	require.NoError(t, err)
+	require.NoError(tb, err)
 
-	// Simulate a sending a transaction and committing a block
-	//app.BeginBlock(abci.RequestBeginBlock{Header: header})
-	gInfo, res, err := app.SimDeliver(txCfg.TxEncoder(), tx)
+	txBytes, err := txCfg.TxEncoder()(tx)
+	require.NoError(tb, err)
 
-	if expPass {
-		require.NoError(t, err)
-		require.NotNil(t, res)
-	} else {
-		require.Error(t, err)
-		require.Nil(t, res)
-	}
-
-	//app.EndBlock(abci.RequestEndBlock{})
-	app.Commit()
-
-	return gInfo, res, err
+	return app.FinalizeBlock(&abci.RequestFinalizeBlock{
+		Height:             app.LastBlockHeight() + 1,
+		Time:               blockTime,
+		NextValidatorsHash: nextValHash,
+		Txs:                [][]byte{txBytes},
+	})
 }
 
 // GenSequenceOfTxs generates a set of signed transactions of messages, such

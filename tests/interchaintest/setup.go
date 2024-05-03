@@ -18,7 +18,7 @@ var (
 		UidGid:     "1025:1025",
 	}
 
-	centauriConfig = ibc.ChainConfig{
+	CentauriConfig = ibc.ChainConfig{
 		Type:                "cosmos",
 		Name:                "centauri",
 		ChainID:             "centauri-2",
@@ -33,6 +33,12 @@ var (
 		NoHostMount:         false,
 		ModifyGenesis:       nil,
 		ConfigFileOverrides: nil,
+	}
+
+	DefaultRelayer = ibc.DockerImage{
+		Repository: "ghcr.io/cosmos/relayer",
+		Version:    "main",
+		UidGid:     "1025:1025",
 	}
 )
 
