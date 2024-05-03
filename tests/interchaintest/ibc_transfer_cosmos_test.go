@@ -18,16 +18,16 @@ import (
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 )
 
-// TestJunoGaiaIBCTransfer spins up a Juno and Gaia network, initializes an IBC connection between them,
-// and sends an ICS20 token transfer from Juno->Gaia and then back from Gaia->Juno.
-func TestJunoGaiaIBCTransfer(t *testing.T) {
+// TestComposableGaiaIBCTransfer spins up a Composable and Gaia network, initializes an IBC connection between them,
+// and sends an ICS20 token transfer from Composable->Gaia and then back from Gaia->Composable.
+func TestComposableGaiaIBCTransfer(t *testing.T) {
 	if testing.Short() {
 		t.Skip()
 	}
 
 	t.Parallel()
 
-	// Create chain factory with Juno and Gaia
+	// Create chain factory with Composable and Gaia
 	numVals := 1
 	numFullNodes := 1
 
@@ -56,7 +56,7 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 
 	client, network := interchaintest.DockerSetup(t)
 
-	juno, gaia := chains[0].(*cosmos.CosmosChain), chains[1].(*cosmos.CosmosChain)
+	composable, gaia := chains[0].(*cosmos.CosmosChain), chains[1].(*cosmos.CosmosChain)
 
 	relayerType, relayerName := ibc.CosmosRly, "relay"
 
@@ -71,11 +71,11 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 	r := rf.Build(t, client, network)
 
 	ic := interchaintest.NewInterchain().
-		AddChain(juno).
+		AddChain(composable).
 		AddChain(gaia).
 		AddRelayer(r, relayerName).
 		AddLink(interchaintest.InterchainLink{
-			Chain1:  juno,
+			Chain1:  composable,
 			Chain2:  gaia,
 			Relayer: r,
 			Path:    path,
@@ -98,42 +98,42 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 	})
 
 	// Create some user accounts on both chains
-	users := interchaintest.GetAndFundTestUsers(t, ctx, t.Name(), genesisWalletAmount, juno, gaia)
+	users := interchaintest.GetAndFundTestUsers(t, ctx, t.Name(), genesisWalletAmount, composable, gaia)
 
 	// Wait a few blocks for relayer to start and for user accounts to be created
-	err = testutil.WaitForBlocks(ctx, 5, juno, gaia)
+	err = testutil.WaitForBlocks(ctx, 5, composable, gaia)
 	require.NoError(t, err)
 
 	// Get our Bech32 encoded user addresses
-	junoUser, gaiaUser := users[0], users[1]
+	composableUser, gaiaUser := users[0], users[1]
 
-	junoUserAddr := junoUser.FormattedAddress()
+	composableUserAddr := composableUser.FormattedAddress()
 	gaiaUserAddr := gaiaUser.FormattedAddress()
 
 	// Get original account balances
-	junoOrigBal, err := juno.GetBalance(ctx, junoUserAddr, juno.Config().Denom)
+	composableOrigBal, err := composable.GetBalance(ctx, composableUserAddr, composable.Config().Denom)
 	require.NoError(t, err)
-	require.Equal(t, genesisWalletAmount, junoOrigBal)
+	require.Equal(t, genesisWalletAmount, composableOrigBal)
 
 	gaiaOrigBal, err := gaia.GetBalance(ctx, gaiaUserAddr, gaia.Config().Denom)
 	require.NoError(t, err)
 	require.Equal(t, genesisWalletAmount, gaiaOrigBal)
 
-	// Compose an IBC transfer and send from Juno -> Gaia
+	// Compose an IBC transfer and send from Composable -> Gaia
 	var transferAmount = math.NewInt(1_000)
 	transfer := ibc.WalletAmount{
 		Address: gaiaUserAddr,
-		Denom:   juno.Config().Denom,
+		Denom:   composable.Config().Denom,
 		Amount:  transferAmount,
 	}
 
-	channel, err := ibc.GetTransferChannel(ctx, r, eRep, juno.Config().ChainID, gaia.Config().ChainID)
+	channel, err := ibc.GetTransferChannel(ctx, r, eRep, composable.Config().ChainID, gaia.Config().ChainID)
 	require.NoError(t, err)
 
-	junoHeight, err := juno.Height(ctx)
+	composableHeight, err := composable.Height(ctx)
 	require.NoError(t, err)
 
-	transferTx, err := juno.SendIBCTransfer(ctx, channel.ChannelID, junoUserAddr, transfer, ibc.TransferOptions{})
+	transferTx, err := composable.SendIBCTransfer(ctx, channel.ChannelID, composableUserAddr, transfer, ibc.TransferOptions{})
 	require.NoError(t, err)
 
 	err = r.StartRelayer(ctx, eRep, path)
@@ -149,29 +149,29 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 	)
 
 	// Poll for the ack to know the transfer was successful
-	_, err = testutil.PollForAck(ctx, juno, junoHeight, junoHeight+50, transferTx.Packet)
+	_, err = testutil.PollForAck(ctx, composable, composableHeight, composableHeight+50, transferTx.Packet)
 	require.NoError(t, err)
 
-	err = testutil.WaitForBlocks(ctx, 10, juno)
+	err = testutil.WaitForBlocks(ctx, 10, composable)
 	require.NoError(t, err)
 
-	// Get the IBC denom for ujuno on Gaia
-	junoTokenDenom := transfertypes.GetPrefixedDenom(channel.Counterparty.PortID, channel.Counterparty.ChannelID, juno.Config().Denom)
-	junoIBCDenom := transfertypes.ParseDenomTrace(junoTokenDenom).IBCDenom()
+	// Get the IBC denom for ppica on Gaia
+	composableTokenDenom := transfertypes.GetPrefixedDenom(channel.Counterparty.PortID, channel.Counterparty.ChannelID, composable.Config().Denom)
+	composableIBCDenom := transfertypes.ParseDenomTrace(composableTokenDenom).IBCDenom()
 
-	// Assert that the funds are no longer present in user acc on Juno and are in the user acc on Gaia
-	junoUpdateBal, err := juno.GetBalance(ctx, junoUserAddr, juno.Config().Denom)
+	// Assert that the funds are no longer present in user acc on Composable and are in the user acc on Gaia
+	composableUpdateBal, err := composable.GetBalance(ctx, composableUserAddr, composable.Config().Denom)
 	require.NoError(t, err)
-	require.Equal(t, junoOrigBal.Sub(transferAmount), junoUpdateBal)
+	require.Equal(t, composableOrigBal.Sub(transferAmount), composableUpdateBal)
 
-	gaiaUpdateBal, err := gaia.GetBalance(ctx, gaiaUserAddr, junoIBCDenom)
+	gaiaUpdateBal, err := gaia.GetBalance(ctx, gaiaUserAddr, composableIBCDenom)
 	require.NoError(t, err)
 	require.Equal(t, transferAmount, gaiaUpdateBal)
 
-	// Compose an IBC transfer and send from Gaia -> Juno
+	// Compose an IBC transfer and send from Gaia -> Composable
 	transfer = ibc.WalletAmount{
-		Address: junoUserAddr,
-		Denom:   junoIBCDenom,
+		Address: composableUserAddr,
+		Denom:   composableIBCDenom,
 		Amount:  transferAmount,
 	}
 
@@ -185,12 +185,12 @@ func TestJunoGaiaIBCTransfer(t *testing.T) {
 	_, err = testutil.PollForAck(ctx, gaia, gaiaHeight, gaiaHeight+25, transferTx.Packet)
 	require.NoError(t, err)
 
-	// Assert that the funds are now back on Juno and not on Gaia
-	junoUpdateBal, err = juno.GetBalance(ctx, junoUserAddr, juno.Config().Denom)
+	// Assert that the funds are now back on Composable and not on Gaia
+	composableUpdateBal, err = composable.GetBalance(ctx, composableUserAddr, composable.Config().Denom)
 	require.NoError(t, err)
-	require.Equal(t, junoOrigBal, junoUpdateBal)
+	require.Equal(t, composableOrigBal, composableUpdateBal)
 
-	gaiaUpdateBal, err = gaia.GetBalance(ctx, gaiaUserAddr, junoIBCDenom)
+	gaiaUpdateBal, err = gaia.GetBalance(ctx, gaiaUserAddr, composableIBCDenom)
 	require.NoError(t, err)
 	require.Equal(t, true, gaiaUpdateBal.IsZero())
 }
