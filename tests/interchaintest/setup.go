@@ -1,6 +1,7 @@
 package interchaintest
 
 import (
+	sdkmath "cosmossdk.io/math"
 	"os"
 
 	"github.com/strangelove-ventures/interchaintest/v8/ibc"
@@ -34,6 +35,8 @@ var (
 		ModifyGenesis:       nil,
 		ConfigFileOverrides: nil,
 	}
+
+	genesisWalletAmount = sdkmath.NewInt(10_000_000)
 
 	DefaultRelayer = ibc.DockerImage{
 		Repository: "ghcr.io/cosmos/relayer",
