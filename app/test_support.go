@@ -6,6 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	packetforwardkeeper "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward/keeper"
 	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
@@ -58,6 +59,10 @@ func (app *ComposableApp) GetTransferKeeper() customibctransferkeeper.Keeper {
 
 func (app *ComposableApp) GetTransferMiddlewareKeeper() transfermiddlewarekeeper.Keeper {
 	return app.TransferMiddlewareKeeper
+}
+
+func (app *ComposableApp) GetGovKeeper() *govkeeper.Keeper {
+	return &app.GovKeeper
 }
 
 // GetTxConfig implements the TestingApp interface.

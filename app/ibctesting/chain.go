@@ -81,6 +81,7 @@ type ChainApp interface {
 	GetIBCKeeper() *ibckeeper.Keeper
 	GetBankKeeper() bankkeeper.Keeper
 	GetStakingKeeper() *stakingkeeper.Keeper
+	GetGovKeeper() *govkeeper.Keeper
 	GetAccountKeeper() authkeeper.AccountKeeper
 	GetWasmKeeper() wasmkeeper.Keeper
 	GetPfmKeeper() packetforwardkeeper.Keeper
@@ -769,20 +770,20 @@ func (chain *TestChain) QueryContract(suite *suite.Suite, contract sdk.AccAddres
 
 //
 //func (chain *TestChain) StoreContractCode(suite *suite.Suite, path string) {
-//	govModuleAddress := chain.GetTestSupport().AccountKeeper().GetModuleAddress(govtypes.ModuleName)
+//	govModuleAddress := chain.App.GetAccountKeeper().GetModuleAddress(govtypes.ModuleName)
 //	wasmCode, err := os.ReadFile(path)
 //	suite.Require().NoError(err)
 //
-//	src := wasmtypes.StoreCodeProposalFixture(func(p *wasmtypes.StoreCodeProposal) { //nolint: staticcheck
+//	src := wasmtypes.New(func(p *wasmtypes.StoreCodeProposal) { //nolint: staticcheck
 //		p.RunAs = govModuleAddress.String()
 //		p.WASMByteCode = wasmCode
 //		checksum := sha256.Sum256(wasmCode)
 //		p.CodeHash = checksum[:]
 //	})
 //
-//	govKeeper := chain.GetTestSupport().GovKeeper()
+//	govKeeper := chain.App.GetGovKeeper()
 //	// when
-//	mustSubmitAndExecuteLegacyProposal(suite.T(), chain.GetContext(), src, chain.SenderAccount.GetAddress().String(), &govKeeper, govModuleAddress.String())
+//	mustSubmitAndExecuteLegacyProposal(suite.T(), chain.GetContext(), src, chain.SenderAccount.GetAddress().String(), govKeeper, govModuleAddress.String())
 //	suite.Require().NoError(err)
 //}
 

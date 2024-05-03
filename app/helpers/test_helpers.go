@@ -60,27 +60,6 @@ func NewContextForApp(app composable.ComposableApp) sdk.Context {
 	return ctx
 }
 
-func Setup(t *testing.T, isCheckTx bool, invCheckPeriod uint) *composable.ComposableApp {
-	t.Helper()
-	app, genesisState := setup(!isCheckTx, invCheckPeriod)
-	if !isCheckTx {
-		// InitChain must be called to stop deliverState from being nil
-		stateBytes, err := json.MarshalIndent(genesisState, "", " ")
-		require.NoError(t, err)
-
-		// Initialize the chain
-		app.InitChain(
-			&abci.RequestInitChain{
-				Validators:      []abci.ValidatorUpdate{},
-				ConsensusParams: DefaultConsensusParams,
-				AppStateBytes:   stateBytes,
-			},
-		)
-	}
-
-	return app
-}
-
 func setup(withGenesis bool, invCheckPeriod uint, opts ...wasm.Option) (*composable.ComposableApp, composable.GenesisState) {
 	db := dbm.NewMemDB()
 	encCdc := composable.MakeEncodingConfig()
@@ -118,28 +97,27 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 	baseapp.SetChainID(chainID)(app.GetBaseApp())
 
 	// init chain will set the validator set and initialize the genesis accounts
-	app.InitChain(
+	_, err = app.InitChain(
 		&abci.RequestInitChain{
 			ChainId:         chainID,
 			Validators:      []abci.ValidatorUpdate{},
 			ConsensusParams: DefaultConsensusParams,
+			InitialHeight:   app.LastBlockHeight() + 1,
 			AppStateBytes:   stateBytes,
 		},
 	)
+	if err != nil {
+		panic(err)
+	}
 
-	// commit genesis changes
-	// app.BaseApp.Set
-	app.Commit()
-	//* (baseapp) [#15519](https://github.com/cosmos/cosmos-sdk/pull/15519/files) BeginBlock and EndBlock are now internal to baseapp. For testing, user must call `FinalizeBlock`. BeginBlock and EndBlock calls are internal to Baseapp.
-	app.FinalizeBlock(
-		&abci.RequestFinalizeBlock{
-			// ChainID:            chainID,
-			Height: app.LastBlockHeight() + 1,
-			// AppHash:            app.LastCommitID().Hash,
-			// ValidatorsHash:     valSet.Hash(),
-			NextValidatorsHash: valSet.Hash(),
-		},
-	)
+	_, err = app.FinalizeBlock(&abci.RequestFinalizeBlock{
+		Height:             app.LastBlockHeight() + 1,
+		Hash:               app.LastCommitID().Hash,
+		NextValidatorsHash: valSet.Hash(),
+	})
+	if err != nil {
+		panic(err)
+	}
 
 	return app
 }
