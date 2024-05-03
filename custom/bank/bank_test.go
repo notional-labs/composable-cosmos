@@ -156,7 +156,7 @@ func (suite *CustomBankTestSuite) TestTotalSupply() {
 			totalSupply, err := suite.chainB.GetBankKeeper().TotalSupply(suite.chainB.GetContext(), &banktypes.QueryTotalSupplyRequest{})
 			suite.Require().NoError(err)
 			suite.Require().Equal(totalSupply.Supply, originalChainBTotalSupply.Supply.Add(tc.expTotalSupplyDiff...))
-			suite.Require().Equal(totalSupply.Supply, tc.expChainBTotalSuppy)
+			suite.Require().Equal(totalSupply.Supply.String(), tc.expChainBTotalSuppy.String())
 		})
 	}
 }

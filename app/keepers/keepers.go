@@ -2,7 +2,6 @@ package keepers
 
 import (
 	"fmt"
-	alliancemodulekeeper "github.com/terra-money/alliance/x/alliance/keeper"
 	"math"
 	"path/filepath"
 	"strings"
@@ -154,7 +153,6 @@ type AppKeepers struct {
 	GroupKeeper      groupkeeper.Keeper
 	Wasm08Keeper     wasm08Keeper.Keeper // TODO: use this name ?
 	WasmKeeper       wasmkeeper.Keeper
-	AllianceKeeper   alliancemodulekeeper.Keeper
 	IBCHooksKeeper   *ibchookskeeper.Keeper
 	Ics20WasmHooks   *ibc_hooks.WasmHooks
 	HooksICS4Wrapper ibc_hooks.ICS4Middleware

@@ -46,6 +46,7 @@ import (
 const (
 	SimAppChainID = ""
 )
+const DefaultGas = 1200000
 
 func setup(withGenesis bool, chainID string, opts ...wasmkeeper.Option) (*ComposableApp, GenesisState) {
 	db := dbm.NewMemDB()
@@ -334,8 +335,6 @@ func CheckBalance(t *testing.T, app *ComposableApp, addr sdk.AccAddress, balance
 	require.True(t, balances.Equal(app.BankKeeper.GetAllBalances(ctxCheck, addr)))
 }
 
-const DefaultGas = 1200000
-
 // SignCheckDeliver checks a generated signed transaction and simulates a
 // block commitment with the given transaction. A test assertion is made using
 // the parameter 'expPass' against the result. A corresponding result is
@@ -531,8 +530,8 @@ func SignAndDeliverWithoutCommit(t *testing.T, txCfg client.TxConfig, app *basea
 		rand.New(rand.NewSource(time.Now().UnixNano())),
 		txCfg,
 		msgs,
-		fees,
-		simtestutil.DefaultGenTxGas,
+		sdk.Coins{sdk.NewInt64Coin(sdk.DefaultBondDenom, 0)},
+		2*DefaultGas,
 		chainID,
 		accNums,
 		accSeqs,

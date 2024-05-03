@@ -15,7 +15,7 @@ require (
 	github.com/cosmos/ibc-apps/modules/async-icq/v8 v8.0.0
 	github.com/cosmos/ibc-go/modules/capability v1.0.0
 	github.com/cosmos/ibc-go/modules/light-clients/08-wasm v0.1.1-0.20231213092650-57fcdb9a9a9d
-	github.com/cosmos/ibc-go/v8 v8.1.1
+	github.com/cosmos/ibc-go/v8 v8.2.1
 	github.com/gogo/protobuf v1.3.3
 	github.com/golang/protobuf v1.5.4
 	github.com/golangci/golangci-lint v1.52.0
@@ -24,7 +24,6 @@ require (
 	github.com/spf13/cast v1.6.0
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.9.0
-	github.com/terra-money/alliance v0.4.3
 	golang.org/x/tools v0.18.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20240221002015-b0ce06bbee7c
 	google.golang.org/grpc v1.62.1
@@ -360,10 +359,10 @@ replace (
 	// lock wasmvm so we do not break the grandpa contract
 	// TODO: check wasm vm compatibility with grandpa contract
 	github.com/CosmWasm/wasmvm => github.com/CosmWasm/wasmvm v1.5.2
-
 	github.com/cosmos/cosmos-sdk => github.com/notional-labs/cosmos-sdk v0.50.5-patch-validators-trim-tag
 
-	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8 => github.com/notional-labs/ibc-apps/middleware/packet-forward-middleware/v8 v8.0.0-20240501060940-654293260efb
+	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8 => github.com/notional-labs/ibc-apps/middleware/packet-forward-middleware/v8 v8.0.0-20240501114651-5399289a5ef2
+
 	// use cosmos-compatible protobufs
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 

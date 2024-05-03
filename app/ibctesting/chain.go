@@ -2,6 +2,7 @@ package ibctesting
 
 import (
 	"context"
+	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
 	"fmt"
@@ -17,7 +18,6 @@ import (
 
 	ratelimitmodulekeeper "github.com/notional-labs/composable/v6/x/ratelimit/keeper"
 
-	"cosmossdk.io/errors"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
@@ -177,19 +177,20 @@ func NewTestChain(t *testing.T, coord *Coordinator, appFactory ChainAppFactory, 
 	txConfig := app.TxConfig()
 	// create an account to send transactions from
 	chain := &TestChain{
-		t:             t,
-		Coordinator:   coord,
-		ChainID:       chainID,
-		App:           app,
-		CurrentHeader: header,
-		QueryServer:   app.GetIBCKeeper(),
-		TxConfig:      txConfig,
-		Codec:         app.AppCodec(),
-		Vals:          valSet,
-		NextVals:      valSet,
-		Signers:       signers,
-		SenderPrivKey: senderPrivKey,
-		SenderAccount: acc,
+		t:              t,
+		Coordinator:    coord,
+		ChainID:        chainID,
+		App:            app,
+		CurrentHeader:  header,
+		QueryServer:    app.GetIBCKeeper(),
+		TxConfig:       txConfig,
+		Codec:          app.AppCodec(),
+		Vals:           valSet,
+		NextVals:       valSet,
+		Signers:        signers,
+		SenderPrivKey:  senderPrivKey,
+		SenderAccount:  acc,
+		DefaultMsgFees: sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.ZeroInt())),
 	}
 
 	baseapp.SetChainID(chain.ChainID)(chain.App.GetBaseApp())
@@ -590,13 +591,13 @@ func (chain *TestChain) GetPrefix() commitmenttypes.MerklePrefix {
 
 // ConstructUpdateTMClientHeader will construct a valid 07-tendermint Header to update the
 // light client on the source chain.
-func (chain *TestChain) ConstructUpdateTMClientHeader(counterparty *TestChain, clientID string) (*ibctmtypes.Header, error) {
+func (chain *TestChain) ConstructUpdateTMClientHeader(counterparty *TestChain, clientID string) (*ibctm.Header, error) {
 	return chain.ConstructUpdateTMClientHeaderWithTrustedHeight(counterparty, clientID, clienttypes.ZeroHeight())
 }
 
-// ConstructUpdateTMClientHeader will construct a valid 07-tendermint Header to update the
+// ConstructUpdateTMClientHeaderWithTrustedHeight will construct a valid 07-tendermint Header to update the
 // light client on the source chain.
-func (chain *TestChain) ConstructUpdateTMClientHeaderWithTrustedHeight(counterparty *TestChain, clientID string, trustedHeight clienttypes.Height) (*ibctmtypes.Header, error) {
+func (chain *TestChain) ConstructUpdateTMClientHeaderWithTrustedHeight(counterparty *TestChain, clientID string, trustedHeight clienttypes.Height) (*ibctm.Header, error) {
 	header := counterparty.LastHeader
 	// Relayer must query for LatestHeight on client to get TrustedHeight if the trusted height is not set
 	if trustedHeight.IsZero() {
@@ -606,21 +607,12 @@ func (chain *TestChain) ConstructUpdateTMClientHeaderWithTrustedHeight(counterpa
 		tmTrustedVals *cmttypes.ValidatorSet
 		ok            bool
 	)
-	// Once we get TrustedHeight from client, we must query the validators from the counterparty chain
-	// If the LatestHeight == LastHeader.Height, then TrustedValidators are current validators
-	// If LatestHeight < LastHeader.Height, we can query the historical validator set from HistoricalInfo
-	if trustedHeight == counterparty.LastHeader.GetHeight() {
-		tmTrustedVals = counterparty.Vals
-	} else {
-		// NOTE: We need to get validators from counterparty at height: trustedHeight+1
-		// since the last trusted validators for a header at height h
-		// is the NextValidators at h+1 committed to in header h by
-		// NextValidatorsHash
-		tmTrustedVals, ok = counterparty.GetValsAtHeight(int64(trustedHeight.RevisionHeight + 1))
-		if !ok {
-			return nil, errors.Wrapf(ibctmtypes.ErrInvalidHeaderHeight, "could not retrieve trusted validators at trustedHeight: %d", trustedHeight)
-		}
+
+	tmTrustedVals, ok = counterparty.GetValsAtHeight(int64(trustedHeight.RevisionHeight))
+	if !ok {
+		return nil, errorsmod.Wrapf(ibctm.ErrInvalidHeaderHeight, "could not retrieve trusted validators at trustedHeight: %d", trustedHeight)
 	}
+
 	// inject trusted fields into last header
 	// for now assume revision number is 0
 	header.TrustedHeight = trustedHeight
