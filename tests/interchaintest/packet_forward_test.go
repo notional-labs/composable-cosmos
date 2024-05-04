@@ -552,7 +552,8 @@ func TestPacketForwardMiddleware(t *testing.T) {
 		chainABalance, err := chainA.GetBalance(ctx, userA.FormattedAddress(), baIBCDenom)
 		require.NoError(t, err)
 
-		baEscrowBalance, err := chainB.GetBalance(ctx, transfertypes.GetEscrowAddress(baChan.PortID, baChan.ChannelID).String(), chainB.Config().Denom)
+		addr := sdk.MustBech32ifyAddressBytes(chainB.Config().Bech32Prefix, transfertypes.GetEscrowAddress(baChan.PortID, baChan.ChannelID))
+		baEscrowBalance, err := chainB.GetBalance(ctx, addr, chainB.Config().Denom)
 		require.NoError(t, err)
 
 		require.True(t, chainABalance.Equal(transferAmount))
@@ -621,13 +622,16 @@ func TestPacketForwardMiddleware(t *testing.T) {
 		require.True(t, chainDBalance.Equal(zeroBal))
 
 		// assert balances for IBC escrow accounts
-		cdEscrowBalance, err := chainC.GetBalance(ctx, transfertypes.GetEscrowAddress(cdChan.PortID, cdChan.ChannelID).String(), bcIBCDenom)
+		addr = sdk.MustBech32ifyAddressBytes(chainC.Config().Bech32Prefix, transfertypes.GetEscrowAddress(cdChan.PortID, cdChan.ChannelID))
+		cdEscrowBalance, err := chainC.GetBalance(ctx, addr, bcIBCDenom)
 		require.NoError(t, err)
 
-		bcEscrowBalance, err := chainB.GetBalance(ctx, transfertypes.GetEscrowAddress(bcChan.PortID, bcChan.ChannelID).String(), chainB.Config().Denom)
+		addr = sdk.MustBech32ifyAddressBytes(chainB.Config().Bech32Prefix, transfertypes.GetEscrowAddress(bcChan.PortID, bcChan.ChannelID))
+		bcEscrowBalance, err := chainB.GetBalance(ctx, addr, chainB.Config().Denom)
 		require.NoError(t, err)
 
-		baEscrowBalance, err = chainB.GetBalance(ctx, transfertypes.GetEscrowAddress(baChan.PortID, baChan.ChannelID).String(), chainB.Config().Denom)
+		addr = sdk.MustBech32ifyAddressBytes(chainB.Config().Bech32Prefix, transfertypes.GetEscrowAddress(baChan.PortID, baChan.ChannelID))
+		baEscrowBalance, err = chainB.GetBalance(ctx, addr, chainB.Config().Denom)
 		require.NoError(t, err)
 
 		require.True(t, baEscrowBalance.Equal(transferAmount))
