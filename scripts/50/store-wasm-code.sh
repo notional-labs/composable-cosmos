@@ -4,7 +4,7 @@ DENOM="ppica"
 HOME_DIR="mytestnet"
 CHAINID="centauri-dev"
 BINARY=picad
-WASM_CONTRACT_PATH="/home/kien6034/notional/composable-ibc/target/wasm32-unknown-unknown/release/ics10_grandpa_cw.wasm"
+WASM_CONTRACT_PATH="$PWD/bin/ics10_grandpa_cw.wasm"
 
 # Wait for chain to start 
 echo "Waiting for chain to start..."
