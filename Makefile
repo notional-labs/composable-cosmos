@@ -193,31 +193,26 @@ init-deps:
 	@echo "Installing dependencies"
 	bash ./scripts/upgrade/init-deps.sh
 
-localnet-pica: 
-	@echo "Starting localnet"
-	bash ./scripts/upgrade/setup-old-picad-node.sh
-
-localnet-picasso:
-	@echo "Starting localnet"
-	bash ./scripts/relayer_hyperspace/run-picasso.sh
-
-relayer-start:
-	@echo "Starting relayer"
-	bash ./scripts/upgrade/setup-relayer.sh
-
-pica-upgrade:
-	@echo "Starting upgrade"
-	bash ./scripts/upgrade/upgrade.
-
-
-test-50:
+localnet-pica:
 	@echo "Starting test"
 	rm -rf screenlog.0
 	-@pkill picad 2>/dev/null
 	bash ./scripts/run-node.sh picad
 	bash ./scripts/50/store-wasm-code.sh
 
-kien-cleanup:
+localnet-picasso:
+	@echo "Starting localnet"
+	bash ./scripts/relayer_hyperspace/run-picasso.sh
+
+relayer-create-clients:
+	@echo "Starting relayer"
+	bash ./scripts/relayer_hyperspace/create-clients.sh
+
+pica-upgrade:
+	@echo "Starting upgrade"
+	bash ./scripts/upgrade/upgrade.
+
+relayer-test-cleanup:
 	@echo "Cleaning up"
 	./scripts/relayer_hyperspace/cleanup.sh
 ###############################################################################
