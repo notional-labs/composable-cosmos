@@ -56,7 +56,6 @@ func setup(withGenesis bool, chainID string, opts ...wasmkeeper.Option) (*Compos
 		map[int64]bool{},
 		DefaultNodeHome,
 		5,
-		MakeEncodingConfig(),
 		EmptyBaseAppOptions{},
 		opts,
 		nil,

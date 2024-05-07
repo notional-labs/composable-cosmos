@@ -267,13 +267,11 @@ func NewComposableApp(
 	skipUpgradeHeights map[int64]bool,
 	homePath string,
 	invCheckPeriod uint,
-	encodingConfig EncodingConfig,
 	appOpts servertypes.AppOptions,
 	wasmOpts []wasm.Option,
 	devnetGov *string,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *ComposableApp {
-	cdc := encodingConfig.Amino
 	interfaceRegistry, err := types.NewInterfaceRegistryWithOptions(types.InterfaceRegistryOptions{
 		ProtoFiles: proto.HybridResolver,
 		SigningOptions: signing.Options{
@@ -297,7 +295,7 @@ func NewComposableApp(
 	std.RegisterLegacyAminoCodec(legacyAmino)
 	std.RegisterInterfaces(interfaceRegistry)
 
-	bApp := baseapp.NewBaseApp(Name, logger, db, encodingConfig.TxConfig.TxDecoder(), baseAppOptions...)
+	bApp := baseapp.NewBaseApp(Name, logger, db, txConfig.TxDecoder(), baseAppOptions...)
 	bApp.SetCommitMultiStoreTracer(traceStore)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
 	bApp.SetTxEncoder(txConfig.TxEncoder())
@@ -314,7 +312,7 @@ func NewComposableApp(
 
 	app.InitSpecialKeepers(
 		appCodec,
-		cdc,
+		legacyAmino,
 		bApp,
 		invCheckPeriod,
 		skipUpgradeHeights,
@@ -324,7 +322,7 @@ func NewComposableApp(
 	app.InitNormalKeepers(
 		logger,
 		appCodec,
-		cdc,
+		legacyAmino,
 		bApp,
 		maccPerms,
 		invCheckPeriod,
@@ -355,7 +353,7 @@ func NewComposableApp(
 	app.mm = module.NewManager(
 		genutil.NewAppModule(
 			app.AccountKeeper, app.StakingKeeper, app,
-			encodingConfig.TxConfig,
+			txConfig,
 		),
 
 		auth.NewAppModule(appCodec, app.AccountKeeper, authsims.RandomGenesisAccounts, app.GetSubspace(authtypes.ModuleName)),
@@ -568,7 +566,7 @@ func NewComposableApp(
 		app.FeeGrantKeeper,
 		nil,
 		authante.DefaultSigVerificationGasConsumer,
-		encodingConfig.TxConfig.SignModeHandler(),
+		txConfig.SignModeHandler(),
 		app.IBCKeeper,
 		app.TransferMiddlewareKeeper,
 		app.TxBoundaryKeepper,

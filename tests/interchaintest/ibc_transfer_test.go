@@ -50,7 +50,7 @@ func TestCentauriPicassoIBCTransfer(t *testing.T) {
 	nf := 1 // Number of full nodes
 
 	consensusOverrides := make(testutil.Toml)
-	blockTime := 1 // seconds, parachain is 12 second blocks, don't make relayer work harder than needed
+	blockTime := 5 // seconds, parachain is 12 second blocks, don't make relayer work harder than needed
 	blockT := (time.Duration(blockTime) * time.Second).String()
 	consensusOverrides["timeout_commit"] = blockT
 	consensusOverrides["timeout_propose"] = blockT
@@ -118,7 +118,7 @@ func TestCentauriPicassoIBCTransfer(t *testing.T) {
 	chains, err := cf.Chains(t.Name())
 	require.NoError(t, err)
 
-	composable := chains[0].(*polkadot.PolkadotChain)
+	polkadotChain := chains[0].(*polkadot.PolkadotChain)
 	centaurid := chains[1].(*cosmos.CosmosChain)
 
 	// Get a relayer instance
@@ -135,11 +135,11 @@ func TestCentauriPicassoIBCTransfer(t *testing.T) {
 	const relayerName = "hyperspace"
 
 	ic := interchaintest.NewInterchain().
-		AddChain(composable).
+		AddChain(polkadotChain).
 		AddChain(centaurid).
 		AddRelayer(r, relayerName).
 		AddLink(interchaintest.InterchainLink{
-			Chain1:  composable,
+			Chain1:  polkadotChain,
 			Chain2:  centaurid,
 			Relayer: r,
 			Path:    pathName,
@@ -164,34 +164,36 @@ func TestCentauriPicassoIBCTransfer(t *testing.T) {
 	// Set client contract hash in cosmos chain config
 	err = r.SetClientContractHash(ctx, eRep, centaurid.Config(), codeHash)
 	require.NoError(t, err)
+	fmt.Println("hoank")
 
 	// Ensure parachain has started (starts 1 session/epoch after relay chain)
-	//err = testutil.WaitForBlocks(ctx, 1, composable)
-	//require.NoError(t, err, "polkadot chain failed to make blocks")
+	err = testutil.WaitForBlocks(ctx, 1, polkadotChain)
+	require.NoError(t, err, "polkadot chain failed to make blocks")
+	fmt.Println("waiting")
 
 	// Fund users on both cosmos and parachain, mints Asset 1 for Alice
 	fundAmount := math.NewInt(12_333_000_000_000)
-	polkadotUser, cosmosUser := fundUsers(t, ctx, fundAmount, composable, centaurid)
+	polkadotUser, cosmosUser := fundUsers(t, ctx, fundAmount, polkadotChain, centaurid)
 
-	err = r.GeneratePath(ctx, eRep, centaurid.Config().ChainID, composable.Config().ChainID, pathName)
+	err = r.GeneratePath(ctx, eRep, centaurid.Config().ChainID, polkadotChain.Config().ChainID, pathName)
 	require.NoError(t, err)
 
 	// Create new clients
 	err = r.CreateClients(ctx, eRep, pathName, ibc.DefaultClientOpts())
 	require.NoError(t, err)
-	err = testutil.WaitForBlocks(ctx, 1, centaurid, composable) // these 1 block waits may be needed, not sure
+	err = testutil.WaitForBlocks(ctx, 1, centaurid, polkadotChain) // these 1 block waits may be needed, not sure
 	require.NoError(t, err)
 
 	// Create a new connection
 	err = r.CreateConnections(ctx, eRep, pathName)
 	require.NoError(t, err)
-	err = testutil.WaitForBlocks(ctx, 1, centaurid, composable)
+	err = testutil.WaitForBlocks(ctx, 1, centaurid, polkadotChain)
 	require.NoError(t, err)
 
 	// Create a new channel & get channels from each chain
 	err = r.CreateChannel(ctx, eRep, pathName, ibc.DefaultChannelOpts())
 	require.NoError(t, err)
-	err = testutil.WaitForBlocks(ctx, 1, centaurid, composable)
+	err = testutil.WaitForBlocks(ctx, 1, centaurid, polkadotChain)
 	require.NoError(t, err)
 
 	// Get channels - Query channels was removed
@@ -200,7 +202,7 @@ func TestCentauriPicassoIBCTransfer(t *testing.T) {
 	require.Equal(t, len(cosmosChannelOutput), 1)
 	require.Equal(t, cosmosChannelOutput[0].ChannelID, "channel-0")
 	require.Equal(t, cosmosChannelOutput[0].PortID, "transfer")
-	polkadotChannelOutput, err := r.GetChannels(ctx, eRep, composable.Config().ChainID)
+	polkadotChannelOutput, err := r.GetChannels(ctx, eRep, polkadotChain.Config().ChainID)
 	require.NoError(t, err)
 	require.Equal(t, len(polkadotChannelOutput), 1)
 	require.Equal(t, polkadotChannelOutput[0].ChannelID, "channel-0")
@@ -226,7 +228,7 @@ func TestCentauriPicassoIBCTransfer(t *testing.T) {
 	tx, err := centaurid.SendIBCTransfer(ctx, "channel-0", cosmosUser.KeyName(), transfer, ibc.TransferOptions{})
 	require.NoError(t, err)
 	require.NoError(t, tx.Validate()) // test source wallet has decreased funds
-	err = testutil.WaitForBlocks(ctx, 5, centaurid, composable)
+	err = testutil.WaitForBlocks(ctx, 5, centaurid, polkadotChain)
 	require.NoError(t, err)
 
 	/*// Trace IBC Denom of stake on parachain
@@ -234,9 +236,9 @@ func TestCentauriPicassoIBCTransfer(t *testing.T) {
 	dstIbcDenom := srcDenomTrace.IBCDenom()
 	fmt.Println("Dst Ibc denom: ", dstIbcDenom)
 	// Test destination wallet has increased funds, this is not working, want to verify IBC balance on parachain
-	polkadotUserIbcCoins, err := composable.GetIbcBalance(ctx, string(polkadotUser.Address()))
+	polkadotUserIbcCoins, err := polkadotChain.GetIbcBalance(ctx, string(polkadotUser.Address()))
 	fmt.Println("UserIbcCoins: ", polkadotUserIbcCoins.String())
-	aliceIbcCoins, err := composable.GetIbcBalance(ctx, "5yNZjX24n2eg7W6EVamaTXNQbWCwchhThEaSWB7V3GRjtHeL")
+	aliceIbcCoins, err := polkadotChain.GetIbcBalance(ctx, "5yNZjX24n2eg7W6EVamaTXNQbWCwchhThEaSWB7V3GRjtHeL")
 	fmt.Println("AliceIbcCoins: ", aliceIbcCoins.String())*/
 
 	// Send 1.16 stake from parachainUser to cosmosUser
@@ -246,7 +248,7 @@ func TestCentauriPicassoIBCTransfer(t *testing.T) {
 		Denom:   "2", // stake
 		Amount:  amountToReflect,
 	}
-	_, err = composable.SendIBCTransfer(ctx, "channel-0", polkadotUser.KeyName(), reflectTransfer, ibc.TransferOptions{})
+	_, err = polkadotChain.SendIBCTransfer(ctx, "channel-0", polkadotUser.KeyName(), reflectTransfer, ibc.TransferOptions{})
 	require.NoError(t, err)
 
 	// Send 1.88 "UNIT" from Alice to cosmosUser
@@ -256,7 +258,7 @@ func TestCentauriPicassoIBCTransfer(t *testing.T) {
 		Denom:   "1", // UNIT
 		Amount:  amountUnits,
 	}
-	_, err = composable.SendIBCTransfer(ctx, "channel-0", "alice", unitTransfer, ibc.TransferOptions{})
+	_, err = polkadotChain.SendIBCTransfer(ctx, "channel-0", "alice", unitTransfer, ibc.TransferOptions{})
 	require.NoError(t, err)
 
 	// Wait for MsgRecvPacket on cosmos chain
@@ -277,16 +279,16 @@ func TestCentauriPicassoIBCTransfer(t *testing.T) {
 	cosmosUserUnitBal, err := centaurid.GetBalance(ctx, cosmosUser.FormattedAddress(), unitDenomTrace.IBCDenom())
 	require.NoError(t, err)
 	require.Equal(t, amountUnits, cosmosUserUnitBal)
-	/*polkadotUserIbcCoins, err = composable.GetIbcBalance(ctx, string(polkadotUser.Address()))
+	/*polkadotUserIbcCoins, err = polkadotChain.GetIbcBalance(ctx, string(polkadotUser.Address()))
 	fmt.Println("UserIbcCoins: ", polkadotUserIbcCoins.String())
-	aliceIbcCoins, err = composable.GetIbcBalance(ctx, "5yNZjX24n2eg7W6EVamaTXNQbWCwchhThEaSWB7V3GRjtHeL")
+	aliceIbcCoins, err = polkadotChain.GetIbcBalance(ctx, "5yNZjX24n2eg7W6EVamaTXNQbWCwchhThEaSWB7V3GRjtHeL")
 	fmt.Println("AliceIbcCoins: ", aliceIbcCoins.String())*/
 
 	fmt.Println("********************************")
 	fmt.Println("********* Test passed **********")
 	fmt.Println("********************************")
 
-	// err = testutil.WaitForBlocks(ctx, 50, centaurid, composable)
+	// err = testutil.WaitForBlocks(ctx, 50, centaurid, polkadotChain)
 	// require.NoError(t, err)
 }
 

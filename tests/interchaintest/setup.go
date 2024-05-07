@@ -2,6 +2,9 @@ package interchaintest
 
 import (
 	sdkmath "cosmossdk.io/math"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/cosmos/cosmos-sdk/types/module/testutil"
+	"github.com/strangelove-ventures/interchaintest/v8/chain/cosmos"
 	"os"
 
 	"github.com/strangelove-ventures/interchaintest/v8/ibc"
@@ -32,6 +35,7 @@ var (
 		GasAdjustment:       1.1,
 		TrustingPeriod:      "112h",
 		NoHostMount:         false,
+		EncodingConfig:      composableEncoding(),
 		ModifyGenesis:       nil,
 		ConfigFileOverrides: nil,
 	}
@@ -57,4 +61,12 @@ func GetDockerImageInfo() (repo, version string) {
 		branchVersion = "debug"
 	}
 	return repo, branchVersion
+}
+
+func composableEncoding() *testutil.TestEncodingConfig {
+	cfg := cosmos.DefaultEncoding()
+
+	// register custom types
+	wasmtypes.RegisterInterfaces(cfg.InterfaceRegistry)
+	return &cfg
 }
