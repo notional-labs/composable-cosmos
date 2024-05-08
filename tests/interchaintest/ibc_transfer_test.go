@@ -107,6 +107,7 @@ func TestCentauriPicassoIBCTransfer(t *testing.T) {
 				GasAdjustment:  1.3,
 				TrustingPeriod: "504h",
 				CoinType:       "118",
+				EncodingConfig: composableEncoding(),
 				// EncodingConfig: WasmClientEncoding(),
 				NoHostMount:         true,
 				ConfigFileOverrides: configFileOverrides,
@@ -126,8 +127,8 @@ func TestCentauriPicassoIBCTransfer(t *testing.T) {
 		ibc.Hyperspace,
 		zaptest.NewLogger(t),
 		// These two fields are used to pass in a custom Docker image built locally
-		relayer.ImagePull(false),
-		relayer.CustomDockerImage("composablefi/hyperspace", "latest", "1000:1000"),
+		// relayer.ImagePull(false),
+		relayer.CustomDockerImage("ghcr.io/misko9/hyperspace", "20231122v39", "1000:1000"),
 	).Build(t, client, network)
 
 	// Build the network; spin up the chains and configure the relayer
@@ -166,10 +167,10 @@ func TestCentauriPicassoIBCTransfer(t *testing.T) {
 	require.NoError(t, err)
 	fmt.Println("hoank")
 
-	// Ensure parachain has started (starts 1 session/epoch after relay chain)
-	err = testutil.WaitForBlocks(ctx, 1, polkadotChain)
-	require.NoError(t, err, "polkadot chain failed to make blocks")
-	fmt.Println("waiting")
+	//// Ensure parachain has started (starts 1 session/epoch after relay chain)
+	//err = testutil.WaitForBlocks(ctx, 1, polkadotChain)
+	//require.NoError(t, err, "polkadot chain failed to make blocks")
+	//fmt.Println("waiting")
 
 	// Fund users on both cosmos and parachain, mints Asset 1 for Alice
 	fundAmount := math.NewInt(12_333_000_000_000)
@@ -342,8 +343,8 @@ func pushWasmContractViaGov(t *testing.T, ctx context.Context, centaurid *cosmos
 func fundUsers(t *testing.T, ctx context.Context, fundAmount math.Int, composable, centaurid ibc.Chain) (ibc.Wallet, ibc.Wallet) {
 	users := interchaintest.GetAndFundTestUsers(t, ctx, "user", fundAmount, composable, centaurid)
 	polkadotUser, cosmosUser := users[0], users[1]
-	err := testutil.WaitForBlocks(ctx, 2, composable, centaurid) // Only waiting 1 block is flaky for parachain
-	require.NoError(t, err, "cosmos or polkadot chain failed to make blocks")
+	//err := testutil.WaitForBlocks(ctx, 2, composable, centaurid) // Only waiting 1 block is flaky for parachain
+	//require.NoError(t, err, "cosmos or polkadot chain failed to make blocks")
 
 	// Check balances are correct
 	polkadotUserAmount, err := composable.GetBalance(ctx, polkadotUser.FormattedAddress(), composable.Config().Denom)

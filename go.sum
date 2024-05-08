@@ -1385,8 +1385,8 @@ github.com/nishanths/predeclared v0.2.2 h1:V2EPdZPliZymNAn79T8RkNApBjMmVKh5XRpLm
 github.com/nishanths/predeclared v0.2.2/go.mod h1:RROzoN6TnGQupbC+lqggsOlcgysk3LMK/HI84Mp280c=
 github.com/notional-labs/cosmos-sdk v0.50.5-patch-validators-trim-tag h1:lnMn2O2zjUvLbWJuKY3yXtrkVzCXQ7r1/oS/tgCsyjU=
 github.com/notional-labs/cosmos-sdk v0.50.5-patch-validators-trim-tag/go.mod h1:oV/k6GJgXV9QPoM2fsYDPPsyPBgQbdotv532O6Mz1OQ=
-github.com/notional-labs/ibc-apps/middleware/packet-forward-middleware/v8 v8.0.0-20240503092956-16204721528b h1:4T8dAAY8Sou9ib7t+5NW8W+WfCz2PKTG5tubmun9Sko=
-github.com/notional-labs/ibc-apps/middleware/packet-forward-middleware/v8 v8.0.0-20240503092956-16204721528b/go.mod h1:dgFaRgM0YjzSBQ8zPLmBaQzMul8eNYPHu5EN84t5rYY=
+github.com/notional-labs/ibc-apps/middleware/packet-forward-middleware/v8 v8.0.0-20240508031447-347412725653 h1:P7Chh5O10Jtv+vvfaVpG72fv5LKVWQLEtCKQrMtbBdw=
+github.com/notional-labs/ibc-apps/middleware/packet-forward-middleware/v8 v8.0.0-20240508031447-347412725653/go.mod h1:NS+Ooc0vOyr1mAgAbt/HS8Dpes2dV7/YgOc+WxD63O4=
 github.com/notional-labs/ibc-go/v8 v8.0.0-20240504081627-8ee51f5d7278 h1:/NOkBq9mYJIGHWKEYbz2qOSQETw6hBPGzS4/64ZcUsk=
 github.com/notional-labs/ibc-go/v8 v8.0.0-20240504081627-8ee51f5d7278/go.mod h1:wj3qx75iC/XNnsMqbPDCIGs0G6Y3E/lo3bdqCyoCy+8=
 github.com/nunnatsa/ginkgolinter v0.9.0 h1:Sm0zX5QfjJzkeCjEp+t6d3Ha0jwvoDjleP9XCsrEzOA=
