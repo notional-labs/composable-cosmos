@@ -1,6 +1,6 @@
 type = "parachain"
 name = "picasso_dev"
-para_id = 2001
+para_id = 2000
 parachain_rpc_url = "ws://127.0.0.1:9988"
 relay_chain_rpc_url = "ws://127.0.0.1:9944"
 client_id = "08-wasm-0"
