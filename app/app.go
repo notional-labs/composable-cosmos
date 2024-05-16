@@ -1,6 +1,8 @@
 package app
 
 import (
+	"cosmossdk.io/client/v2/autocli"
+	"cosmossdk.io/core/appmodule"
 	"fmt"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	runtimeservices "github.com/cosmos/cosmos-sdk/runtime/services"
@@ -8,7 +10,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"github.com/notional-labs/composable/v6/app/upgrades/v6_6_4"
 
 	"cosmossdk.io/x/circuit"
 	circuittypes "cosmossdk.io/x/circuit/types"
@@ -146,7 +147,7 @@ var (
 	// https://github.com/CosmWasm/wasmd/blob/02a54d33ff2c064f3539ae12d75d027d9c665f05/x/wasm/internal/types/proposal.go#L28-L34
 	EnableSpecificProposals = ""
 
-	Upgrades = []upgrades.Upgrade{v7_0_1.Upgrade, v6_6_4.Upgrade}
+	Upgrades = []upgrades.Upgrade{v7_0_1.Upgrade}
 	Forks    = []upgrades.Fork{}
 )
 

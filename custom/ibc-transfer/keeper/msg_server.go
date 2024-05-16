@@ -34,7 +34,7 @@ func NewMsgServerImpl(ibcKeeper Keeper, bankKeeper custombankkeeper.Keeper) type
 func (k msgServer) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.MsgTransferResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	params := k.Keeper.IbcTransfermiddleware.GetParams(ctx)
-	charge_coin := sdk.NewCoin(msg.Token.Denom, sdk.ZeroInt())
+	charge_coin := sdk.NewCoin(msg.Token.Denom, sdkmath.ZeroInt())
 	if params.ChannelFees != nil && len(params.ChannelFees) > 0 {
 		channelFee := findChannelParams(params.ChannelFees, msg.SourceChannel)
 		if channelFee != nil {
