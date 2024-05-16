@@ -77,16 +77,27 @@ func AddIBCFeeConfig() *cobra.Command {
 
 func AddAllowedIbcToken() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "add-allowed-ibc-token [channel] [percentage] [coin]",
+		Use:     "add-allowed-ibc-token [channel] [percentage] [coin] [Amountlow] [Amountmedium] [Amounthigh] ... [Amountxxx]",
 		Short:   "add allowed ibc token",
-		Args:    cobra.MatchAll(cobra.ExactArgs(3), cobra.OnlyValidArgs),
-		Example: fmt.Sprintf("%s tx ibctransfermiddleware add-allowed-ibc-token [channel] [percentage] [coin] (percentage '5' means 1/5 of amount will be taken as fee) ", version.AppName),
+		Args:    cobra.MatchAll(cobra.RangeArgs(3, 10), cobra.OnlyValidArgs),
+		Example: fmt.Sprintf("%s tx ibctransfermiddleware add-allowed-ibc-token [channel] [percentage] [coin] .. [1000low] [10000medium] [100000high] ... [1000000xxx]  (percentage '5' means 1/5 of amount will be taken as fee) ", version.AppName),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			channel := args[0]
 			percentage := args[1]
 			coin, err := sdk.ParseCoinNormalized(args[2])
 			if err != nil {
 				return err
+			}
+			length := len(args)
+			cc := []*types.TxPriorityFee{}
+			for i := 3; i < length; i++ {
+				priority, err := sdk.ParseCoinNormalized(args[i])
+				if err != nil {
+					return err
+				}
+				priority_str := priority.Denom
+				priority.Denom = coin.Denom
+				cc = append(cc, &types.TxPriorityFee{Priority: priority_str, PriorityFee: priority})
 			}
 
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -106,6 +117,7 @@ func AddAllowedIbcToken() *cobra.Command {
 				channel,
 				coin,
 				percentageInt,
+				cc,
 			)
 
 			if err := msg.ValidateBasic(); err != nil {

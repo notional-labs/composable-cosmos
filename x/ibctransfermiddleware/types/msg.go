@@ -101,12 +101,14 @@ func NewMsgAddAllowedIbcToken(
 	channelID string,
 	minFee sdk.Coin,
 	percentage int64,
+	txPriorityFee []*TxPriorityFee,
 ) *MsgAddAllowedIbcToken {
 	return &MsgAddAllowedIbcToken{
-		Authority:  authority,
-		ChannelID:  channelID,
-		MinFee:     minFee,
-		Percentage: percentage,
+		Authority:     authority,
+		ChannelID:     channelID,
+		MinFee:        minFee,
+		Percentage:    percentage,
+		TxPriorityFee: txPriorityFee,
 	}
 }
 

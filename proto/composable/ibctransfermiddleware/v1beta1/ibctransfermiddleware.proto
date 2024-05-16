@@ -25,5 +25,11 @@ message ChannelFee{
 message CoinItem{
   cosmos.base.v1beta1.Coin min_fee = 1 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
   int64 percentage = 2;
+  repeated TxPriorityFee tx_priority_fee = 3;
+}
+
+message TxPriorityFee{
+  string priority  = 1;
+  cosmos.base.v1beta1.Coin priority_fee = 2 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
 }
 

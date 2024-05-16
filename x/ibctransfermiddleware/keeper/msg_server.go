@@ -105,11 +105,12 @@ func (ms msgServer) AddAllowedIbcToken(goCtx context.Context, req *types.MsgAddA
 		if coin != nil {
 			coin.MinFee = req.MinFee
 			coin.Percentage = req.Percentage
+			coin.TxPriorityFee = req.TxPriorityFee
 		} else {
-
 			coin := &types.CoinItem{
-				MinFee:     req.MinFee,
-				Percentage: req.Percentage,
+				MinFee:        req.MinFee,
+				Percentage:    req.Percentage,
+				TxPriorityFee: req.TxPriorityFee,
 			}
 			channelFee.AllowedTokens = append(channelFee.AllowedTokens, coin)
 		}

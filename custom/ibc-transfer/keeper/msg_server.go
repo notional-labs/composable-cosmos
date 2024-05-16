@@ -34,6 +34,7 @@ func NewMsgServerImpl(ibcKeeper Keeper, bankKeeper custombankkeeper.Keeper) type
 func (k msgServer) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.MsgTransferResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	params := k.Keeper.IbcTransfermiddleware.GetParams(ctx)
+	charge_coin := sdk.NewCoin(msg.Token.Denom, sdk.ZeroInt())
 	if params.ChannelFees != nil && len(params.ChannelFees) > 0 {
 		channelFee := findChannelParams(params.ChannelFees, msg.SourceChannel)
 		if channelFee != nil {
@@ -56,7 +57,16 @@ func (k msgServer) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*typ
 			if coin == nil {
 				return nil, fmt.Errorf("token not allowed to be transferred in this channel")
 			}
+
 			minFee := coin.MinFee.Amount
+			priority := GetPriority(msg.Memo)
+			if priority != nil {
+				p := findPriority(coin.TxPriorityFee, *priority)
+				if p != nil && coin.MinFee.Denom == p.PriorityFee.Denom {
+					minFee = minFee.Add(p.PriorityFee.Amount)
+				}
+			}
+
 			charge := minFee
 			if charge.GT(msg.Token.Amount) {
 				charge = msg.Token.Amount
@@ -80,7 +90,8 @@ func (k msgServer) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*typ
 				return nil, err
 			}
 
-			send_err := k.bank.SendCoins(ctx, msgSender, feeAddress, sdk.NewCoins(sdk.NewCoin(msg.Token.Denom, charge)))
+			charge_coin = sdk.NewCoin(msg.Token.Denom, charge)
+			send_err := k.bank.SendCoins(ctx, msgSender, feeAddress, sdk.NewCoins(charge_coin))
 			if send_err != nil {
 				return nil, send_err
 			}
@@ -91,7 +102,11 @@ func (k msgServer) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*typ
 			msg.Token.Amount = newAmount
 		}
 	}
-	return k.msgServer.Transfer(goCtx, msg)
+	ret, err := k.msgServer.Transfer(goCtx, msg)
+	if err == nil && ret != nil && !charge_coin.IsZero() {
+		k.IbcTransfermiddleware.SetSequenceFee(ctx, ret.Sequence, charge_coin)
+	}
+	return ret, err
 }
 
 func findChannelParams(channelFees []*ibctransfermiddlewaretypes.ChannelFee, targetChannelID string) *ibctransfermiddlewaretypes.ChannelFee {

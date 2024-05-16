@@ -107,6 +107,8 @@ message MsgAddAllowedIbcToken {
   cosmos.base.v1beta1.Coin min_fee = 3 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
 
   int64 percentage = 4;
+
+  repeated TxPriorityFee tx_priority_fee = 5;
 }
 
 message MsgAddAllowedIbcTokenResponse {}

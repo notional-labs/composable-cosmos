@@ -4,6 +4,7 @@ package composable.ibctransfermiddleware.v1beta1;
 import "gogoproto/gogo.proto";
 import "composable/ibctransfermiddleware/v1beta1/ibctransfermiddleware.proto";
 import "amino/amino.proto";
+import "cosmos/base/v1beta1/coin.proto";
 
 
 option go_package = "x/ibctransfermiddleware/types";
@@ -11,4 +12,6 @@ option go_package = "x/ibctransfermiddleware/types";
 // GenesisState defines the ibctransfermiddleware module's genesis state.
 message GenesisState {
   Params params = 1 [ (gogoproto.nullable) = false ];
+
+  repeated cosmos.base.v1beta1.Coin taken_fee_by_ibc_sequence = 2 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
 }

@@ -38,7 +38,7 @@ run_upgrade () {
 
     sleep $SLEEP_TIME
 
-    ./_build/old/picad tx gov deposit $UPGRADE_PROPOSAL_ID "20000000${DENOM}" --from $KEY --keyring-backend test --fees 100000${DENOM} --chain-id $CHAIN_ID --home $HOME -y 
+    ./_build/old/picad tx gov deposit $UPGRADE_PROPOSAL_ID "20000000${DENOM}" --from $KEY --keyring-backend test --fees 100000${DENOM} --chain-id $CHAIN_ID --home $HOME -y
 
     sleep $SLEEP_TIME
 

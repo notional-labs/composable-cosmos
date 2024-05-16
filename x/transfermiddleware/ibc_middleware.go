@@ -128,39 +128,27 @@ func (im IBCMiddleware) OnTimeoutPacket(ctx sdk.Context, packet channeltypes.Pac
 		return err
 	}
 
-	denom := data.Denom
-	coin := im.keeper.IbcTransfermiddleware.GetCoin(ctx, packet.SourceChannel, denom)
-	сhannelFeeAddress := im.keeper.IbcTransfermiddleware.GetChannelFeeAddress(ctx, packet.SourceChannel)
-	if coin != nil {
-		amount := data.Amount
-		transferAmount, ok := sdkmath.NewIntFromString(amount)
-		if !ok {
-			return errors.Wrapf(transfertypes.ErrInvalidAmount, "unable to parse transfer amount: %s", amount)
+	fee, found := im.keeper.IbcTransfermiddleware.GetSequenceFee(ctx, packet.Sequence)
+	if found {
+		сhannelFeeAddress := im.keeper.IbcTransfermiddleware.GetChannelFeeAddress(ctx, packet.SourceChannel)
+		if сhannelFeeAddress == "" {
+			return nil
 		}
-
-		// calculate the percentage charge
-		/*
-			coin.Percentage is 100 that means that we charge 1/100 of the transfer amount
-			coin.MinFee.Amount is the minimum fee that we charge
-			the new amount is the transfer amount minus the percentage charge and the minimum fee
-			transfer amount is a 99/100 of the original amount
-			so to get the fee we charge transferAmount.QuoRaw(coin.Percentage - 1) + coin.MinFee.Amount
-		*/
-
-		percentageCharge := sdkmath.NewInt(0)
-		if coin.Percentage > 1 {
-			percentageCharge = transferAmount.QuoRaw(coin.Percentage - 1)
-		}
-		percentageCharge = percentageCharge.Add(coin.MinFee.Amount)
 
 		fee_address, err := sdk.AccAddressFromBech32(сhannelFeeAddress)
 		if err != nil {
-			return errors.Wrapf(err, "failed to decode receiver address: %s", сhannelFeeAddress)
+			return nil
 		}
 
-		refund_fee := sdk.NewCoin(denom, percentageCharge)
-		im.keeper.RefundChannelCosmosFee(ctx, fee_address, sdk.AccAddress(data.Sender), []sdk.Coin{refund_fee})
+		sender_address, err := sdk.AccAddressFromBech32(data.Sender)
+		if err != nil {
+			return nil
+		}
 
+		refund_err := im.keeper.RefundChannelCosmosFee(ctx, fee_address, sender_address, []sdk.Coin{fee})
+		if refund_err == nil {
+			im.keeper.IbcTransfermiddleware.DeleteSequenceFee(ctx, packet.Sequence)
+		}
 	}
 
 	return nil
@@ -181,6 +169,8 @@ func (im IBCMiddleware) OnAcknowledgementPacket(
 	if err != nil {
 		return err
 	}
+
+	im.keeper.IbcTransfermiddleware.DeleteSequenceFee(ctx, packet.Sequence)
 
 	return nil
 }

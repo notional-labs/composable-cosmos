@@ -2,9 +2,13 @@ package keeper
 
 import (
 	"context"
-	sdkmath "cosmossdk.io/math"
 	"fmt"
+	"time"
+
 	"github.com/cosmos/cosmos-sdk/codec"
+	ibctransferkeeper "github.com/cosmos/ibc-go/v7/modules/apps/transfer/keeper"
+
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
 	custombankkeeper "github.com/notional-labs/composable/v6/custom/bank/keeper"
@@ -16,6 +20,7 @@ import (
 	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
 	"github.com/cosmos/ibc-go/v8/modules/core/exported"
 	ibctransfermiddleware "github.com/notional-labs/composable/v6/x/ibctransfermiddleware/keeper"
+	ibctransfermiddlewaretypes "github.com/notional-labs/composable/v6/x/ibctransfermiddleware/types"
 )
 
 type Keeper struct {
@@ -58,6 +63,7 @@ func NewKeeper(
 func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.MsgTransferResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	params := k.IbcTransfermiddleware.GetParams(ctx)
+	charge_coin := sdk.NewCoin(msg.Token.Denom, sdk.ZeroInt())
 	if params.ChannelFees != nil && len(params.ChannelFees) > 0 {
 		channelFee := findChannelParams(params.ChannelFees, msg.SourceChannel)
 		if channelFee != nil {
@@ -80,7 +86,16 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 			if coin == nil {
 				return nil, fmt.Errorf("token not allowed to be transferred in this channel")
 			}
+
 			minFee := coin.MinFee.Amount
+			priority := GetPriority(msg.Memo)
+			if priority != nil {
+				p := findPriority(coin.TxPriorityFee, *priority)
+				if p != nil && coin.MinFee.Denom == p.PriorityFee.Denom {
+					minFee = minFee.Add(p.PriorityFee.Amount)
+				}
+			}
+
 			charge := minFee
 			if charge.GT(msg.Token.Amount) {
 				charge = msg.Token.Amount
@@ -104,16 +119,44 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 				return nil, err
 			}
 
-			send_err := k.bank.SendCoins(ctx, msgSender, feeAddress, sdk.NewCoins(sdk.NewCoin(msg.Token.Denom, charge)))
+			charge_coin = sdk.NewCoin(msg.Token.Denom, charge)
+			send_err := k.bank.SendCoins(ctx, msgSender, feeAddress, sdk.NewCoins(charge_coin))
 			if send_err != nil {
 				return nil, send_err
 			}
 
-			if newAmount.LTE(sdkmath.ZeroInt()) {
+			if newAmount.LTE(sdk.ZeroInt()) {
 				return &types.MsgTransferResponse{}, nil
 			}
 			msg.Token.Amount = newAmount
 		}
 	}
-	return k.Keeper.Transfer(goCtx, msg)
+	ret, err := k.Keeper.Transfer(goCtx, msg)
+	if err == nil && ret != nil && !charge_coin.IsZero() {
+		k.IbcTransfermiddleware.SetSequenceFee(ctx, ret.Sequence, charge_coin)
+	}
+	return ret, err
+}
+
+func GetPriority(jsonString string) *string {
+	var data map[string]interface{}
+	if err := json.Unmarshal([]byte(jsonString), &data); err != nil {
+		return nil
+	}
+
+	priority, ok := data["priority"].(string)
+	if !ok {
+		return nil
+	}
+
+	return &priority
+}
+
+func findPriority(priorities []*ibctransfermiddlewaretypes.TxPriorityFee, priority string) *ibctransfermiddlewaretypes.TxPriorityFee {
+	for _, p := range priorities {
+		if p.Priority == priority {
+			return p
+		}
+	}
+	return nil
 }

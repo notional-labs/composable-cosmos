@@ -5,15 +5,15 @@ COPY ./dist/ /root/
 
 ARG TARGETARCH
 RUN if [ "${TARGETARCH}" = "arm64" ]; then \
-  cp linux_linux_arm64/centaurid /root/centaurid; \
+  cp linux_linux_arm64/picad /root/picad; \
   else \
-  cp linux_linux_amd64_v1/centaurid /root/centaurid; \
+  cp linux_linux_amd64_v1/picad /root/picad; \
   fi
 
 FROM alpine:latest
 
 RUN apk --no-cache add ca-certificates jq
-COPY --from=builder /root/centaurid /usr/local/bin/centaurid
+COPY --from=builder /root/picad /usr/local/bin/picad
 
 RUN addgroup --gid 1025 -S composable && adduser --uid 1025 -S composable -G composable
 
@@ -29,5 +29,5 @@ EXPOSE 26657
 # grpc
 EXPOSE 9090
 
-ENTRYPOINT ["centaurid"]
+ENTRYPOINT ["picad"]
 CMD [ "start" ]

@@ -65,6 +65,28 @@ func (k Keeper) GetParams(ctx sdk.Context) (p types.Params) {
 	return p
 }
 
+func (k Keeper) GetSequenceFee(ctx sdk.Context, sequence uint64) (coin sdk.Coin, found bool) {
+	store := ctx.KVStore(k.storeKey)
+
+	value := store.Get(types.GetSequenceKey(sequence))
+	if value == nil {
+		return sdk.Coin{}, false
+	}
+
+	fee := types.MustUnmarshalCoin(k.cdc, value)
+	return fee, true
+}
+
+func (k Keeper) SetSequenceFee(ctx sdk.Context, sequence uint64, coin sdk.Coin) {
+	store := ctx.KVStore(k.storeKey)
+	store.Set(types.GetSequenceKey(sequence), types.MustMarshalCoin(k.cdc, &coin))
+}
+
+func (k Keeper) DeleteSequenceFee(ctx sdk.Context, sequence uint64) {
+	store := ctx.KVStore(k.storeKey)
+	store.Delete(types.GetSequenceKey(sequence))
+}
+
 func (k Keeper) GetCoin(ctx sdk.Context, targetChannelID, denom string) *types.CoinItem {
 	params := k.GetParams(ctx)
 	channelFee := findChannelParams(params.ChannelFees, targetChannelID)
