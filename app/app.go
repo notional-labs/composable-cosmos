@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/notional-labs/composable/v6/app/upgrades/v6_6_3"
+	"github.com/notional-labs/composable/v6/app/upgrades/v6_6_4"
 
 	nodeservice "github.com/cosmos/cosmos-sdk/client/grpc/node"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
@@ -148,7 +148,7 @@ var (
 	// https://github.com/CosmWasm/wasmd/blob/02a54d33ff2c064f3539ae12d75d027d9c665f05/x/wasm/internal/types/proposal.go#L28-L34
 	EnableSpecificProposals = ""
 
-	Upgrades = []upgrades.Upgrade{v6_6_3.Upgrade}
+	Upgrades = []upgrades.Upgrade{v6_6_4.Upgrade}
 	Forks    = []upgrades.Fork{}
 )
 

@@ -1,4 +1,4 @@
-package v6_6_1_test
+package v6_6_4_test
 
 import (
 	"encoding/json"
@@ -9,7 +9,7 @@ import (
 	ibchookskeeper "github.com/notional-labs/composable/v6/x/ibc-hooks/keeper"
 	ibctransfermiddlewaretypes "github.com/notional-labs/composable/v6/x/ibctransfermiddleware/types"
 
-	"github.com/notional-labs/composable/v6/app/upgrades/v6_6_1"
+	"github.com/notional-labs/composable/v6/app/upgrades/v6_6_4"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -70,7 +70,7 @@ func (s *UpgradeTestSuite) TestForMigratingNewPrefix() {
 
 	/* == UPGRADE == */
 	upgradeHeight := int64(5)
-	s.ConfirmUpgradeSucceeded(v6_6_1.UpgradeName, upgradeHeight)
+	s.ConfirmUpgradeSucceeded(v6_6_4.UpgradeName, upgradeHeight)
 
 	/* == CHECK AFTER UPGRADE == */
 	checkUpgradeGovModule(s, acc1, proposal)
