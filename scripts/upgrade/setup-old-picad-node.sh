@@ -8,7 +8,6 @@ BINARY=_build/old/picad
 HOME=mytestnet
 ROOT=$(pwd)
 DENOM=ppica
-CHAIN_ID=centaurid
 
 ADDITIONAL_PRE_SCRIPTS="./scripts/upgrade/old-node-scripts.sh"
 
