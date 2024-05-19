@@ -200,9 +200,9 @@ localnet-pica:
 	bash ./scripts/run-node.sh picad
 	bash ./scripts/50/store-wasm-code.sh
 
-localnet-picasso:
+localnet-parachain:
 	@echo "Starting localnet"
-	bash ./scripts/relayer_hyperspace/run-picasso.sh
+	bash ./scripts/upgrade/setup-polkadot-node.sh
 
 relayer-create-clients:
 	@echo "Starting relayer"
