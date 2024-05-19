@@ -11,7 +11,7 @@ $BINARY tx gov submit-proposal scripts/08-wasm/ics10_grandpa_cw.wasm.json --from
 
 sleep 5
 # TODO: fetch the propsoal id dynamically 
-$BINARY tx gov deposit "1" "20000000ppica" --from $KEY --fees 100000${DENOM} --keyring-backend test --home $HOME_DIR --chain-id $CHAINID -y 
+$BINARY tx gov deposit "1" "20000000ppica" --from $KEY --fees 100000${DENOM} --gas auto --keyring-backend test --home $HOME_DIR --chain-id $CHAINID -y
 
 sleep 5
 $BINARY tx gov vote 1 yes --from $KEY --fees 100000${DENOM} --keyring-backend test --home $HOME_DIR --chain-id $CHAINID -y 

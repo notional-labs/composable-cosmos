@@ -62,7 +62,6 @@ func NewContextForApp(app composable.ComposableApp) sdk.Context {
 
 func setup(withGenesis bool, invCheckPeriod uint, opts ...wasm.Option) (*composable.ComposableApp, composable.GenesisState) {
 	db := dbm.NewMemDB()
-	encCdc := composable.MakeEncodingConfig()
 	app := composable.NewComposableApp(
 		log.NewNopLogger(),
 		db,
@@ -71,7 +70,6 @@ func setup(withGenesis bool, invCheckPeriod uint, opts ...wasm.Option) (*composa
 		map[int64]bool{},
 		composable.DefaultNodeHome,
 		invCheckPeriod,
-		encCdc,
 		EmptyAppOptions{},
 		opts,
 		nil,
