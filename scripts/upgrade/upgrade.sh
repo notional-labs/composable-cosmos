@@ -75,6 +75,6 @@ sleep 1
 
 # run new node
 echo -e "\n\n=> =>continue running nodes after upgrade"   
-#CONTINUE="true" screen -L -dmS picad bash scripts/localnode.sh _build/new/picad $DENOM
-CONTINUE="true" bash scripts/localnode.sh _build/new/picad $DENOM
+CONTINUE="true" screen -L -dmS picad bash scripts/localnode.sh _build/new/picad $DENOM
+#CONTINUE="true" bash scripts/localnode.sh _build/new/picad $DENOM
 
