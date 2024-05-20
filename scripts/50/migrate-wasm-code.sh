@@ -3,21 +3,18 @@ KEY=mykey
 DENOM="ppica"
 HOME_DIR="mytestnet"
 CHAINID="centauri-dev"
-BINARY=picad
-WASM_CONTRACT_PATH="/Users/kien6034/notional/projects/composable-ibc/target/wasm32-unknown-unknown/release/ics10_grandpa_cw.wasm"
+BINARY=_build/new/picad
+WASM_CONTRACT_PATH="bin/ics10_grandpa_cw.wasm"
 
 
 WASM_CLIENT_ID="08-wasm-0"
-WASM_CHECKSUM="3e743bf804a60e5fd1dfab6c61bba0f2e76cda260edc66d6b7b10691fb5096c1"
 
-# Fetch proposal id 
-$BINARY tx ibc-wasm migrate-contract $WASM_CLIENT_ID $WASM_CHECKSUM '{}' --from $KEY --keyring-backend test --chain-id $CHAINID --home $HOME_DIR --deposit 10000000000${DENOM} --gas 20002152622 --fees 20020166${DENOM}  -y
+HEX_CHECKSUM="3e743bf804a60e5fd1dfab6c61bba0f2e76cda260edc66d6b7b10691fb5096c1"
+$BINARY tx ibc-wasm migrate-contract $WASM_CLIENT_ID $HEX_CHECKSUM '{}' --title "store new wasm code"  --summary "none"  --from $KEY --keyring-backend test --chain-id $CHAINID  --deposit 10000000000${DENOM}  --home $HOME_DIR --gas 20002152622 --fees 20020166${DENOM} -y
 
-# Fetch proposal id 
 sleep 6
 # $BINARY query gov proposals -o json > /tmp/proposals.json
-# PROPOSAL_ID=$(jq -r '.proposals[-1].id' /tmp/proposals.json)
-PROPOSAL_ID= 4  ## fix this
+PROPOSAL_ID=5
 echo "Proposal ID is: $PROPOSAL_ID"
 
 # Validator vote yes

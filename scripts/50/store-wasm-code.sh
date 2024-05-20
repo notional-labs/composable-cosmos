@@ -8,6 +8,7 @@ WASM_CONTRACT_PATH="$PWD/bin/ics10_grandpa_cw.wasm"
 
 # Wait for chain to start 
 echo "Waiting for chain to start..."
+sleep 10
 
 $BINARY tx ibc-wasm store-code $WASM_CONTRACT_PATH --title "store new wasm code"  --summary "none" --from $KEY --keyring-backend test --chain-id $CHAINID --home $HOME_DIR --deposit 10000000000${DENOM} --gas 20002152622 --fees 20020166${DENOM}  -y
 
