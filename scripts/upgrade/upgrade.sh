@@ -7,8 +7,8 @@ ROOT=$(pwd)
 DENOM=ppica
 CHAIN_ID=centauri-dev
 SOFTWARE_UPGRADE_NAME="v7_0_1"
-ADDITIONAL_PRE_SCRIPTS="./scripts/upgrade/v_6_4_8/pre-script.sh"
-ADDITIONAL_AFTER_SCRIPTS="./scripts/upgrade/v_6_4_8/post-script.sh"
+ADDITIONAL_PRE_SCRIPTS="./scripts/upgrade/v_6_6_0/pre-script.sh"
+ADDITIONAL_AFTER_SCRIPTS="./scripts/upgrade/v_6_6_0/post-script.sh"
 KEY="mykey"
 KEY1="mykey1"
 

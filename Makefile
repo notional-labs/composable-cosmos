@@ -167,9 +167,15 @@ test-upgrade: clean-testing-data
 
 clean-testing-data:
 	@echo "Killing binary and removing previous data"
+	echo "stopping picachain..."
 	-@pkill picad 2>/dev/null
-	-@pkill rly 2>/dev/null
 	-@rm -rf ./mytestnet
+
+	echo "stopping parachain..."
+	-@killall parachain-node
+	-@killall polkadot
+	
+	netstat -ltup | grep LISTEN
 
 .PHONY: ictest-start-cosmos ictest-start-polkadot ictest-ibc ictest-push-wasm ictest-all
 
@@ -181,12 +187,6 @@ test-upgrade: clean-testing-data
 	./scripts/tweak-test-upgrade.sh
 
 
-clean-testing-data:
-	@echo "Killing binary and removing previous data"
-	-@pkill centaurid 2>/dev/null
-	-@pkill picad 2>/dev/null
-	-@rm -rf ./screenlog.0
-	-@rm -rf ./mytestnet
 
 ## Scripts for testing sdk 50
 init-deps:
@@ -200,9 +200,9 @@ localnet-pica:
 	bash ./scripts/run-node.sh picad
 	bash ./scripts/50/store-wasm-code.sh
 
-localnet-picasso:
+localnet-parachain:
 	@echo "Starting localnet"
-	bash ./scripts/relayer_hyperspace/run-picasso.sh
+	bash ./scripts/upgrade/setup-polkadot-node.sh
 
 relayer-create-clients:
 	@echo "Starting relayer"

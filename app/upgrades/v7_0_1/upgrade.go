@@ -2,9 +2,10 @@ package v7_0_1
 
 import (
 	"context"
-	upgradetypes "cosmossdk.io/x/upgrade/types"
 	"encoding/hex"
 	"fmt"
+
+	upgradetypes "cosmossdk.io/x/upgrade/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -52,6 +53,8 @@ func CreateUpgradeHandler(
 			}
 			listCheckSum = append(listCheckSum, checksumStr)
 		}
+
+		// Register SendEnabled for legacy subspace
 
 		checksum := types.Checksums{Checksums: listCheckSum}
 		bz, err := codec.Marshal(&checksum)
