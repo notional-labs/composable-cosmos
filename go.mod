@@ -362,7 +362,7 @@ replace (
 	github.com/cosmos/cosmos-sdk => github.com/notional-labs/cosmos-sdk v0.50.5-patch-validators-trim-tag
 
 	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8 => github.com/notional-labs/ibc-apps/middleware/packet-forward-middleware/v8 v8.0.0-20240508031447-347412725653
-	github.com/cosmos/ibc-go/modules/light-clients/08-wasm => github.com/notional-labs/ibc-go/modules/light-clients/08-wasm v0.0.0-20240515182009-f733fca17f8a
+	github.com/cosmos/ibc-go/modules/light-clients/08-wasm => github.com/notional-labs/ibc-go/modules/light-clients/08-wasm v0.0.0-20240520114912-29f57a678ed2
 	//github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8 => github.com/notional-labs/ibc-apps/middleware/packet-forward-middleware/v8 v8.0.0-20240504082418-e4d8c9cb7044
 	github.com/cosmos/ibc-go/v8 => github.com/notional-labs/ibc-go/v8 v8.0.0-alpha.1.0.20240515181700-c058e14324e8
 
