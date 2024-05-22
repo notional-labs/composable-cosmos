@@ -52,7 +52,7 @@ func (suite *CustomBankTestSuite) TestTotalSupply() {
 		// when transfer via sdk transfer from A (module) -> B (contract)
 		coinToSendToB     = sdk.NewCoin(sdk.DefaultBondDenom, transferAmount)
 		timeoutHeight     = clienttypes.NewHeight(1, 110)
-		originAmt, err    = sdkmath.NewIntFromString("10000000001100000000000")
+		originAmt, err    = sdkmath.NewIntFromString("100000004100001000000")
 		chainBOriginSuply = sdk.NewCoin("stake", originAmt)
 	)
 	suite.Require().True(err)
