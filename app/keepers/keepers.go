@@ -488,7 +488,7 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		appCodec,
 		runtime.NewKVStoreService(appKeepers.keys[wasm08types.StoreKey]),
 		&appKeepers.IBCKeeper.ClientKeeper,
-		govModAddress,
+		authorityAddress,
 		vm,
 		bApp.GRPCQueryRouter(),
 	)

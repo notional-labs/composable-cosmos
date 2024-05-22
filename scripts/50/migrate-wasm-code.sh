@@ -17,22 +17,23 @@ RAW_CHECKSUM=$(echo "$HEX_CHECKSUM" | xxd -r -p)
 BASE64_CHECKSUM=$(echo -n "$RAW_CHECKSUM" | base64)
 echo "Base 64 check sum is: $BASE64_CHECKSUM"
 
-$BINARY tx ibc-wasm migrate-contract $WASM_CLIENT_ID $HEX_CHECKSUM {} --title "migrate wasm code"  --summary "none"  --from $KEY --keyring-backend test --chain-id $CHAINID  --deposit 10000000000${DENOM}  --home $HOME_DIR --gas 20002152622 --fees 20020166${DENOM} -y
+$BINARY tx ibc-wasm migrate-contract $WASM_CLIENT_ID $HEX_CHECKSUM {}  --from $KEY --keyring-backend test --chain-id $CHAINID  --home $HOME_DIR --gas 20002152622 --fees 20020166${DENOM} -y
 
-sleep 6
-# $BINARY query gov proposals -o json > /tmp/proposals.json
-PROPOSAL_ID=5
-echo "Proposal ID is: $PROPOSAL_ID"
+# exit 0
+# sleep 6
+# # $BINARY query gov proposals -o json > /tmp/proposals.json
+# PROPOSAL_ID=5
+# echo "Proposal ID is: $PROPOSAL_ID"
 
-# Validator vote yes
-$BINARY tx gov vote $PROPOSAL_ID yes --from $KEY --fees 100000${DENOM} --keyring-backend test --home $HOME_DIR --chain-id $CHAINID -y 
+# # Validator vote yes
+# $BINARY tx gov vote $PROPOSAL_ID yes --from $KEY --fees 100000${DENOM} --keyring-backend test --home $HOME_DIR --chain-id $CHAINID -y 
 
-#Voting time is 20s, check in localnode.sh
-sleep 20
+# #Voting time is 20s, check in localnode.sh
+# sleep 20
 
-# Check the status 
-$BINARY query gov proposal $PROPOSAL_ID -o json > /tmp/proposal.json
-STATUS=$(jq -r '.proposal.status' /tmp/proposal.json)
-echo "Proposal status is: $STATUS"
+# # Check the status 
+# $BINARY query gov proposal $PROPOSAL_ID -o json > /tmp/proposal.json
+# STATUS=$(jq -r '.proposal.status' /tmp/proposal.json)
+# echo "Proposal status is: $STATUS"
 
 
