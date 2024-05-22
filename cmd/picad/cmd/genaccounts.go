@@ -106,7 +106,6 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 
 			if !vestingAmt.IsZero() {
 				baseVestingAccount, err := authvesting.NewBaseVestingAccount(baseAccount, vestingAmt.Sort(), vestingEnd)
-
 				if err != nil {
 					return fmt.Errorf("failed to create base vesting account: %w", err)
 				}

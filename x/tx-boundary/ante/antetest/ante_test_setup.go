@@ -2,8 +2,9 @@ package antetest
 
 import (
 	"context"
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"time"
+
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	"cosmossdk.io/math"
 	tmtypes "github.com/cometbft/cometbft/types"
@@ -57,7 +58,9 @@ func (suite *AnteTestSuite) SetupTest() {
 
 	validators := make([]stakingtypes.Validator, 0, len(valSet.Validators))
 	for _, val := range valSet.Validators {
+		// lint:ignore SA1019 reason for ignoring
 		pk, _ := cryptocodec.FromTmPubKeyInterface(val.PubKey)
+
 		pkAny, _ := codectypes.NewAnyWithValue(pk)
 		validator := stakingtypes.Validator{
 			OperatorAddress:   sdk.ValAddress(val.Address).String(),

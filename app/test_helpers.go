@@ -12,8 +12,6 @@ import (
 
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 
 	"cosmossdk.io/errors"
@@ -48,7 +46,7 @@ const (
 )
 const DefaultGas = 1200000
 
-func setup(withGenesis bool, chainID string, opts ...wasmkeeper.Option) (*ComposableApp, GenesisState) {
+func setup(withGenesis bool, chainID string) (*ComposableApp, GenesisState) {
 	db := dbm.NewMemDB()
 	app := NewComposableApp(
 		log.NewNopLogger(),
@@ -57,7 +55,6 @@ func setup(withGenesis bool, chainID string, opts ...wasmkeeper.Option) (*Compos
 		DefaultNodeHome,
 		5,
 		EmptyBaseAppOptions{},
-		opts,
 		nil,
 		baseapp.SetChainID(chainID),
 	)
@@ -76,11 +73,10 @@ func SetupWithGenesisValSet(
 	valSet *tmtypes.ValidatorSet,
 	genAccs []authtypes.GenesisAccount,
 	chainID string,
-	opts []wasmkeeper.Option,
 	balances ...banktypes.Balance,
 ) *ComposableApp {
 	t.Helper()
-	app, genesisState := setup(true, chainID, opts...)
+	app, genesisState := setup(true, chainID)
 	// set genesis accounts
 	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)
 	genesisState[authtypes.ModuleName] = app.appCodec.MustMarshalJSON(authGenesis)
@@ -166,8 +162,8 @@ func SetupWithGenesisValSet(
 	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
 	require.NoError(t, err)
 
-	consensusParams := simtestutil.DefaultConsensusParams
-	consensusParams.Block.MaxGas = 100 * simtestutil.DefaultGenTxGas
+	consensusParams := helpers.DefaultConsensusParams
+	consensusParams.Block.MaxGas = 100 * helpers.DefaultGenTxGas
 
 	if chainID == "" {
 		chainID = SimAppChainID
@@ -393,12 +389,12 @@ func SignAndDeliver(
 	chainID string, accNums, accSeqs []uint64, expPass bool, blockTime time.Time, nextValHash []byte, priv ...cryptotypes.PrivKey,
 ) (*abci.ResponseFinalizeBlock, error) {
 	tb.Helper()
-	tx, err := simtestutil.GenSignedMockTx(
+	tx, err := helpers.GenSignedMockTx(
 		rand.New(rand.NewSource(time.Now().UnixNano())),
 		txCfg,
 		msgs,
 		sdk.Coins{sdk.NewInt64Coin(sdk.DefaultBondDenom, 0)},
-		simtestutil.DefaultGenTxGas,
+		helpers.DefaultGenTxGas,
 		chainID,
 		accNums,
 		accSeqs,
@@ -516,8 +512,9 @@ func FundModuleAccount(bankKeeper bankkeeper.Keeper, ctx sdk.Context, recipientM
 }
 
 // SignAndDeliverWithoutCommit signs and delivers a transaction. No commit
-func SignAndDeliverWithoutCommit(t *testing.T, txCfg client.TxConfig, app *baseapp.BaseApp, msgs []sdk.Msg, fees sdk.Coins, chainID string, accNums, accSeqs []uint64, blockTime time.Time, priv ...cryptotypes.PrivKey) (*abci.ResponseFinalizeBlock, error) {
-	tx, err := simtestutil.GenSignedMockTx(
+func SignAndDeliverWithoutCommit(t *testing.T, txCfg client.TxConfig, app *baseapp.BaseApp, msgs []sdk.Msg, chainID string, accNums, accSeqs []uint64, blockTime time.Time, priv ...cryptotypes.PrivKey) (*abci.ResponseFinalizeBlock, error) {
+	t.Helper() // Mark the function as a test helper
+	tx, err := helpers.GenSignedMockTx(
 		rand.New(rand.NewSource(time.Now().UnixNano())),
 		txCfg,
 		msgs,

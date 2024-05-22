@@ -128,7 +128,7 @@ func NewKeeper(
 	bk types.BankKeeper,
 	authority string,
 	stakingmiddleware *stakingmiddleware.Keeper,
-	validatorAddressCodec address.Codec, consensusAddressCodec address.Codec,
+	validatorAddressCodec, consensusAddressCodec address.Codec,
 ) *Keeper {
 	keeper := Keeper{
 		Keeper:            *stakingkeeper.NewKeeper(cdc, storeService, ak, bk, authority, validatorAddressCodec, consensusAddressCodec),

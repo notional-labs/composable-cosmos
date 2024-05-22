@@ -14,7 +14,6 @@ import (
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	cosmossimulation "github.com/cosmos/cosmos-sdk/types/simulation"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/notional-labs/composable/v6/x/mint/client/cli"
 	"github.com/notional-labs/composable/v6/x/mint/keeper"
@@ -162,7 +161,7 @@ func (AppModule) ProposalContents(_ module.SimulationState) []simtypes.WeightedP
 }
 
 // RegisterStoreDecoder registers a decoder for mint module's types.
-func (am AppModule) RegisterStoreDecoder(registry cosmossimulation.StoreDecoderRegistry) {
+func (am AppModule) RegisterStoreDecoder(registry simtypes.StoreDecoderRegistry) {
 	registry[types.StoreKey] = simulation.NewDecodeStore(am.cdc)
 }
 

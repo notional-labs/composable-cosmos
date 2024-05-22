@@ -7,7 +7,6 @@ import (
 
 	"cosmossdk.io/log"
 	"cosmossdk.io/math"
-	"github.com/CosmWasm/wasmd/x/wasm"
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
@@ -60,7 +59,7 @@ func NewContextForApp(app composable.ComposableApp) sdk.Context {
 	return ctx
 }
 
-func setup(withGenesis bool, invCheckPeriod uint, opts ...wasm.Option) (*composable.ComposableApp, composable.GenesisState) {
+func setup(withGenesis bool, invCheckPeriod uint) (*composable.ComposableApp, composable.GenesisState) {
 	db := dbm.NewMemDB()
 	app := composable.NewComposableApp(
 		log.NewNopLogger(),
@@ -71,7 +70,6 @@ func setup(withGenesis bool, invCheckPeriod uint, opts ...wasm.Option) (*composa
 		composable.DefaultNodeHome,
 		invCheckPeriod,
 		EmptyAppOptions{},
-		opts,
 		nil,
 	)
 	if withGenesis {
@@ -170,6 +168,7 @@ func SetupComposableAppWithValSetWithGenAccout(t *testing.T) (*composable.Compos
 
 	validators := make([]stakingtypes.Validator, 0, len(valSet.Validators))
 	for _, val := range valSet.Validators {
+		//lint:ignore SA1019
 		pk, _ := cryptocodec.FromTmPubKeyInterface(val.PubKey)
 		pkAny, _ := codectypes.NewAnyWithValue(pk)
 

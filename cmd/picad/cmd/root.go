@@ -8,7 +8,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 
 	"cosmossdk.io/log"
-	"github.com/CosmWasm/wasmd/x/wasm"
 	tmcli "github.com/cometbft/cometbft/libs/cli"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/spf13/cast"
@@ -51,7 +50,6 @@ var ChainID string
 // NewRootCmd creates a new root command for simd. It is called once in the
 // main function.
 func NewRootCmd() (*cobra.Command, app.EncodingConfig) {
-
 	tempApp := app.NewComposableApp(
 		log.NewNopLogger(),
 		dbm.NewMemDB(),
@@ -303,7 +301,6 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, appOpts serverty
 	}
 	baseappOptions := server.DefaultBaseappOptions(appOpts)
 
-	var emptyWasmOpts []wasm.Option
 	newApp := app.NewComposableApp(
 		logger, db, traceStore, true,
 		skipUpgradeHeights,
@@ -311,7 +308,6 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, appOpts serverty
 		cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod)),
 		// this line is used by starport scaffolding # stargate/root/appArgument
 		appOpts,
-		emptyWasmOpts,
 		devnetGov,
 		baseappOptions...,
 	)
@@ -330,7 +326,6 @@ func appExport(
 	if !ok || homePath == "" {
 		return servertypes.ExportedApp{}, errors.New("application home not set")
 	}
-	var emptyWasmOpts []wasm.Option
 
 	if height != -1 {
 		anApp = app.NewComposableApp(
@@ -342,7 +337,6 @@ func appExport(
 			homePath,
 			uint(1),
 			appOpts,
-			emptyWasmOpts,
 			nil,
 		)
 
@@ -359,7 +353,6 @@ func appExport(
 			homePath,
 			uint(1),
 			appOpts,
-			emptyWasmOpts,
 			nil,
 		)
 	}

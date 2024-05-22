@@ -34,7 +34,6 @@ func MakeEncodingConfig() EncodingConfig {
 			},
 		},
 	})
-
 	if err != nil {
 		panic(err)
 	}

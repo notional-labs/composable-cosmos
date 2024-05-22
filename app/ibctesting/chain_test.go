@@ -1,9 +1,10 @@
 package ibctesting_test
 
 import (
+	"testing"
+
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	"github.com/notional-labs/composable/v6/app/ibctesting"
-	"testing"
 
 	"github.com/stretchr/testify/require"
 

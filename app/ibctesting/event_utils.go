@@ -3,26 +3,16 @@ package ibctesting
 import (
 	"encoding/hex"
 	"fmt"
-	connectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
 	"strconv"
 	"strings"
+
+	connectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 )
-
-func getSendPackets(evts []abci.Event) []channeltypes.Packet {
-	var res []channeltypes.Packet
-	for _, evt := range evts {
-		if evt.Type == "send_packet" {
-			packet := parsePacketFromEvent(evt)
-			res = append(res, packet)
-		}
-	}
-	return res
-}
 
 func getAckPackets(evts []abci.Event) []PacketAck {
 	var res []PacketAck
@@ -68,7 +58,7 @@ func ParsePacketFromEvents(events sdk.Events) (channeltypes.Packet, error) {
 			packet := channeltypes.Packet{}
 			for _, attr := range ev.Attributes {
 				switch attr.Key {
-				case channeltypes.AttributeKeyData: //nolint: staticcheck
+				case channeltypes.AttributeKeyData:
 					packet.Data = []byte(attr.Value)
 
 				case channeltypes.AttributeKeySequence:

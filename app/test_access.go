@@ -3,7 +3,6 @@ package app
 import (
 	"testing"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -68,10 +67,6 @@ func (s TestSupport) TransferKeeper() ibctransferkeeper.Keeper {
 
 func (s TestSupport) Wasm08Keeper() wasm08.Keeper {
 	return s.app.Wasm08Keeper
-}
-
-func (s TestSupport) WasmdKeeper() wasm.Keeper {
-	return s.app.WasmKeeper
 }
 
 func (s TestSupport) GetBaseApp() *baseapp.BaseApp {

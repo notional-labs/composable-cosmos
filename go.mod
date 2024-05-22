@@ -31,10 +31,7 @@ require (
 	mvdan.cc/gofumpt v0.4.0
 )
 
-require (
-	cosmossdk.io/x/nft v0.1.0 // indirect
-	github.com/cometbft/cometbft-db v0.11.0 // indirect
-)
+require github.com/cometbft/cometbft-db v0.11.0 // indirect
 
 require (
 	4d63.com/gocheckcompilerdirectives v1.2.1 // indirect

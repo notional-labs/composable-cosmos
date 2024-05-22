@@ -19,8 +19,8 @@ func BeginBlocker(ctx sdk.Context, k keeper.Keeper, ic types.InflationCalculatio
 	params := k.GetParams(ctx)
 
 	// recalculate inflation rate
-	totalStakingSupply, err := k.StakingTokenSupply(ctx)
-	bondedRatio, err := k.BondedRatio(ctx)
+	totalStakingSupply, _ := k.StakingTokenSupply(ctx)
+	bondedRatio, _ := k.BondedRatio(ctx)
 	minter.Inflation = ic(ctx, minter, params, bondedRatio, totalStakingSupply)
 	minter.AnnualProvisions = minter.NextAnnualProvisions(params, totalStakingSupply)
 	k.SetMinter(ctx, minter)
@@ -29,7 +29,7 @@ func BeginBlocker(ctx sdk.Context, k keeper.Keeper, ic types.InflationCalculatio
 	mintedCoin := minter.BlockProvision(params)
 	mintedCoins := sdk.NewCoins(mintedCoin)
 	// send the minted coins to the fee collector account
-	err = k.AddCollectedFees(ctx, mintedCoins)
+	err := k.AddCollectedFees(ctx, mintedCoins)
 	if err != nil {
 		k.Logger(ctx).Info("Not enough incentive tokens in the mint pool to distribute")
 	}

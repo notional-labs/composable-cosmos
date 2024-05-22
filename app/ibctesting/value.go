@@ -5,8 +5,9 @@ used in the testing package and commonly defined in tests.
 package ibctesting
 
 import (
-	sdkmath "cosmossdk.io/math"
 	"time"
+
+	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 

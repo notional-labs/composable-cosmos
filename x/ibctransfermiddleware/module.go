@@ -14,7 +14,6 @@ import (
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/cosmos/cosmos-sdk/types/simulation"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
 	"github.com/notional-labs/composable/v6/x/ibctransfermiddleware/client/cli"
@@ -150,7 +149,7 @@ func (AppModule) ProposalContents(_ module.SimulationState) []simtypes.WeightedP
 }
 
 // RegisterStoreDecoder registers a decoder for staking middleware module's types.
-func (am AppModule) RegisterStoreDecoder(registry simulation.StoreDecoderRegistry) {}
+func (am AppModule) RegisterStoreDecoder(registry simtypes.StoreDecoderRegistry) {}
 
 // WeightedOperations doesn't return any staking middleware module operation.
 func (AppModule) WeightedOperations(_ module.SimulationState) []simtypes.WeightedOperation {

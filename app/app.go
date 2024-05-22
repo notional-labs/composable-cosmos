@@ -1,15 +1,17 @@
 package app
 
 import (
-	"cosmossdk.io/client/v2/autocli"
-	"cosmossdk.io/core/appmodule"
 	"fmt"
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	runtimeservices "github.com/cosmos/cosmos-sdk/runtime/services"
-	authcodec "github.com/cosmos/cosmos-sdk/x/auth/codec"
 	"io"
 	"os"
 	"path/filepath"
+
+	"cosmossdk.io/client/v2/autocli"
+	"cosmossdk.io/core/appmodule"
+
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	runtimeservices "github.com/cosmos/cosmos-sdk/runtime/services"
+	authcodec "github.com/cosmos/cosmos-sdk/x/auth/codec"
 
 	"cosmossdk.io/x/circuit"
 	circuittypes "cosmossdk.io/x/circuit/types"
@@ -268,7 +270,6 @@ func NewComposableApp(
 	homePath string,
 	invCheckPeriod uint,
 	appOpts servertypes.AppOptions,
-	wasmOpts []wasm.Option,
 	devnetGov *string,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *ComposableApp {
@@ -283,7 +284,6 @@ func NewComposableApp(
 			},
 		},
 	})
-
 	if err != nil {
 		panic(err)
 	}
@@ -595,7 +595,7 @@ func NewComposableApp(
 			tmos.Exit(fmt.Sprintf("failed initialize pinned codes %s", err))
 		}
 
-		//if err := wasm08keeper.InitializePinnedCodes(ctx); err != nil {
+		// if err := wasm08keeper.InitializePinnedCodes(ctx); err != nil {
 		//	tmos.Exit(fmt.Sprintf("failed initialize pinned codes %s", err))
 		//}
 	}
@@ -749,7 +749,6 @@ func (app *ComposableApp) customPreUpgradeHandler(_ upgradetypes.Plan) {
 
 func (app *ComposableApp) setupUpgradeHandlers() {
 	for _, upgrade := range Upgrades {
-
 		app.UpgradeKeeper.SetUpgradeHandler(
 			upgrade.UpgradeName,
 			upgrade.CreateUpgradeHandler(

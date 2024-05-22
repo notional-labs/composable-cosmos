@@ -1,8 +1,9 @@
 package bank
 
 import (
-	"cosmossdk.io/core/address"
 	"fmt"
+
+	"cosmossdk.io/core/address"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/types/module"

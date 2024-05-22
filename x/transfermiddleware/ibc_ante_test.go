@@ -1,7 +1,7 @@
 package transfermiddleware_test
 
 //
-//import (
+// import (
 //	"encoding/json"
 //	"os"
 //	"testing"
@@ -17,9 +17,9 @@ package transfermiddleware_test
 //	customibctesting "github.com/notional-labs/composable/v6/app/ibctesting"
 //)
 //
-//var govAuthorityAddress = "pica10556m38z4x6pqalr9rl5ytf3cff8q46nf36090" // convert from: centauri10556m38z4x6pqalr9rl5ytf3cff8q46nk85k9m
+// var govAuthorityAddress = "pica10556m38z4x6pqalr9rl5ytf3cff8q46nf36090" // convert from: centauri10556m38z4x6pqalr9rl5ytf3cff8q46nk85k9m
 //
-//type TransferTestSuite struct {
+// type TransferTestSuite struct {
 //	suite.Suite
 //
 //	coordinator *customibctesting.Coordinator
@@ -35,7 +35,7 @@ package transfermiddleware_test
 //	wasmKeeper wasmkeeper.Keeper
 //}
 //
-//func (suite *TransferTestSuite) SetupTest() {
+// func (suite *TransferTestSuite) SetupTest() {
 //	suite.coordinator = customibctesting.NewCoordinator(suite.T(), 2)
 //	suite.chainA = suite.coordinator.GetChain(customibctesting.GetChainID(0))
 //	suite.chainB = suite.coordinator.GetChain(customibctesting.GetChainID(1))
@@ -66,11 +66,11 @@ package transfermiddleware_test
 //	suite.coordinator.CodeID = response.Checksum
 //}
 //
-//func TestTransferTestSuite(t *testing.T) {
+// func TestTransferTestSuite(t *testing.T) {
 //	suite.Run(t, new(TransferTestSuite))
 //}
 //
-//func (suite *TransferTestSuite) TestIbcAnteWithWasmUpdateClient() {
+// func (suite *TransferTestSuite) TestIbcAnteWithWasmUpdateClient() {
 //	suite.SetupTest()
 //	path := customibctesting.NewPath(suite.chainA, suite.chainB)
 //	suite.coordinator.SetupClients(path)
@@ -92,7 +92,7 @@ package transfermiddleware_test
 //	suite.Require().Error(err)
 //}
 //
-//func (suite *TransferTestSuite) TestIbcAnteWithTenderMintUpdateClient() {
+// func (suite *TransferTestSuite) TestIbcAnteWithTenderMintUpdateClient() {
 //	suite.SetupTest()
 //	path := customibctesting.NewPath(suite.chainA, suite.chainB)
 //	suite.coordinator.SetupClients(path)

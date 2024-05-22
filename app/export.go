@@ -84,7 +84,7 @@ func (app *ComposableApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedA
 			panic(err)
 		}
 
-		accumCommission, err := app.DistrKeeper.GetValidatorAccumulatedCommission(ctx, valAddr)
+		accumCommission, _ := app.DistrKeeper.GetValidatorAccumulatedCommission(ctx, valAddr)
 		if accumCommission.Commission.IsZero() {
 			return false
 		}
@@ -133,7 +133,7 @@ func (app *ComposableApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedA
 			panic(err)
 		}
 
-		scraps, err := app.DistrKeeper.GetValidatorOutstandingRewardsCoins(ctx, valAddr)
+		scraps, _ := app.DistrKeeper.GetValidatorOutstandingRewardsCoins(ctx, valAddr)
 
 		feePool, err := app.DistrKeeper.FeePool.Get(ctx)
 		if err != nil {

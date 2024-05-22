@@ -2,10 +2,14 @@ package ibctesting
 
 import (
 	"context"
+	"fmt"
+	"testing"
+	"time"
+
 	"cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
-	"fmt"
+
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	"github.com/cosmos/cosmos-sdk/x/staking/testutil"
@@ -13,11 +17,10 @@ import (
 	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
 	customibctransferkeeper "github.com/notional-labs/composable/v6/custom/ibc-transfer/keeper"
 	transfermiddlewarekeeper "github.com/notional-labs/composable/v6/x/transfermiddleware/keeper"
-	"testing"
-	"time"
 
 	ratelimitmodulekeeper "github.com/notional-labs/composable/v6/x/ratelimit/keeper"
 
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
@@ -30,14 +33,10 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
-	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	"github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
@@ -53,7 +52,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
-	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	cmtprotoversion "github.com/cometbft/cometbft/proto/tendermint/version"
 	"github.com/notional-labs/composable/v6/app"
 )
@@ -70,8 +68,8 @@ type ChainApp interface {
 	servertypes.ABCI
 	AppCodec() codec.Codec
 	GetContextForFinalizeBlock(txBytes []byte) sdk.Context
-	NewContextLegacy(isCheckTx bool, header cmtproto.Header) sdk.Context
-	NewUncachedContext(isCheckTx bool, header cmtproto.Header) sdk.Context
+	NewContextLegacy(isCheckTx bool, header tmproto.Header) sdk.Context
+	NewUncachedContext(isCheckTx bool, header tmproto.Header) sdk.Context
 	LastBlockHeight() int64
 	LastCommitID() storetypes.CommitID
 	GetBaseApp() *baseapp.BaseApp
@@ -130,7 +128,7 @@ type PacketAck struct {
 }
 
 // ChainAppFactory abstract factory method that usually implemented by app.SetupWithGenesisValSet
-type ChainAppFactory func(t *testing.T, valSet *cmttypes.ValidatorSet, genAccs []authtypes.GenesisAccount, chainID string, opts []wasmkeeper.Option, balances ...banktypes.Balance) ChainApp
+type ChainAppFactory func(t *testing.T, valSet *cmttypes.ValidatorSet, genAccs []authtypes.GenesisAccount, chainID string, balances ...banktypes.Balance) ChainApp
 
 // NewTestChain initializes a new TestChain instance with a single validator set using a
 // generated private key. It also creates a sender account to be used for delivering transactions.
@@ -190,7 +188,7 @@ func NewTestChain(t *testing.T, coord *Coordinator, appFactory ChainAppFactory, 
 		senderAccs = append(senderAccs, senderAcc)
 	}
 
-	app := appFactory(t, valSet, genAccs, chainID, nil, genBals...)
+	app := appFactory(t, valSet, genAccs, chainID, genBals...)
 
 	// app := NewTestingAppDecorator(t, app.SetupWithGenesisValSet(t, valSet, []authtypes.GenesisAccount{acc}, "", nil, balance))
 
@@ -340,7 +338,7 @@ func (chain *TestChain) commitBlock(res *abci.ResponseFinalizeBlock) {
 	chain.NextVals = ibctesting.ApplyValSetChanges(chain.t, chain.Vals, res.ValidatorUpdates)
 
 	// increment the current header
-	chain.CurrentHeader = cmtproto.Header{
+	chain.CurrentHeader = tmproto.Header{
 		ChainID: chain.ChainID,
 		Height:  chain.App.LastBlockHeight() + 1,
 		AppHash: chain.App.LastCommitID().Hash,
@@ -372,8 +370,8 @@ func (chain *TestChain) CurrentCmtClientHeader() *ibctmtypes.Header {
 // caller flexibility to use params that differ from the chain.
 func (chain *TestChain) CreateCmtClientHeader(chainID string, blockHeight int64, trustedHeight clienttypes.Height, timestamp time.Time, cmtValSet, nextVals, cmtTrustedVals *cmttypes.ValidatorSet, signers map[string]cmttypes.PrivValidator) *ibctmtypes.Header {
 	var (
-		valSet      *cmtproto.ValidatorSet
-		trustedVals *cmtproto.ValidatorSet
+		valSet      *tmproto.ValidatorSet
+		trustedVals *tmproto.ValidatorSet
 	)
 	require.NotNil(chain.t, cmtValSet)
 
@@ -399,7 +397,7 @@ func (chain *TestChain) CreateCmtClientHeader(chainID string, blockHeight int64,
 
 	hhash := cmtHeader.Hash()
 	blockID := MakeBlockID(hhash, 3, tmhash.Sum([]byte("part_set")))
-	voteSet := cmttypes.NewExtendedVoteSet(chainID, blockHeight, 1, cmtproto.PrecommitType, cmtValSet)
+	voteSet := cmttypes.NewExtendedVoteSet(chainID, blockHeight, 1, tmproto.PrecommitType, cmtValSet)
 	// MakeCommit expects a signer array in the same order as the validator array.
 	// Thus we iterate over the ordered validator set and construct a signer array
 	// from the signer map in the same order.
@@ -410,7 +408,7 @@ func (chain *TestChain) CreateCmtClientHeader(chainID string, blockHeight int64,
 	extCommit, err := cmttypes.MakeExtCommit(blockID, blockHeight, 1, voteSet, signerArr, timestamp, true)
 	require.NoError(chain.t, err)
 
-	signedHeader := &cmtproto.SignedHeader{
+	signedHeader := &tmproto.SignedHeader{
 		Header: cmtHeader.ToProto(),
 		Commit: extCommit.ToCommit().ToProto(),
 	}
@@ -457,7 +455,7 @@ func (chain *TestChain) sendMsgs(msgs ...sdk.Msg) error {
 // occurred.
 func (chain *TestChain) SendMsgs(msgs ...sdk.Msg) (*abci.ExecTxResult, error) {
 	rsp, gotErr := chain.sendWithSigner(chain.SenderPrivKey, chain.SenderAccount, msgs...)
-	//require.NoError(chain.t, chain.SenderAccount.SetSequence(chain.SenderAccount.GetSequence()+1))
+
 	return rsp, gotErr
 }
 
@@ -522,18 +520,7 @@ func (chain *TestChain) SendMsgsWithExpPass(expPass bool, msgs ...sdk.Msg) (*abc
 	// ensure the chain has the latest time
 	chain.Coordinator.UpdateTimeForChain(chain)
 
-	blockResp, err := app.SignAndDeliverWithoutCommit(
-		chain.t,
-		chain.TxConfig,
-		chain.App.GetBaseApp(),
-		msgs,
-		chain.DefaultMsgFees,
-		chain.ChainID,
-		[]uint64{chain.SenderAccount.GetAccountNumber()},
-		[]uint64{chain.SenderAccount.GetSequence()},
-		chain.CurrentHeader.GetTime(),
-		chain.SenderPrivKey,
-	)
+	blockResp, err := app.SignAndDeliverWithoutCommit(chain.t, chain.TxConfig, chain.App.GetBaseApp(), msgs, chain.ChainID, []uint64{chain.SenderAccount.GetAccountNumber()}, []uint64{chain.SenderAccount.GetSequence()}, chain.CurrentHeader.GetTime(), chain.SenderPrivKey)
 	if err != nil {
 		return nil, err
 	}
@@ -769,7 +756,7 @@ func (chain *TestChain) QueryContract(suite *suite.Suite, contract sdk.AccAddres
 }
 
 //
-//func (chain *TestChain) StoreContractCode(suite *suite.Suite, path string) {
+// func (chain *TestChain) StoreContractCode(suite *suite.Suite, path string) {
 //	govModuleAddress := chain.App.GetAccountKeeper().GetModuleAddress(govtypes.ModuleName)
 //	wasmCode, err := os.ReadFile(path)
 //	suite.Require().NoError(err)
@@ -795,37 +782,4 @@ func (chain *TestChain) InstantiateContract(suite *suite.Suite, msg string, code
 	addr, _, err := contractKeeper.Instantiate(chain.GetContext(), codeID, govModuleAddress, govModuleAddress, []byte(msg), "contract", nil)
 	suite.Require().NoError(err)
 	return addr
-}
-
-func mustSubmitAndExecuteLegacyProposal(t *testing.T, ctx sdk.Context, content v1beta1.Content, myActorAddress string, govKeeper *govkeeper.Keeper, authority string) {
-	t.Helper()
-	msgServer := govkeeper.NewMsgServerImpl(govKeeper)
-	// ignore all submit events
-	contentMsg, err := submitLegacyProposal(t, ctx.WithEventManager(sdk.NewEventManager()), content, myActorAddress, authority, msgServer)
-	require.NoError(t, err)
-
-	_, err = msgServer.ExecLegacyContent(sdk.WrapSDKContext(ctx), v1.NewMsgExecLegacyContent(contentMsg.Content, authority))
-	require.NoError(t, err)
-}
-
-// does not fail on submit proposal
-func submitLegacyProposal(t *testing.T, ctx sdk.Context, content v1beta1.Content, myActorAddress, govAuthority string, msgServer v1.MsgServer) (*v1.MsgExecLegacyContent, error) {
-	t.Helper()
-	contentMsg, err := v1.NewLegacyContent(content, govAuthority)
-	require.NoError(t, err)
-
-	proposal, err := v1.NewMsgSubmitProposal(
-		[]sdk.Msg{contentMsg},
-		sdk.Coins{},
-		myActorAddress,
-		"",
-		"my title",
-		"my description",
-		false,
-	)
-	require.NoError(t, err)
-
-	// when stored
-	_, err = msgServer.SubmitProposal(sdk.WrapSDKContext(ctx), proposal)
-	return contentMsg, err
 }

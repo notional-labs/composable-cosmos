@@ -187,7 +187,6 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 	appOpts servertypes.AppOptions,
 	devnetGov *string,
 ) {
-
 	govModAddress := authtypes.NewModuleAddress(govtypes.ModuleName).String()
 
 	if devnetGov != nil {
@@ -440,7 +439,6 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		false,
 		0,
 	)
-
 	if err != nil {
 		panic(err)
 	}
@@ -478,7 +476,6 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 	wasmCacheSizeMb := uint32(math.Pow(2, 8))
 
 	vm, err := wasmvm.NewVM(wasmDataDir, wasmSupportedFeatures, wasmMemoryLimitMb, wasmPrintDebug, wasmCacheSizeMb)
-
 	if err != nil {
 		panic(err)
 	}
@@ -535,7 +532,6 @@ func (appKeepers *AppKeepers) InitSpecialKeepers(
 	skipUpgradeHeights map[int64]bool,
 	homePath string,
 ) {
-
 	govModAddress := authtypes.NewModuleAddress(govtypes.ModuleName).String()
 
 	appKeepers.GenerateKeys()
@@ -575,8 +571,8 @@ func (appKeepers *AppKeepers) initParamsKeeper(appCodec codec.BinaryCodec, legac
 	paramsKeeper.Subspace(stakingtypes.ModuleName)
 	paramsKeeper.Subspace(distrtypes.ModuleName)
 	paramsKeeper.Subspace(slashingtypes.ModuleName)
-	paramsKeeper.Subspace(pfmtypes.ModuleName).WithKeyTable(pfmtypes.ParamKeyTable())   // TODO:
-	paramsKeeper.Subspace(govtypes.ModuleName).WithKeyTable(govtypesv1.ParamKeyTable()) //nolint:staticcheck
+	paramsKeeper.Subspace(pfmtypes.ModuleName).WithKeyTable(pfmtypes.ParamKeyTable()) // TODO:
+	paramsKeeper.Subspace(govtypes.ModuleName).WithKeyTable(govtypesv1.ParamKeyTable())
 	paramsKeeper.Subspace(minttypes.ModuleName).WithKeyTable(minttypes.ParamKeyTable())
 	paramsKeeper.Subspace(crisistypes.ModuleName)
 	paramsKeeper.Subspace(ratelimitmoduletypes.ModuleName)

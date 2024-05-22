@@ -11,7 +11,6 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/cosmos/cosmos-sdk/types/simulation"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
@@ -143,12 +142,12 @@ func (AppModule) ConsensusVersion() uint64 { return 1 }
 func (AppModule) GenerateGenesisState(_ *module.SimulationState) {}
 
 // ProposalContents doesn't return any content functions for governance proposals.
-func (AppModule) ProposalContents(_ module.SimulationState) []simtypes.WeightedProposalContent { //nolint:staticcheck // WeightedProposalContent is necessary to satisfy the module interface
+func (AppModule) ProposalContents(_ module.SimulationState) []simtypes.WeightedProposalContent {
 	return nil
 }
 
 // RegisterStoreDecoder registers a decoder for router module's types
-func (am AppModule) RegisterStoreDecoder(registry simulation.StoreDecoderRegistry) {}
+func (am AppModule) RegisterStoreDecoder(registry simtypes.StoreDecoderRegistry) {}
 
 // WeightedOperations returns the all the router module operations with their respective weights.
 func (am AppModule) WeightedOperations(_ module.SimulationState) []simtypes.WeightedOperation {

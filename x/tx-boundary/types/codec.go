@@ -7,7 +7,8 @@ import (
 )
 
 var (
-	amino     = codec.NewLegacyAmino()
+	amino = codec.NewLegacyAmino()
+	//lint:ignore SA1019 reason for ignoring
 	ModuleCdc = codec.NewAminoCodec(amino)
 )
 
