@@ -104,7 +104,7 @@ lint:
 ###                                  Proto                                  ###
 ###############################################################################
 
-protoVer=0.12.1
+protoVer=0.14.0
 protoImageName=ghcr.io/cosmos/proto-builder:$(protoVer)
 containerProtoGen=proto-gen-$(protoVer)
 containerProtoFmt=proto-fmt-$(protoVer)
@@ -113,8 +113,7 @@ proto-all: proto-format proto-gen
 
 proto-gen:
 	@echo "Generating Protobuf files"
-	@if docker ps -a --format '{{.Names}}' | grep -Eq "^${containerProtoGen}$$"; then docker start -a $(containerProtoGen); else docker run --name $(containerProtoGen) -v $(CURDIR):/workspace --workdir /workspace $(protoImageName) \
-		sh ./scripts/protocgen.sh; fi
+	@$(protoImage) sh ./scripts/protocgen.sh
 
 proto-format:
 	@echo "Formatting Protobuf files"
@@ -168,11 +167,66 @@ test-upgrade: clean-testing-data
 
 clean-testing-data:
 	@echo "Killing binary and removing previous data"
-	-@pkill centaurid 2>/dev/null
+	echo "stopping picachain..."
 	-@pkill picad 2>/dev/null
-	-@pkill rly 2>/dev/null
 	-@rm -rf ./mytestnet
+
+	echo "stopping parachain..."
+	-@killall parachain-node
+	-@killall polkadot
+	
+	netstat -ltup | grep LISTEN
 
 .PHONY: ictest-start-cosmos ictest-start-polkadot ictest-ibc ictest-push-wasm ictest-all
 
 include contrib/make/release.mk
+
+
+test-upgrade: clean-testing-data
+	@echo "Starting upgrade test"
+	./scripts/tweak-test-upgrade.sh
+
+
+
+## Scripts for testing sdk 50
+init-deps:
+	@echo "Installing dependencies"
+	bash ./scripts/upgrade/init-deps.sh
+
+localnet-pica:
+	@echo "Starting test"
+	rm -rf screenlog.0
+	-@pkill picad 2>/dev/null
+	bash ./scripts/run-node.sh picad
+	bash ./scripts/50/store-wasm-code.sh
+
+localnet-parachain:
+	@echo "Starting localnet"
+	bash ./scripts/upgrade/setup-polkadot-node.sh
+
+relayer-create-clients:
+	@echo "Starting relayer"
+	bash ./scripts/relayer_hyperspace/create-clients.sh
+
+pica-upgrade:
+	@echo "Starting upgrade"
+	bash ./scripts/upgrade/upgrade.
+
+relayer-test-cleanup:
+	@echo "Cleaning up"
+	./scripts/relayer_hyperspace/cleanup.sh
+###############################################################################
+###                        Integration Tests                                ###
+###############################################################################
+
+integration-test-all: init-test-framework \
+	test-ibc-hooks
+
+init-test-framework: clean-testing-data install
+	@echo "Initializing both blockchains..."
+	./scripts/tests/init-test-framework.sh
+	./scripts/relayer/relayer-init.sh
+
+test-ibc-hooks:
+	@echo "Testing ibc-hooks..."
+	./scripts/tests/ibc-hooks/increment.sh

@@ -6,15 +6,17 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/codec"
-	ibctransferkeeper "github.com/cosmos/ibc-go/v7/modules/apps/transfer/keeper"
+	sdkmath "cosmossdk.io/math"
 
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	"github.com/cosmos/cosmos-sdk/codec"
+	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
+
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
-	"github.com/cosmos/ibc-go/v7/modules/core/exported"
+	"github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
+	"github.com/cosmos/ibc-go/v8/modules/core/exported"
 	custombankkeeper "github.com/notional-labs/composable/v6/custom/bank/keeper"
 	ibctransfermiddleware "github.com/notional-labs/composable/v6/x/ibctransfermiddleware/keeper"
 	ibctransfermiddlewaretypes "github.com/notional-labs/composable/v6/x/ibctransfermiddleware/types"
@@ -39,9 +41,10 @@ func NewKeeper(
 	scopedKeeper exported.ScopedKeeper,
 	ibcTransfermiddleware *ibctransfermiddleware.Keeper,
 	bankKeeper *custombankkeeper.Keeper,
+	authority string,
 ) Keeper {
 	keeper := Keeper{
-		Keeper:                ibctransferkeeper.NewKeeper(cdc, key, paramSpace, ics4Wrapper, channelKeeper, portKeeper, authKeeper, bk, scopedKeeper),
+		Keeper:                ibctransferkeeper.NewKeeper(cdc, key, paramSpace, ics4Wrapper, channelKeeper, portKeeper, authKeeper, bk, scopedKeeper, authority),
 		IbcTransfermiddleware: ibcTransfermiddleware,
 		cdc:                   cdc,
 		bank:                  bankKeeper,
@@ -59,7 +62,7 @@ func NewKeeper(
 func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.MsgTransferResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	params := k.IbcTransfermiddleware.GetParams(ctx)
-	charge_coin := sdk.NewCoin(msg.Token.Denom, sdk.ZeroInt())
+	charge_coin := sdk.NewCoin(msg.Token.Denom, sdkmath.ZeroInt())
 	if params.ChannelFees != nil && len(params.ChannelFees) > 0 {
 		channelFee := findChannelParams(params.ChannelFees, msg.SourceChannel)
 		if channelFee != nil {
@@ -121,7 +124,7 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 				return nil, send_err
 			}
 
-			if newAmount.LTE(sdk.ZeroInt()) {
+			if newAmount.LTE(sdkmath.ZeroInt()) {
 				return &types.MsgTransferResponse{}, nil
 			}
 			msg.Token.Amount = newAmount

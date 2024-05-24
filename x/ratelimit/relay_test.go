@@ -3,9 +3,10 @@ package ratelimit_test
 import (
 	"testing"
 
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	"github.com/stretchr/testify/suite"
 
 	customibctesting "github.com/notional-labs/composable/v6/app/ibctesting"
@@ -24,7 +25,7 @@ type RateLimitTestSuite struct {
 }
 
 func (suite *RateLimitTestSuite) SetupTest() {
-	suite.coordinator = customibctesting.NewCoordinator(suite.T(), 4)
+	suite.coordinator = customibctesting.NewCoordinator(suite.T(), 3)
 	suite.chainA = suite.coordinator.GetChain(customibctesting.GetChainID(1))
 	suite.chainB = suite.coordinator.GetChain(customibctesting.GetChainID(2))
 	suite.chainC = suite.coordinator.GetChain(customibctesting.GetChainID(3))
@@ -46,7 +47,7 @@ func TestKeeperTestSuite(t *testing.T) {
 
 func (suite *RateLimitTestSuite) TestReceiveIBCToken() {
 	var (
-		transferAmount = sdk.NewInt(1_000_000_000_000)
+		transferAmount = sdkmath.NewInt(1_000_000_000_000)
 		// when transfer via sdk transfer from A (module) -> B (contract)
 		ibcDenom                   = "ibc/C053D637CCA2A2BA030E2C5EE1B28A16F71CCB0E45E8BE52766DC1B241B77878"
 		nativeDenom                = "ppica"
@@ -110,16 +111,16 @@ func (suite *RateLimitTestSuite) TestReceiveIBCToken() {
 	msgAddRateLimit := ratelimittypes.MsgAddRateLimit{
 		Denom:              nativeDenom,
 		ChannelID:          path.EndpointB.ChannelID,
-		MaxPercentSend:     sdk.NewInt(5), // 50_000_000_000 > minRateLimitAmount(10_000_000_000) => RateLimit = 50_000_000_000
-		MaxPercentRecv:     sdk.NewInt(5), // 50_000_000_000 > minRateLimitAmount(10_000_000_000) => RateLimit = 50_000_000_000
-		MinRateLimitAmount: sdk.NewInt(10_000_000_000),
+		MaxPercentSend:     sdkmath.NewInt(5), // 50_000_000_000 > minRateLimitAmount(10_000_000_000) => RateLimit = 50_000_000_000
+		MaxPercentRecv:     sdkmath.NewInt(5), // 50_000_000_000 > minRateLimitAmount(10_000_000_000) => RateLimit = 50_000_000_000
+		MinRateLimitAmount: sdkmath.NewInt(10_000_000_000),
 		DurationHours:      1,
 	}
 	err = chainBRateLimitKeeper.AddRateLimit(suite.chainB.GetContext(), &msgAddRateLimit)
 	suite.Require().NoError(err)
 
 	// send from A to B
-	transferAmount = transferAmount.Mul(sdk.NewInt(5)).Quo(sdk.NewInt(100))
+	transferAmount = transferAmount.Mul(sdkmath.NewInt(5)).Quo(sdkmath.NewInt(100))
 	nativeTokenSendOnChainA = sdk.NewCoin(sdk.DefaultBondDenom, transferAmount)
 	msg = transfertypes.NewMsgTransfer(path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, nativeTokenSendOnChainA, suite.chainA.SenderAccount.GetAddress().String(), suite.chainB.SenderAccount.GetAddress().String(), timeoutHeight, 0, "")
 	_, err = suite.chainA.SendMsgs(msg)
@@ -166,7 +167,7 @@ func (suite *RateLimitTestSuite) TestReceiveIBCToken() {
 
 func (suite *RateLimitTestSuite) TestSendIBCToken() {
 	var (
-		transferAmount = sdk.NewInt(1_000_000_000_000)
+		transferAmount = sdkmath.NewInt(1_000_000_000_000)
 		// when transfer via sdk transfer from A (module) -> B (contract)
 		ibcDenom                   = "ibc/C053D637CCA2A2BA030E2C5EE1B28A16F71CCB0E45E8BE52766DC1B241B77878"
 		nativeDenom                = "ppica"
@@ -222,16 +223,16 @@ func (suite *RateLimitTestSuite) TestSendIBCToken() {
 	msgAddRateLimit := ratelimittypes.MsgAddRateLimit{
 		Denom:              nativeDenom,
 		ChannelID:          path.EndpointB.ChannelID,
-		MaxPercentSend:     sdk.NewInt(5), // 50_000_000_000 > minRateLimitAmount(10_000_000_000) => RateLimit = 50_000_000_000
-		MaxPercentRecv:     sdk.NewInt(5), // 50_000_000_000 > minRateLimitAmount(10_000_000_000) => RateLimit = 50_000_000_000
-		MinRateLimitAmount: sdk.NewInt(10_000_000_000),
+		MaxPercentSend:     sdkmath.NewInt(5), // 50_000_000_000 > minRateLimitAmount(10_000_000_000) => RateLimit = 50_000_000_000
+		MaxPercentRecv:     sdkmath.NewInt(5), // 50_000_000_000 > minRateLimitAmount(10_000_000_000) => RateLimit = 50_000_000_000
+		MinRateLimitAmount: sdkmath.NewInt(10_000_000_000),
 		DurationHours:      1,
 	}
 	err = chainBRateLimitKeeper.AddRateLimit(suite.chainB.GetContext(), &msgAddRateLimit)
 	suite.Require().NoError(err)
 
 	// send from B to A
-	transferAmount = transferAmount.Mul(sdk.NewInt(5)).Quo(sdk.NewInt(100))
+	transferAmount = transferAmount.Mul(sdkmath.NewInt(5)).Quo(sdkmath.NewInt(100))
 	nativeTokenSendOnChainB := sdk.NewCoin(nativeDenom, transferAmount)
 	msg = transfertypes.NewMsgTransfer(path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, nativeTokenSendOnChainB, suite.chainB.SenderAccount.GetAddress().String(), suite.chainA.SenderAccount.GetAddress().String(), timeoutHeight, 0, "")
 	_, err = suite.chainB.SendMsgs(msg)
@@ -274,7 +275,7 @@ func (suite *RateLimitTestSuite) TestSendIBCToken() {
 
 func (suite *RateLimitTestSuite) TestReceiveIBCTokenWithMinRateLimitAmount() {
 	var (
-		transferAmount = sdk.NewInt(100_000_000_000)
+		transferAmount = sdkmath.NewInt(100_000_000_000)
 		// when transfer via sdk transfer from A (module) -> B (contract)
 		ibcDenom                   = "ibc/C053D637CCA2A2BA030E2C5EE1B28A16F71CCB0E45E8BE52766DC1B241B77878"
 		nativeDenom                = "ppica"
@@ -338,16 +339,16 @@ func (suite *RateLimitTestSuite) TestReceiveIBCTokenWithMinRateLimitAmount() {
 	msgAddRateLimit := ratelimittypes.MsgAddRateLimit{
 		Denom:              nativeDenom,
 		ChannelID:          path.EndpointB.ChannelID,
-		MaxPercentSend:     sdk.NewInt(5), // 5_000_000_000 < minRateLimitAmount(10_000_000_000) => RateLimit = 10_000_000_000
-		MaxPercentRecv:     sdk.NewInt(5), // 5_000_000_000 < minRateLimitAmount(10_000_000_000) => RateLimit = 10_000_000_000
-		MinRateLimitAmount: sdk.NewInt(10_000_000_000),
+		MaxPercentSend:     sdkmath.NewInt(5), // 5_000_000_000 < minRateLimitAmount(10_000_000_000) => RateLimit = 10_000_000_000
+		MaxPercentRecv:     sdkmath.NewInt(5), // 5_000_000_000 < minRateLimitAmount(10_000_000_000) => RateLimit = 10_000_000_000
+		MinRateLimitAmount: sdkmath.NewInt(10_000_000_000),
 		DurationHours:      1,
 	}
 	err = chainBRateLimitKeeper.AddRateLimit(suite.chainB.GetContext(), &msgAddRateLimit)
 	suite.Require().NoError(err)
 
 	// send from A to B
-	transferAmount = sdk.NewInt(10_000_000_000)
+	transferAmount = sdkmath.NewInt(10_000_000_000)
 	nativeTokenSendOnChainA = sdk.NewCoin(sdk.DefaultBondDenom, transferAmount)
 	msg = transfertypes.NewMsgTransfer(path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, nativeTokenSendOnChainA, suite.chainA.SenderAccount.GetAddress().String(), suite.chainB.SenderAccount.GetAddress().String(), timeoutHeight, 0, "")
 	_, err = suite.chainA.SendMsgs(msg)
@@ -394,7 +395,7 @@ func (suite *RateLimitTestSuite) TestReceiveIBCTokenWithMinRateLimitAmount() {
 
 func (suite *RateLimitTestSuite) TestSendIBCTokenWithMinRateLimitAmount() {
 	var (
-		transferAmount = sdk.NewInt(100_000_000_000)
+		transferAmount = sdkmath.NewInt(100_000_000_000)
 		// when transfer via sdk transfer from A (module) -> B (contract)
 		ibcDenom                   = "ibc/C053D637CCA2A2BA030E2C5EE1B28A16F71CCB0E45E8BE52766DC1B241B77878"
 		nativeDenom                = "ppica"
@@ -459,16 +460,16 @@ func (suite *RateLimitTestSuite) TestSendIBCTokenWithMinRateLimitAmount() {
 	msgAddRateLimit := ratelimittypes.MsgAddRateLimit{
 		Denom:              nativeDenom,
 		ChannelID:          path.EndpointB.ChannelID,
-		MaxPercentSend:     sdk.NewInt(5), // 5_000_000_000 < minRateLimitAmount(10_000_000_000) => RateLimit = 10_000_000_000
-		MaxPercentRecv:     sdk.NewInt(5), // 5_000_000_000 < minRateLimitAmount(10_000_000_000) => RateLimit = 10_000_000_000
-		MinRateLimitAmount: sdk.NewInt(10_000_000_000),
+		MaxPercentSend:     sdkmath.NewInt(5), // 5_000_000_000 < minRateLimitAmount(10_000_000_000) => RateLimit = 10_000_000_000
+		MaxPercentRecv:     sdkmath.NewInt(5), // 5_000_000_000 < minRateLimitAmount(10_000_000_000) => RateLimit = 10_000_000_000
+		MinRateLimitAmount: sdkmath.NewInt(10_000_000_000),
 		DurationHours:      1,
 	}
 	err = chainBRateLimitKeeper.AddRateLimit(suite.chainB.GetContext(), &msgAddRateLimit)
 	suite.Require().NoError(err)
 
 	// send from B to A
-	transferAmount = sdk.NewInt(10_000_000_000)
+	transferAmount = sdkmath.NewInt(10_000_000_000)
 	nativeTokenSendOnChainB := sdk.NewCoin(nativeDenom, transferAmount)
 	msg = transfertypes.NewMsgTransfer(path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, nativeTokenSendOnChainB, suite.chainB.SenderAccount.GetAddress().String(), suite.chainA.SenderAccount.GetAddress().String(), timeoutHeight, 0, "")
 	_, err = suite.chainB.SendMsgs(msg)
