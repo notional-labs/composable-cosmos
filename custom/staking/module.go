@@ -2,9 +2,10 @@ package bank
 
 import (
 	"context"
+	"fmt"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 
-	"fmt"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	stakingmodule "github.com/cosmos/cosmos-sdk/x/staking"
