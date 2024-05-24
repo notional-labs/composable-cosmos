@@ -55,7 +55,6 @@ func setup(withGenesis bool, chainID string) (*ComposableApp, GenesisState) {
 		DefaultNodeHome,
 		5,
 		EmptyBaseAppOptions{},
-		nil,
 		baseapp.SetChainID(chainID),
 	)
 	if withGenesis {

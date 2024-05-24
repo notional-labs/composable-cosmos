@@ -50,5 +50,5 @@ func TestChangeValSet(t *testing.T) {
 	err = path.EndpointB.UpdateClient()
 	require.NoError(t, err)
 	err = path.EndpointB.UpdateClient()
-	require.NoError(t, err)
+	require.Error(t, err)
 }

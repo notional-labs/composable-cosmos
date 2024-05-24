@@ -322,7 +322,6 @@ func appExport(
 			homePath,
 			uint(1),
 			appOpts,
-			nil,
 		)
 
 		if err := anApp.LoadHeight(height); err != nil {
@@ -338,7 +337,6 @@ func appExport(
 			homePath,
 			uint(1),
 			appOpts,
-			nil,
 		)
 	}
 

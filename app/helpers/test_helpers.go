@@ -70,7 +70,6 @@ func setup(withGenesis bool, invCheckPeriod uint) (*composable.ComposableApp, co
 		composable.DefaultNodeHome,
 		invCheckPeriod,
 		EmptyAppOptions{},
-		nil,
 	)
 	if withGenesis {
 		return app, composable.NewDefaultGenesisState()

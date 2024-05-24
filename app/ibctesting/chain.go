@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	wasm08 "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/keeper"
+
 	"cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
@@ -82,6 +84,7 @@ type ChainApp interface {
 	GetGovKeeper() *govkeeper.Keeper
 	GetAccountKeeper() authkeeper.AccountKeeper
 	GetWasmKeeper() wasmkeeper.Keeper
+	GetWasm08Keeper() wasm08.Keeper
 	GetPfmKeeper() packetforwardkeeper.Keeper
 	GetRateLimitKeeper() ratelimitmodulekeeper.Keeper
 	GetTransferMiddlewareKeeper() transfermiddlewarekeeper.Keeper
@@ -746,6 +749,10 @@ func (chain *TestChain) AllBalances(acc sdk.AccAddress) sdk.Coins {
 
 func (chain *TestChain) GetBankKeeper() bankkeeper.Keeper {
 	return chain.App.GetBankKeeper()
+}
+
+func (chain TestChain) Wasm08Keeper() wasm08.Keeper {
+	return chain.App.GetWasm08Keeper()
 }
 
 func (chain *TestChain) QueryContract(suite *suite.Suite, contract sdk.AccAddress, key []byte) string {
