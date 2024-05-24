@@ -40,11 +40,6 @@ import (
 	// this line is used by starport scaffolding # stargate/root/import
 )
 
-const (
-	// if set, than uses specific key for governance instead of default (default is production; this override for local devtest)
-	flagDevnetGov = "devnet-gov"
-)
-
 var ChainID string
 
 // NewRootCmd creates a new root command for simd. It is called once in the
@@ -59,8 +54,6 @@ func NewRootCmd() (*cobra.Command, app.EncodingConfig) {
 		app.DefaultNodeHome,
 		5,
 		EmptyAppOptions{},
-		nil,
-		nil,
 	)
 
 	encodingConfig := app.EncodingConfig{
@@ -229,7 +222,6 @@ func initRootCmd(rootCmd *cobra.Command, txConfig client.TxConfig) {
 
 func addModuleInitFlags(startCmd *cobra.Command) {
 	crisis.AddModuleInitFlags(startCmd)
-	startCmd.Flags().String(flagDevnetGov, "", "Sets the devnet governance key (if not set, uses the default production key)")
 	// this line is used by starport scaffolding # stargate/root/initFlags
 }
 
@@ -293,12 +285,6 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, appOpts serverty
 		}
 		skipUpgradeHeights[h] = true
 	}
-
-	var devnetGov *string
-	devnetGovOption, _ := appOpts.Get(flagDevnetGov).(string)
-	if devnetGovOption != "" {
-		devnetGov = &devnetGovOption
-	}
 	baseappOptions := server.DefaultBaseappOptions(appOpts)
 
 	newApp := app.NewComposableApp(
@@ -308,7 +294,6 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, appOpts serverty
 		cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod)),
 		// this line is used by starport scaffolding # stargate/root/appArgument
 		appOpts,
-		devnetGov,
 		baseappOptions...,
 	)
 

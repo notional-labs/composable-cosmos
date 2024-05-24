@@ -185,14 +185,8 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 	skipUpgradeHeights map[int64]bool,
 	homePath string,
 	appOpts servertypes.AppOptions,
-	devnetGov *string,
 ) {
 	govModAddress := authtypes.NewModuleAddress(govtypes.ModuleName).String()
-
-	if devnetGov != nil {
-		govModAddress = *devnetGov
-	}
-
 	// add keepers
 	appKeepers.AccountKeeper = authkeeper.NewAccountKeeper(
 		appCodec, runtime.NewKVStoreService(appKeepers.keys[authtypes.StoreKey]), authtypes.ProtoBaseAccount, maccPerms, authcodec.NewBech32Codec(sdk.GetConfig().GetBech32AccountAddrPrefix()), AccountAddressPrefix, govModAddress,

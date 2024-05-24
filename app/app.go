@@ -270,7 +270,6 @@ func NewComposableApp(
 	homePath string,
 	invCheckPeriod uint,
 	appOpts servertypes.AppOptions,
-	devnetGov *string,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *ComposableApp {
 	interfaceRegistry, err := types.NewInterfaceRegistryWithOptions(types.InterfaceRegistryOptions{
@@ -329,7 +328,6 @@ func NewComposableApp(
 		skipUpgradeHeights,
 		homePath,
 		appOpts,
-		devnetGov,
 	)
 
 	// transferModule := transfer.NewAppModule(app.TransferKeeper)
