@@ -1,8 +1,10 @@
 package bank
 
 import (
-	"fmt"
+	"context"
+	abci "github.com/cometbft/cometbft/abci/types"
 
+	"fmt"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	stakingmodule "github.com/cosmos/cosmos-sdk/x/staking"
@@ -59,4 +61,8 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	if err := cfg.RegisterMigration(stakingtypes.ModuleName, 4, m.Migrate4to5); err != nil {
 		panic(fmt.Sprintf("failed to migrate x/staking from version 4 to 5: %v", err))
 	}
+}
+
+func (am AppModule) EndBlock(ctx context.Context) ([]abci.ValidatorUpdate, error) {
+	return EndBlocker(ctx, &am.keeper)
 }

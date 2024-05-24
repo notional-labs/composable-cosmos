@@ -29,7 +29,7 @@ type Keeper struct {
 	authKeeper        minttypes.AccountKeeper
 }
 
-func (k Keeper) BlockValidatorUpdates(ctx sdk.Context, height int64) []abcicometbft.ValidatorUpdate {
+func (k Keeper) BlockValidatorUpdates(ctx context.Context) ([]abcicometbft.ValidatorUpdate, error) {
 	// Calculate validator set changes.
 	//
 	// NOTE: ApplyAndReturnValidatorSetUpdates has to come before
@@ -39,7 +39,9 @@ func (k Keeper) BlockValidatorUpdates(ctx sdk.Context, height int64) []abcicomet
 	// unbonded after the Endblocker (go from Bonded -> Unbonding during
 	// ApplyAndReturnValidatorSetUpdates and then Unbonding -> Unbonded during
 	// UnbondAllMatureValidatorQueue).
-	params := k.Stakingmiddleware.GetParams(ctx)
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	params := k.Stakingmiddleware.GetParams(sdkCtx)
+	height := sdkCtx.BlockHeight()
 	shouldExecuteBatch := (height % int64(params.BlocksPerEpoch)) == 0
 	var validatorUpdates []abcicometbft.ValidatorUpdate
 	if shouldExecuteBatch {
@@ -52,17 +54,20 @@ func (k Keeper) BlockValidatorUpdates(ctx sdk.Context, height int64) []abcicomet
 	}
 
 	// unbond all mature validators from the unbonding queue
-	k.UnbondAllMatureValidators(ctx)
+	err := k.UnbondAllMatureValidators(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	// Remove all mature unbonding delegations from the ubd queue.
-	matureUnbonds, err := k.DequeueAllMatureUBDQueue(ctx, ctx.BlockHeader().Time)
+	matureUnbonds, err := k.DequeueAllMatureUBDQueue(ctx, sdkCtx.BlockHeader().Time)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	for _, dvPair := range matureUnbonds {
 		addr, err := sdk.ValAddressFromBech32(dvPair.ValidatorAddress)
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 		delegatorAddress := sdk.MustAccAddressFromBech32(dvPair.DelegatorAddress)
 
@@ -71,7 +76,7 @@ func (k Keeper) BlockValidatorUpdates(ctx sdk.Context, height int64) []abcicomet
 			continue
 		}
 
-		ctx.EventManager().EmitEvent(
+		sdkCtx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeCompleteUnbonding,
 				sdk.NewAttribute(sdk.AttributeKeyAmount, balances.String()),
@@ -82,18 +87,18 @@ func (k Keeper) BlockValidatorUpdates(ctx sdk.Context, height int64) []abcicomet
 	}
 
 	// Remove all mature redelegations from the red queue.
-	matureRedelegations, err := k.DequeueAllMatureRedelegationQueue(ctx, ctx.BlockHeader().Time)
+	matureRedelegations, err := k.DequeueAllMatureRedelegationQueue(ctx, sdkCtx.BlockHeader().Time)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	for _, dvvTriplet := range matureRedelegations {
 		valSrcAddr, err := sdk.ValAddressFromBech32(dvvTriplet.ValidatorSrcAddress)
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 		valDstAddr, err := sdk.ValAddressFromBech32(dvvTriplet.ValidatorDstAddress)
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 		delegatorAddress := sdk.MustAccAddressFromBech32(dvvTriplet.DelegatorAddress)
 
@@ -107,7 +112,7 @@ func (k Keeper) BlockValidatorUpdates(ctx sdk.Context, height int64) []abcicomet
 			continue
 		}
 
-		ctx.EventManager().EmitEvent(
+		sdkCtx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeCompleteRedelegation,
 				sdk.NewAttribute(sdk.AttributeKeyAmount, balances.String()),
@@ -118,7 +123,7 @@ func (k Keeper) BlockValidatorUpdates(ctx sdk.Context, height int64) []abcicomet
 		)
 	}
 
-	return validatorUpdates
+	return validatorUpdates, nil
 }
 
 func NewKeeper(
