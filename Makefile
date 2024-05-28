@@ -214,6 +214,7 @@ pica-upgrade:
 
 relayer-test-cleanup:
 	@echo "Cleaning up"
+	@rm -rf mytestnet > /dev/null 2>&1
 	@killall parachain-node > /dev/null 2>&1
 	@killall polkadot > /dev/null 2>&1
 	@./scripts/relayer_hyperspace/cleanup.sh
