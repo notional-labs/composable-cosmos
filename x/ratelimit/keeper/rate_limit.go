@@ -282,7 +282,6 @@ func (k Keeper) GetAllRateLimits(ctx sdk.Context) []types.RateLimit {
 
 	allRateLimits := []types.RateLimit{}
 	for ; iterator.Valid(); iterator.Next() {
-
 		rateLimit := types.RateLimit{}
 		k.cdc.MustUnmarshal(iterator.Value(), &rateLimit)
 		allRateLimits = append(allRateLimits, rateLimit)

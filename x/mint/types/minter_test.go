@@ -143,7 +143,6 @@ func TestSimulateMint(t *testing.T) {
 	tokenMinted := sdk.NewCoin("stake", sdk.NewInt(0))
 
 	for i := 1; i <= int(params.BlocksPerYear); i++ {
-
 		stakingDiff := sdk.NewDec(int64(rand.Intn(10))).QuoInt(sdk.NewInt(1_000_000)).MulInt(totalSupply)
 		if (rand.Float32() > 0.5 || totalStaked.Add(stakingDiff.RoundInt()).GT(totalSupply)) && !totalStaked.Sub(stakingDiff.RoundInt()).IsNegative() {
 			stakingDiff = stakingDiff.Neg()

@@ -38,7 +38,6 @@ func (k Keeper) RateLimitsByChainID(goCtx context.Context, req *types.QueryRateL
 
 	rateLimits := []types.RateLimit{}
 	for _, rateLimit := range k.GetAllRateLimits(ctx) {
-
 		// Determine the client state from the channel Id
 		_, clientState, err := k.channelKeeper.GetChannelClientState(ctx, transfertypes.PortID, rateLimit.Path.ChannelID)
 		if err != nil {

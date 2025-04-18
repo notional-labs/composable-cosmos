@@ -55,7 +55,6 @@ func (g StakingPermissionDecorator) ValidateStakingMsgs(ctx sdk.Context, msgs []
 
 func (g StakingPermissionDecorator) ValidateStakingMsg(ctx sdk.Context, msg sdk.Msg) error {
 	switch msg := msg.(type) {
-
 	case *stakingtypes.MsgDelegate:
 		if err := g.validDelegateMsg(ctx, msg); err != nil {
 			return err

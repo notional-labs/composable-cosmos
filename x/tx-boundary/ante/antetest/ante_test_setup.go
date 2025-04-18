@@ -44,7 +44,7 @@ type Suite struct {
 
 func (s *Suite) SetupTest() {
 	s.app, s.delegator, s.validators = helpers.SetupComposableAppWithValSetWithGenAccout(s.T())
-	s.ctx = s.app.BaseApp.NewContext(false, tmproto.Header{Height: 1, ChainID: "centauri-1", Time: time.Now().UTC()})
+	s.ctx = s.app.NewContext(false, tmproto.Header{Height: 1, ChainID: "centauri-1", Time: time.Now().UTC()})
 	err := app.FundAccount(s.app.BankKeeper, s.ctx, s.delegator, BaseBalance)
 	require.NoError(s.T(), err)
 

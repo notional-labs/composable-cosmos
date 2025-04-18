@@ -1,125 +1,169 @@
+version: "2"
 run:
-  tests: true
-  timeout: 10m
-  sort-results: true
   allow-parallel-runners: true
-
+  deadline: 5m
+  issues-exit-code: 1
+  tests: true
+  fast: true
+  concurrency: 4
 linters:
-  disable-all: true
+  default: none
   enable:
-    - exportloopref
     - errcheck
-    - gci
     - goconst
     - gocritic
-    - gofumpt
     - gosec
-    - gosimple
     - govet
     - ineffassign
     - misspell
     - nakedret
+    - revive
     - staticcheck
     - thelper
-    - typecheck
-    - stylecheck
-    - revive
-    - typecheck
-    - tenv
     - unconvert
     - unparam
     - unused
-    - misspell
-
+    - gocognit
+    - gocyclo
+    - gochecknoglobals
+    - gochecknoinits
+    - godox
+    - dupl
+    - grouper
+    - prealloc
+    - wastedassign
+    - whitespace
+  settings:
+    gocognit:
+      min-complexity: 15
+    gocyclo:
+      min-complexity: 15
+    dupl:
+      threshold: 100
+    gocritic:
+      enabled-tags:
+        - performance
+        - style
+        - experimental
+      disabled-checks:
+        - wrapperFunc
+        - dupImport
+    revive:
+      enable-all-rules: true
+      rules:
+        - name: cognitive-complexity
+          arguments: [15]
+        - name: cyclomatic
+          arguments: [15]
+        - name: function-length
+          arguments: [50, 30]
+        - name: line-length-limit
+          arguments: [120]
+        - name: early-return
+        - name: unused-parameter
+        - name: use-any
+          disabled: true
+        - name: if-return
+          disabled: true
+        - name: max-public-structs
+          disabled: true
+        - name: argument-limit
+          disabled: true
+        - name: flag-parameter
+          disabled: true
+        - name: add-constant
+          disabled: true
+        - name: empty-lines
+          disabled: true
+        - name: banned-characters
+          disabled: true
+        - name: deep-exit
+          disabled: true
+        - name: confusing-results
+          disabled: true
+        - name: modifies-value-receiver
+          disabled: true
+        - name: confusing-naming
+          disabled: true
+        - name: defer
+          disabled: true
+        - name: unhandled-error
+          arguments:
+            - fmt.Printf
+            - fmt.Print
+            - fmt.Println
+          disabled: true
+        - name: import-shadowing
+          disabled: true
+        - name: var-naming
+          disabled: true
+        - name: unchecked-type-assertion
+          disabled: true
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - revive
+        text: differs only by capitalization to method
+      - linters:
+          - gosec
+        text: Use of weak random number generator
+      - linters:
+          - staticcheck
+        text: 'SA1019:'
+      - linters:
+          - staticcheck
+        text: 'ST1003:'
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+      - .*\.pb\.go$
+      - .*\.pb\.gw\.go$
+      - .*\.pb\.micro\.go$
 issues:
-  exclude-rules:
-    - text: 'differs only by capitalization to method'
-      linters:
-        - revive
-    - text: 'Use of weak random number generator'
-      linters:
-        - gosec
-    - linters:
-        - staticcheck
-      text: "SA1019:" # silence errors on usage of deprecated funcs
-    - linters:
-        - stylecheck
-      text: "ST1003:" # silence errors on usage of deprecated funcs
-
   max-issues-per-linter: 10000
   max-same-issues: 10000
-
-linters-settings:
-  gci:
-    sections:
-      - standard # Standard section: captures all standard packages.
-      - default # Default section: contains all imports that could not be matched to another section type.
-      - blank # blank imports
-      - dot # dot imports
-      - prefix(cosmossdk.io)
-      - prefix(github.com/cosmos/cosmos-sdk)
-      - prefix(github.com/cometbft/cometbft)
-      - prefix(github.com/cosmos/ibc-go)
-      - prefix(github.com/composablefi/composable-cosmos)
-    custom-order: true
-  revive:
-    enable-all-rules: true
-    # Do NOT whine about the following, full explanation found in:
-    # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#description-of-available-rules
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - dupl
+        - gocyclo
+        - gocognit
+  severity:
+    default-severity: warning
     rules:
-      - name: use-any
-        disabled: true
-      - name: if-return
-        disabled: true
-      - name: max-public-structs
-        disabled: true
-      - name: cognitive-complexity
-        disabled: true
-      - name: argument-limit
-        disabled: true
-      - name: cyclomatic
-        disabled: true
-      - name: file-header
-        disabled: true
-      - name: function-length
-        disabled: true
-      - name: function-result-limit
-        disabled: true
-      - name: line-length-limit
-        disabled: true
-      - name: flag-parameter
-        disabled: true
-      - name: add-constant
-        disabled: true
-      - name: empty-lines
-        disabled: true
-      - name: banned-characters
-        disabled: true
-      - name: deep-exit
-        disabled: true
-      - name: confusing-results
-        disabled: true
-      - name: unused-parameter
-        disabled: true
-      - name: modifies-value-receiver
-        disabled: true
-      - name: early-return
-        disabled: true
-      - name: confusing-naming
-        disabled: true
-      - name: defer
-        disabled: true
-      - name: unused-parameter # Disabled in favour of unparam.
-        disabled: true
-      - name: unhandled-error  # Disabled in favour of errcheck.
-        disabled: true
-        arguments:
-          - 'fmt.Printf'
-          - 'fmt.Print'
-          - 'fmt.Println'
-      - name: import-shadowing       # Disabled temporarily
-        disabled: true
-      - name: var-naming # Disabled temporarily
-        disabled: true
-      - name: unchecked-type-assertion # Disabled temporarily
-        disabled: true
+      - severity: error
+        linters:
+          - errcheck
+          - govet
+          - staticcheck
+          - gosec
+formatters:
+  enable:
+    - gci
+    - gofumpt
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - blank
+        - dot
+        - prefix(cosmossdk.io)
+        - prefix(github.com/cosmos/cosmos-sdk)
+        - prefix(github.com/cometbft/cometbft)
+        - prefix(github.com/cosmos/ibc-go)
+        - prefix(github.com/composablefi/composable-cosmos)
+      custom-order: true
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
